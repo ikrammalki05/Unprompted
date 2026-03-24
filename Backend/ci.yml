@@ -1,0 +1,55 @@
+name: CI — Backend (.NET)
+
+on:
+  push:
+    paths:
+      - 'Backend/**'
+      - '.github/workflows/ci-backend.yml'
+  pull_request:
+    paths:
+      - 'Backend/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        working-directory: Backend
+        run: dotnet restore
+
+      - name: Build
+        working-directory: Backend
+        run: dotnet build -c Release --no-restore
+
+      - name: Run tests
+        working-directory: Backend
+        run: dotnet test -c Release --no-build --verbosity normal
+
+      - name: Build Docker image
+        run: |
+          docker build -f Backend/DOCKERFILE -t ai-governance/backend:${{ github.sha }} Backend/
+          docker tag ai-governance/backend:${{ github.sha }} ai-governance/backend:latest
+
+      - name: Security scan (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ai-governance/backend:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+
+      - name: Push to registry
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        run: |
+          echo ${{ secrets.REGISTRY_PASSWORD }} | docker login ${{ secrets.REGISTRY_URL }} \
+            -u ${{ secrets.REGISTRY_USER }} --password-stdin
+          docker push ${{ secrets.REGISTRY_URL }}/ai-governance/backend:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_URL }}/ai-governance/backend:latest

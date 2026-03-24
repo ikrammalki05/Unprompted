@@ -1,0 +1,16 @@
+# Environment — NEVER commit secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Docker
+*.tar

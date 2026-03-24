@@ -1,0 +1,97 @@
+version: '3.9'
+
+networks:
+  platform:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-platform}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-platform}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_governance}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks: [platform]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U platform"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: DOCKERFILE
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ai_governance;Username=${POSTGRES_USER:-platform};Password=${POSTGRES_PASSWORD:-platform}
+      - ConnectionStrings__Redis=redis:6379
+      - JwtSettings__Secret=${JWT_SECRET:-super-secret-dev-key-change-in-prod}
+      - JwtSettings__Issuer=ai-governance
+      - JwtSettings__Audience=ai-governance-client
+      - JwtSettings__ExpiryMinutes=60
+      - AiService__BaseUrl=http://ai:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks: [platform]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  ai:
+    build:
+      context: ./AI
+      dockerfile: DOCKERFILE
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://platform:${POSTGRES_PASSWORD:-platform}@postgres:5432/ai_governance
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks: [platform]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: DOCKERFILE
+      args:
+        VITE_API_URL: http://localhost:5000
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+      - ai
+    networks: [platform]
