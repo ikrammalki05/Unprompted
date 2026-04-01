@@ -14,3 +14,27 @@ Thumbs.db
 
 # Docker
 *.tar
+
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.log
+
+## Rider
+.idea/
+
+## VS Code
+.vscode/
+
+## Environment secrets — NEVER commit these
+appsettings.Development.json
+appsettings.Local.json
+*.env
+.env
+
+## Publish output
+publish/
+out/
