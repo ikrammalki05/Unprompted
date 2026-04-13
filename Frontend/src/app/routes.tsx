@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { LoginPage } from '../pages/LoginPage';
+import { DashboardPage } from '../pages/DashboardPage'; // 👈 Ajoute cet import
 
 export const router = createBrowserRouter([
   {
@@ -7,14 +8,13 @@ export const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
-    // Redirection par défaut : si l'utilisateur arrive sur la racine '/', 
-    // on l'envoie vers la page de connexion pour l'instant.
-    path: '/',
-    element: <Navigate to="/login" replace />,
+    path: '/dashboard', // 👈 Nouvelle route pour le dashboard
+    element: <DashboardPage />,
   },
   {
-    // Page 404 (Optionnel pour le moment) : si l'URL n'existe pas
-    path: '*',
-    element: <div className="flex h-screen items-center justify-center">Page introuvable</div>,
-  }
+    path: '/',
+    // Tu pourras changer ça plus tard pour vérifier si l'utilisateur est connecté
+    element: <Navigate to="/dashboard" replace />, 
+  },
+  // ...
 ]);
