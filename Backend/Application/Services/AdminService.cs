@@ -1,7 +1,6 @@
 using Application.DTOs;
 using Application.Interfaces;
-using Infrastructure; // Pour l'entité Affectation
-using Infrastructure.Data; // Uniquement si l'Affectation n'a pas de Repository propre
+using Infrastructure.Entities; // Assure-toi que c'est le bon namespace pour tes entités
 
 namespace Application.Services;
 
@@ -10,25 +9,23 @@ public class AdminService : IAdminService
     private readonly IEtudiantRepository _etudiantRepo;
     private readonly IEnseignantRepository _enseignantRepo;
     private readonly IClasseRepository _classeRepo;
-    // Si ton collègue n'a pas créé de IAffectationRepository, 
-    // on injecte le DbContext juste pour cette action spécifique.
-    private readonly IAffectationRepository _affectationRepo; 
+    private readonly IAffectationRepository _affectationRepo; // Parfait, on utilise le repo
 
+    // On injecte bien IAffectationRepository ici, et on retire AppDbContext
     public AdminService(
         IEtudiantRepository etudiantRepo, 
         IEnseignantRepository enseignantRepo, 
         IClasseRepository classeRepo,
-        AppDbContext context)
+        IAffectationRepository affectationRepo)
     {
         _etudiantRepo = etudiantRepo;
         _enseignantRepo = enseignantRepo;
         _classeRepo = classeRepo;
-        _context = context;
+        _affectationRepo = affectationRepo;
     }
 
     public async Task<object> GetDashboardStatsAsync()
     {
-        // On récupère les compteurs pour les 3 cartes Figma
         var totalEtudiants = await _etudiantRepo.CountAsync();
         var totalEnseignants = await _enseignantRepo.CountAsync();
         var totalClasses = await _classeRepo.CountAsync();
@@ -49,18 +46,17 @@ public class AdminService : IAdminService
         if (enseignant == null || classe == null)
             throw new ArgumentException("Enseignant ou Classe introuvable.");
 
-        // On cherche le rôle "Enseignant Réfèrent" (IdRole = 2 par exemple, selon ton DB seed)
         int idRoleEnseignant = 2; 
 
-        var nouvelleAffectation = new Affectation
+        var nouvelleAffectation = new Domain.Entities.Affectation // Fais attention au namespace
         {
             IdEnseignant = request.IdEnseignant,
-            IdGroupe = request.IdClasse, // Groupe = Classe
+            IdGroupe = request.IdClasse,
             IdRole = idRoleEnseignant,
             DateAffectation = DateTime.UtcNow
         };
 
-        _context.Affectations.Add(nouvelleAffectation);
+        // ON GARDE UNIQUEMENT CELLE-CI :
         await _affectationRepo.AddAsync(nouvelleAffectation);
 
         return true;

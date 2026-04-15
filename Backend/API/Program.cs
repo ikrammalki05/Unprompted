@@ -66,8 +66,40 @@ builder.Services.AddScoped<IEtudiantService, Application.Services.EtudiantServic
 builder.Services.AddScoped<IEnseignantService, Application.Services.EnseignantService>();
 builder.Services.AddScoped<IClasseService, Application.Services.ClasseService>();
 builder.Services.AddScoped<IAdminService, Application.Services.AdminService>();
+builder.Services.AddScoped<IAffectationRepository, AffectationRepository>();
+
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c => {
+    c.SwaggerDoc("v1", new() { Title = "Unprompted API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Entrez 'Bearer' [espace] et votre token JWT."
+    });
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
