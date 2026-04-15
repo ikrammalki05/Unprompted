@@ -6,10 +6,12 @@ namespace Application.Services;
 public class EtudiantService : IEtudiantService
 {
     private readonly IEtudiantRepository _etudiantRepo;
+    private readonly IUtilisateurRepository _utilisateurRepo;
 
-    public EtudiantService(IEtudiantRepository etudiantRepo)
+   public EtudiantService(IEtudiantRepository etudiantRepo, IUtilisateurRepository utilisateurRepo)
     {
         _etudiantRepo = etudiantRepo;
+        _utilisateurRepo = utilisateurRepo;
     }
 
     public async Task<IEnumerable<EtudiantDto>> GetAllEtudiantsAsync()

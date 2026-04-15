@@ -12,7 +12,7 @@ public class AdminService : IAdminService
     private readonly IClasseRepository _classeRepo;
     // Si ton collègue n'a pas créé de IAffectationRepository, 
     // on injecte le DbContext juste pour cette action spécifique.
-    private readonly AppDbContext _context; 
+    private readonly IAffectationRepository _affectationRepo; 
 
     public AdminService(
         IEtudiantRepository etudiantRepo, 
@@ -61,7 +61,7 @@ public class AdminService : IAdminService
         };
 
         _context.Affectations.Add(nouvelleAffectation);
-        await _context.SaveChangesAsync();
+        await _affectationRepo.AddAsync(nouvelleAffectation);
 
         return true;
     }

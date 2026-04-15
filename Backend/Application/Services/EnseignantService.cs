@@ -6,10 +6,12 @@ namespace Application.Services;
 public class EnseignantService : IEnseignantService
 {
     private readonly IEnseignantRepository _enseignantRepo;
+    private readonly IUtilisateurRepository _utilisateurRepo;
 
-    public EnseignantService(IEnseignantRepository enseignantRepo)
+    public EnseignantService(IEnseignantRepository enseignantRepo, IUtilisateurRepository utilisateurRepo)
     {
         _enseignantRepo = enseignantRepo;
+        _utilisateurRepo = utilisateurRepo;
     }
 
     public async Task<IEnumerable<EnseignantDto>> GetAllEnseignantsAsync()
@@ -31,4 +33,38 @@ public class EnseignantService : IEnseignantService
                 : new List<string>()
         });
     }
+
+    public async Task<EnseignantDto> CreateEnseignantAsync(EnseignantCreateDto request)
+    {
+        var existingUser = await _utilisateurRepo.GetByEmailAsync(request.Email);
+        if (existingUser != null)
+            throw new Exception("Un utilisateur avec cet email existe déjà.");
+
+        var nouvelUtilisateur = new Domain.Entities.Utilisateur
+        {
+            Nom = request.Nom,
+            Prenom = request.Prenom,
+            Email = request.Email,
+            Statut = "Actif"
+        };
+        await _utilisateurRepo.AddAsync(nouvelUtilisateur);
+
+        var nouvelEnseignant = new Domain.Entities.Enseignant
+        {
+            IdUtilisateur = nouvelUtilisateur.IdUtilisateur,
+            Specialite = request.Specialite
+        };
+        await _enseignantRepo.AddAsync(nouvelEnseignant);
+
+        return new EnseignantDto
+        {
+            Id = nouvelEnseignant.IdEnseignant,
+            NomComplet = $"{nouvelUtilisateur.Prenom} {nouvelUtilisateur.Nom}",
+            Email = nouvelUtilisateur.Email,
+            Specialite = nouvelEnseignant.Specialite,
+            Statut = nouvelUtilisateur.Statut,
+            ClassesAssignees = new List<string>()
+        };
+    }
+    
 }

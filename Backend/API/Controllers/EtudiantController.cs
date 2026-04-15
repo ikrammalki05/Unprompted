@@ -24,4 +24,21 @@ public class EtudiantController : ControllerBase
         var etudiants = await _etudiantService.GetAllEtudiantsAsync();
         return Ok(etudiants);
     }
+
+    // POST: api/etudiant
+    [HttpPost]
+    public async Task<IActionResult> CreateEtudiant([FromBody] EtudiantCreateDto request)
+    {
+        try
+        {
+            var result = await _etudiantService.CreateEtudiantAsync(request);
+            // Renvoie un code 201 Created avec l'objet créé
+            return CreatedAtAction(nameof(GetEtudiants), new { id = result.Id }, result); 
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+    
 }

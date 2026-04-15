@@ -24,4 +24,20 @@ public class EnseignantController : ControllerBase
         var enseignants = await _enseignantService.GetAllEnseignantsAsync();
         return Ok(enseignants);
     }
+
+    // POST: api/enseignant
+    [HttpPost]
+    public async Task<IActionResult> CreateEnseignant([FromBody] EnseignantCreateDto request)
+    {
+        try
+        {
+            var result = await _enseignantService.CreateEnseignantAsync(request);
+            return CreatedAtAction(nameof(GetEnseignants), new { id = result.Id }, result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+    
 }
