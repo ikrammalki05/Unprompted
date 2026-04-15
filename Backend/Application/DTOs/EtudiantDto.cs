@@ -1,9 +1,11 @@
 namespace Application.DTOs;
 
-public class EtudiantDto : UtilisateurDto
+public class EtudiantDto
 {
-    public int IdEtudiant { get; set; }
+    public int Id { get; set; }
     public string CodeApogee { get; set; } = string.Empty;
-    public string? Niveau { get; set; }
-    public string? Filiere { get; set; }
+    public string NomComplet { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string ClasseNom { get; set; } = "Non assigné"; // Ex: "Master IABD - G1"
+    public string Statut { get; set; } = "Inactif"; // Actif ou Inactif
 }
