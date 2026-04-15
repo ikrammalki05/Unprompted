@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -56,19 +55,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+
+// Repositories
 builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
 builder.Services.AddScoped<IEtudiantRepository, EtudiantRepository>();
 builder.Services.AddScoped<IEnseignantRepository, EnseignantRepository>();
 builder.Services.AddScoped<IClasseRepository, ClasseRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IAffectationRepository, AffectationRepository>();
 
+// Services
 builder.Services.AddScoped<IEtudiantService, Application.Services.EtudiantService>();
 builder.Services.AddScoped<IEnseignantService, Application.Services.EnseignantService>();
 builder.Services.AddScoped<IClasseService, Application.Services.ClasseService>();
 builder.Services.AddScoped<IAdminService, Application.Services.AdminService>();
-builder.Services.AddScoped<IAffectationRepository, AffectationRepository>();
 
-
+// Swagger Config
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new() { Title = "Unprompted API", Version = "v1" });

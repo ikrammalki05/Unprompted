@@ -1,6 +1,6 @@
 using Application.DTOs;
 using Application.Interfaces;
-using Infrastructure.Entities; // Assure-toi que c'est le bon namespace pour tes entités
+using Domain.Entities;
 
 namespace Application.Services;
 
