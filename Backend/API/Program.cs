@@ -1,45 +1,76 @@
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Infrastructure.Data;
-using Application.Interfaces; // Permet de trouver IGroupeService, etc.
-using Application.Services;   // Permet de trouver GroupeService, etc.
+using Application.Interfaces; 
+using Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configuration de la Base de Données (Ton code)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
-// 2. Activer les Contrôleurs
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = builder.Configuration["Keycloak:Authority"];
+        options.Audience = builder.Configuration["Keycloak:Audience"];
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            NameClaimType = "preferred_username",
+            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = context =>
+            {
+                var claimsIdentity = context.Principal?.Identity as System.Security.Claims.ClaimsIdentity;
+                if (claimsIdentity == null) return Task.CompletedTask;
+
+                var realmAccess = context.Principal?.FindFirst("realm_access")?.Value;
+                if (realmAccess == null) return Task.CompletedTask;
+
+                var parsed = System.Text.Json.JsonDocument.Parse(realmAccess);
+                if (parsed.RootElement.TryGetProperty("roles", out var roles))
+                {
+                    foreach (var role in roles.EnumerateArray())
+                    {
+                        claimsIdentity.AddClaim(new System.Security.Claims.Claim(
+                            System.Security.Claims.ClaimsIdentity.DefaultRoleClaimType,
+                            role.GetString() ?? ""
+                        ));
+                    }
+                }
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
+builder.Services.AddScoped<IEtudiantRepository, EtudiantRepository>();
+builder.Services.AddScoped<IEnseignantRepository, EnseignantRepository>();
+builder.Services.AddScoped<IClasseRepository, ClasseRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 
-// 3. Activer Swagger (L'interface pour tester l'API)
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// 4. INJECTION DE DÉPENDANCES (Le lien Menu -> Cuisine)
-// "À chaque fois qu'un contrôleur demande un IGroupeService, donne-lui un GroupeService"
-builder.Services.AddScoped<IGroupeService, GroupeService>();
-builder.Services.AddScoped<IAffectationService, AffectationService>();
+builder.Services.AddScoped<IEtudiantService, Application.Services.EtudiantService>();
+builder.Services.AddScoped<IEnseignantService, Application.Services.EnseignantService>();
+builder.Services.AddScoped<IClasseService, Application.Services.ClasseService>();
+builder.Services.AddScoped<IAdminService, Application.Services.AdminService>();
 
 var app = builder.Build();
 
-// --- Configuration du pipeline HTTP (Ce qui se passe quand une requête arrive) ---
-
-// 5. Activer l'interface web Swagger uniquement en mode développement
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-// 6. Sécurité de base
-app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
-
-// 7. Connecter les routes (URLs) aux Contrôleurs
 app.MapControllers();
 
-// Lancement de l'application
 app.Run();
