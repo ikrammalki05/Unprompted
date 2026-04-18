@@ -1,4 +1,14 @@
-<<<<<<< HEAD
+# Environment — NEVER commit secrets
+.env
+.env.*
+!.env.example
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+build/
+
 # Logs
 logs
 *.log
@@ -8,36 +18,8 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-node_modules/
-dist/
-build/
-.env
-.env.local
-.env.production
-*.log
-.DS_Store
+# Coverage
 coverage/
-=======
-# Environment — NEVER commit secrets
-.env
-.env.*
-!.env.example
 
 # OS
 .DS_Store
@@ -47,7 +29,13 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Local files
+*.local
 
 # Docker
 *.tar
->>>>>>> origin/feature/login-dash-Admin
