@@ -40,4 +40,36 @@ public class EnseignantController : ControllerBase
         }
     }
     
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateEnseignant(int id, [FromBody] EnseignantCreateDto request)
+    {
+        try
+        {
+            await _enseignantService.UpdateEnseignantAsync(id, request);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = ex.Message });
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteEnseignant(int id)
+    {
+        try
+        {
+            await _enseignantService.DeleteEnseignantAsync(id);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+    
 }

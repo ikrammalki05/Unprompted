@@ -70,6 +70,33 @@ public class EtudiantService : IEtudiantService
             ClasseNom = e.Affectations?.FirstOrDefault()?.IdGroupeNavigation?.NomGroupe ?? "Non assigné"
         });
     }
+    public async Task UpdateEtudiantAsync(int id, EtudiantCreateDto request)
+{
+    var etudiant = await _etudiantRepo.GetByIdAsync(id);
+    if (etudiant == null)
+        throw new ArgumentException($"Etudiant avec l'id {id} introuvable.");
+
+    var utilisateur = await _utilisateurRepo.GetByIdAsync(etudiant.IdUtilisateur);
+    if (utilisateur == null)
+        throw new ArgumentException("Utilisateur introuvable.");
+
+    utilisateur.Nom = request.Nom;
+    utilisateur.Prenom = request.Prenom;
+    utilisateur.Email = request.Email;
+    etudiant.CodeApogee = request.CodeApogee;
+
+    await _utilisateurRepo.UpdateAsync(utilisateur);
+    await _etudiantRepo.UpdateAsync(etudiant);
+}
+
+public async Task DeleteEtudiantAsync(int id)
+{
+    var etudiant = await _etudiantRepo.GetByIdAsync(id);
+    if (etudiant == null)
+        throw new ArgumentException($"Etudiant avec l'id {id} introuvable.");
+
+    await _etudiantRepo.DeleteAsync(id);
+}
 
     
 }

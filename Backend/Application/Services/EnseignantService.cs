@@ -67,5 +67,32 @@ public class EnseignantService : IEnseignantService
             ClassesAssignees = new List<string>()
         };
     }
+    public async Task UpdateEnseignantAsync(int id, EnseignantCreateDto request)
+{
+    var enseignant = await _enseignantRepo.GetByIdAsync(id);
+    if (enseignant == null)
+        throw new ArgumentException($"Enseignant avec l'id {id} introuvable.");
+
+    var utilisateur = await _utilisateurRepo.GetByIdAsync(enseignant.IdUtilisateur);
+    if (utilisateur == null)
+        throw new ArgumentException("Utilisateur introuvable.");
+
+    utilisateur.Nom = request.Nom;
+    utilisateur.Prenom = request.Prenom;
+    utilisateur.Email = request.Email;
+    enseignant.Specialite = request.Specialite;
+
+    await _utilisateurRepo.UpdateAsync(utilisateur);
+    await _enseignantRepo.UpdateAsync(enseignant);
+}
+
+public async Task DeleteEnseignantAsync(int id)
+{
+    var enseignant = await _enseignantRepo.GetByIdAsync(id);
+    if (enseignant == null)
+        throw new ArgumentException($"Enseignant avec l'id {id} introuvable.");
+
+    await _enseignantRepo.DeleteAsync(id);
+}
     
 }

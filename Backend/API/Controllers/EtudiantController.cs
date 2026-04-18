@@ -40,5 +40,36 @@ public class EtudiantController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateEtudiant(int id, [FromBody] EtudiantCreateDto request)
+    {
+        try
+        {
+            await _etudiantService.UpdateEtudiantAsync(id, request);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = ex.Message });
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteEtudiant(int id)
+    {
+        try
+        {
+            await _etudiantService.DeleteEtudiantAsync(id);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
     
 }
