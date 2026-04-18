@@ -8,4 +8,5 @@ public class EnseignantDto
     public string Specialite { get; set; } = string.Empty;
     public List<string> ClassesAssignees { get; set; } = new List<string>(); // Ex: ["M1 IABD", "M2 Data"]
     public string Statut { get; set; } = "Inactif";
+    public string MotDePasse { get; set; } = string.Empty;
 }

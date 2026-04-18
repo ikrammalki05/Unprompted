@@ -38,6 +38,9 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Utilisateur> Utilisateurs { get; set; }
 
+    public virtual DbSet<Classe> Classes { get; set; }
+
+    public virtual DbSet<EnseignantClasse> EnseignantClasses { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Admin>(entity =>
@@ -394,6 +397,35 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValue("Actif")
                 .HasColumnName("statut");
         });
+         modelBuilder.Entity<Classe>(entity =>
+        {
+            entity.HasKey(e => e.IdClasse).HasName("PK_Classe");
+            entity.ToTable("Classe");
+            entity.Property(e => e.IdClasse).HasColumnName("IdClasse");
+            entity.Property(e => e.NomClasse).HasMaxLength(100).HasColumnName("NomClasse");
+            entity.Property(e => e.AnneeAcademique).HasMaxLength(20).HasColumnName("AnneeAcademique");
+            entity.Property(e => e.EffectifMax).HasColumnName("EffectifMax");
+            entity.Property(e => e.DateCreation).HasColumnType("datetime").HasColumnName("DateCreation");
+        });
+        modelBuilder.Entity<EnseignantClasse>(entity =>
+{
+    entity.HasKey(e => e.IdEnseignantClasse);
+    entity.ToTable("EnseignantClasse");
+    entity.Property(e => e.IdEnseignantClasse).HasColumnName("IdEnseignantClasse");
+    entity.Property(e => e.IdEnseignant).HasColumnName("IdEnseignant");
+    entity.Property(e => e.IdClasse).HasColumnName("IdClasse");
+    entity.Property(e => e.DateAffectation).HasColumnType("datetime").HasColumnName("DateAffectation");
+
+    entity.HasOne(d => d.IdEnseignantNavigation)
+        .WithMany()
+        .HasForeignKey(d => d.IdEnseignant)
+        .HasConstraintName("FK_EnseignantClasse_Enseignant");
+
+    entity.HasOne(d => d.IdClasseNavigation)
+        .WithMany()
+        .HasForeignKey(d => d.IdClasse)
+        .HasConstraintName("FK_EnseignantClasse_Classe");
+    });
 
         OnModelCreatingPartial(modelBuilder);
     }

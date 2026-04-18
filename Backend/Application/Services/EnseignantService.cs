@@ -45,6 +45,7 @@ public class EnseignantService : IEnseignantService
             Nom = request.Nom,
             Prenom = request.Prenom,
             Email = request.Email,
+            MotDePasse = request.MotDePasse,
             Statut = "Actif"
         };
         await _utilisateurRepo.AddAsync(nouvelUtilisateur);

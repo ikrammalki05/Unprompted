@@ -63,6 +63,7 @@ builder.Services.AddScoped<IEnseignantRepository, EnseignantRepository>();
 builder.Services.AddScoped<IClasseRepository, ClasseRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IAffectationRepository, AffectationRepository>();
+builder.Services.AddScoped<IEnseignantClasseRepository, EnseignantClasseRepository>();
 
 // Services
 builder.Services.AddScoped<IEtudiantService, Application.Services.EtudiantService>();
