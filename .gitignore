@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -32,3 +33,21 @@ build/
 *.log
 .DS_Store
 coverage/
+=======
+# Environment — NEVER commit secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Docker
+*.tar
+>>>>>>> origin/feature/login-dash-Admin
