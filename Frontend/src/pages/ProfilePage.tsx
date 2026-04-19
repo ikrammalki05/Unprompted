@@ -127,7 +127,7 @@ export default function ProfilePage() {
     <div className="flex-1 p-[28px_40px] overflow-y-auto w-full flex flex-col gap-6">
 
       {/* ── Top bar ── */}
-      <header className="flex items-center justify-between">
+      {/* <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h1 className="text-[20px] font-bold text-[#1e293b] tracking-tight">Profil Utilisateur</h1>
           <span className="bg-[#e2e8f0] text-[#64748b] text-[10px] font-extrabold p-[4px_12px] rounded-[6px] tracking-widest uppercase">COMPTE ADMINISTRATEUR</span>
@@ -145,7 +145,7 @@ export default function ProfilePage() {
             <span className="text-[11px] font-medium text-[#94a3b8]">{data.email}</span>
           </div>
         </div>
-      </header>
+      </header> */}
 
       {/* ── Welcome banner ── */}
       <div className="w-full bg-[#021a32] rounded-[14px] p-[48px_40px] flex items-center justify-between mb-2 text-white relative overflow-hidden shadow-[0_20px_50px_rgba(2,26,50,0.15)]">

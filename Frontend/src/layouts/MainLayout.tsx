@@ -1,6 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
+import { Topbar } from "../features/admin/components/Topbar";
 
 export default function MainLayout() {
   const location = useLocation();
@@ -26,6 +27,7 @@ export default function MainLayout() {
     <div className="flex">
       <Sidebar activeNav={activeNav} setActiveNav={handleNav} />
       <div className="flex-1">
+        <Topbar />
         <Outlet />
       </div>
     </div>

@@ -1,11 +1,17 @@
-import { DashboardLayout } from '../layouts/DashboardLayout';
-import { DashboardHeader, DashboardGrid } from '../features/admin';
+import { AdminHeader, RecentActivity, StatCards } from '../features/admin';
+import { Topbar } from '../features/admin/components/Topbar';
+
+
 
 export const DashboardPage = () => {
   return (
-    <DashboardLayout>
-      <DashboardHeader />
-      <DashboardGrid />
-    </DashboardLayout>
+    <>
+      <div className="m-7">
+    
+        <AdminHeader />
+        <StatCards />
+        <RecentActivity />
+      </div>
+    </>
   );
 };
