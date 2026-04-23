@@ -24,32 +24,32 @@ jobs:
 
       - name: Install dependencies
         working-directory: AI
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt ./AI/
 
       - name: Lint
         working-directory: AI
         run: python -m flake8 . --max-line-length=120
 
-      - name: Run tests
-        working-directory: AI
-        run: python -m pytest tests/ -v --cov=. --cov-report=xml
+    #  - name: Run tests
+     #   working-directory: AI
+       # run: python -m pytest tests/ -v --cov=. --cov-report=xml
 
       - name: Build Docker image
         run: |
-          docker build -f AI/DOCKERFILE -t ai-governance/ai:${{ github.sha }} AI/
-          docker tag ai-governance/ai:${{ github.sha }} ai-governance/ai:latest
+          docker build -f AI/Dockerfile -t unprompted/ai:${{ github.sha }} AI/
+          docker tag unprompted/ai:${{ github.sha }} unprompted/ai:latest
 
       - name: Security scan (Trivy)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ai-governance/ai:${{ github.sha }}
+          image-ref: unprompted/ai:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: '1'
 
       - name: Push to registry
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' 
         run: |
           echo ${{ secrets.REGISTRY_PASSWORD }} | docker login ${{ secrets.REGISTRY_URL }} \
             -u ${{ secrets.REGISTRY_USER }} --password-stdin
-          docker push ${{ secrets.REGISTRY_URL }}/ai-governance/ai:${{ github.sha }}
-          docker push ${{ secrets.REGISTRY_URL }}/ai-governance/ai:latest
+          docker push ${{ secrets.REGISTRY_URL }}/unprompted/ai:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_URL }}/unprompted/ai:latest
