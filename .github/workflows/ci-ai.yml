@@ -5,6 +5,8 @@ on:
     paths:
       - 'AI/**'
       - '.github/workflows/ci-ai.yml'
+    branches-ignore:
+      - '**'
   pull_request:
     paths:
       - 'AI/**'

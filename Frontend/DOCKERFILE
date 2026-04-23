@@ -1,6 +1,8 @@
 # ── Build stage ────────────────────────────────────────────────────────────
 FROM node:22-alpine AS build
 
+RUN apk update && apk upgrade --no-cache
+
 WORKDIR /app
 
 # Install dependencies first (layer cache — only re-runs if package.json changes)
@@ -17,6 +19,8 @@ RUN npm run build
 
 # ── Runtime stage (nginx to serve static files) ─────────────────────────────
 FROM nginx:1.28-alpine AS runtime
+
+RUN apk update && apk upgrade --no-cache
 
 # Copy built assets
 COPY --from=build /app/dist /usr/share/nginx/html
