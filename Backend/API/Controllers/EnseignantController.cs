@@ -71,5 +71,19 @@ public class EnseignantController : ControllerBase
             return NotFound(new { message = ex.Message });
         }
     }
+
+    [HttpGet("{idEnseignant}/statistiques")]
+    public async Task<IActionResult> GetStatistiques(int idEnseignant)
+    {
+        try
+        {
+            var stats = await _enseignantService.GetStatistiquesAsync(idEnseignant);
+            return Ok(stats);
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
     
 }
