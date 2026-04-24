@@ -1,4 +1,5 @@
-name: CI — Frontend (React)
+name: CI — Frontend (avec React)
+
 
 on:
   push:
@@ -8,6 +9,7 @@ on:
   pull_request:
     paths:
       - 'Frontend/**'
+
 
 jobs:
   build-and-test:

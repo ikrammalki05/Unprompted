@@ -1,5 +1,4 @@
-name: CI — Backend (.NET)
-
+name: CI — Backend (avec .NET)
 on:
   push:
     paths:
@@ -8,6 +7,7 @@ on:
   pull_request:
     paths:
       - 'Backend/**'
+
 
 jobs:
   build-and-test:
@@ -46,6 +46,7 @@ jobs:
           severity: CRITICAL,HIGH
           exit-code: '1'
           ignore-unfixed: true
+
 
       - name: Push to registry
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' 
