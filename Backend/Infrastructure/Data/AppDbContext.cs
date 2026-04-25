@@ -12,31 +12,31 @@ public partial class AppDbContext : DbContext
     {
     }
 
-    public virtual DbSet<Admin> Admins { get; set; }
+    public virtual DbSet<Admin> Admins { get; set; } = null!;
 
-    public virtual DbSet<Affectation> Affectations { get; set; }
+    public virtual DbSet<Affectation> Affectations { get; set; } = null!;
 
-    public virtual DbSet<ConfigurationIum> ConfigurationIa { get; set; }
+    public virtual DbSet<ConfigurationIum> ConfigurationIa { get; set; } = null!;
 
-    public virtual DbSet<Contribution> Contributions { get; set; }
+    public virtual DbSet<Contribution> Contributions { get; set; } = null!;
 
-    public virtual DbSet<Enseignant> Enseignants { get; set; }
+    public virtual DbSet<Enseignant> Enseignants { get; set; } = null!;
 
-    public virtual DbSet<Etudiant> Etudiants { get; set; }
+    public virtual DbSet<Etudiant> Etudiants { get; set; } = null!;
 
-    public virtual DbSet<Evaluation> Evaluations { get; set; }
+    public virtual DbSet<Evaluation> Evaluations { get; set; } = null!;
 
-    public virtual DbSet<Groupe> Groupes { get; set; }
+    public virtual DbSet<Groupe> Groupes { get; set; } = null!;
 
-    public virtual DbSet<Projet> Projets { get; set; }
+    public virtual DbSet<Projet> Projets { get; set; } = null!;
 
-    public virtual DbSet<Prompt> Prompts { get; set; }
+    public virtual DbSet<Prompt> Prompts { get; set; } = null!;
 
-    public virtual DbSet<ReponseIum> ReponseIa { get; set; }
+    public virtual DbSet<ReponseIum> ReponseIa { get; set; } = null!;
 
-    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<Role> Roles { get; set; } = null!;
 
-    public virtual DbSet<Utilisateur> Utilisateurs { get; set; }
+    public virtual DbSet<Utilisateur> Utilisateurs { get; set; } = null!;
 
     public virtual DbSet<Classe> Classes { get; set; }
 
@@ -292,6 +292,14 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.UrlGit)
                 .HasMaxLength(500)
                 .HasColumnName("url_git");
+
+            entity.Property(e => e.Progression)
+                .HasColumnName("progression")
+                .HasDefaultValue(0);
+
+            entity.Property(e => e.NotesEnseignant)
+                .HasMaxLength(1000)
+                .HasColumnName("notes_enseignant");
 
             entity.HasOne(d => d.IdEnseignantNavigation).WithMany(p => p.Projets)
                 .HasForeignKey(d => d.IdEnseignant)

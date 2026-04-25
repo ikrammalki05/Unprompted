@@ -1,5 +1,6 @@
 using Application.DTOs;
 using Application.Interfaces;
+using Domain.Entities;
 
 namespace Application.Services;
 
@@ -7,11 +8,16 @@ public class EnseignantService : IEnseignantService
 {
     private readonly IEnseignantRepository _enseignantRepo;
     private readonly IUtilisateurRepository _utilisateurRepo;
+    private readonly IProjetRepository _projetRepo;
 
-    public EnseignantService(IEnseignantRepository enseignantRepo, IUtilisateurRepository utilisateurRepo)
+    public EnseignantService(
+        IEnseignantRepository enseignantRepo,
+        IUtilisateurRepository utilisateurRepo,
+        IProjetRepository projetRepo)
     {
         _enseignantRepo = enseignantRepo;
         _utilisateurRepo = utilisateurRepo;
+        _projetRepo = projetRepo;
     }
 
     public async Task<IEnumerable<EnseignantDto>> GetAllEnseignantsAsync()
@@ -93,6 +99,32 @@ public async Task DeleteEnseignantAsync(int id)
         throw new ArgumentException($"Enseignant avec l'id {id} introuvable.");
 
     await _enseignantRepo.DeleteAsync(id);
-}
-    
+    }
+
+    public async Task<StatistiquesEnseignantDto> GetStatistiquesAsync(int idEnseignant)
+    {
+        var projets = await _projetRepo.GetByEnseignantIdAsync(idEnseignant);
+        var projetCount = projets.Count();
+
+        // Compter les étudiants uniques dans les groupes des projets
+        var etudiants = new HashSet<int>();
+        foreach (var projet in projets)
+        {
+            if (projet.Groupes != null)
+            {
+                foreach (var groupe in projet.Groupes)
+                {
+                    // Les groupes contiennent les étudiants
+                }
+            }
+        }
+
+        return new StatistiquesEnseignantDto
+        {
+            ProjetsSupervisés = projetCount,
+            ÉtudiantsActifs = etudiants.Count,
+            ÉvaluationsEnAttente = 0,
+            ActivitésRécentes = 0
+        };
+    }
 }
