@@ -1,4 +1,5 @@
 import React from 'react';
+import {keycloak} from "../services/keycloak"
 
 interface NavItem {
   id: string;
@@ -49,6 +50,14 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeNav, setActiveNav }: SidebarProps) {
+
+  const handleLogout = () => {
+    keycloak.logout({
+      // Optionnel : Tu peux forcer Keycloak à te ramener à la racine de ton site après la déconnexion
+      redirectUri: window.location.origin
+    });
+  };
+
   return (
     <aside className="w-[var(--sidebar-width)] min-w-[var(--sidebar-width)] bg-[#fcfcfd] border-r border-[#f1f5f9] flex flex-col h-screen sticky top-0 overflow-hidden">
       <div className="flex items-center gap-3 p-[24px_16px_20px]">
@@ -93,7 +102,10 @@ export default function Sidebar({ activeNav, setActiveNav }: SidebarProps) {
           </svg>
           Assistance
         </button>
-        <button className="w-full flex items-center gap-3 p-[10px_14px] border-none rounded-xl cursor-pointer font-['Inter',_sans-serif] text-sm font-semibold transition-[var(--transition)] bg-[#fee2e2] text-[#ef4444] mt-1 hover:bg-[#fecaca] hover:text-[#dc2626]">
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 p-[10px_14px] border-none rounded-xl cursor-pointer font-['Inter',_sans-serif] text-sm font-semibold transition-[var(--transition)] bg-[#fee2e2] text-[#ef4444] mt-1 hover:bg-[#fecaca] hover:text-[#dc2626]"
+        >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
           </svg>
