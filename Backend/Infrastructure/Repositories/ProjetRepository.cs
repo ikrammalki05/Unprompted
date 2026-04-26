@@ -18,7 +18,7 @@ public class ProjetRepository : IProjetRepository
     {
         return await _context.Projets
             .Include(p => p.IdEnseignantNavigation)
-                .ThenInclude(e => e.IdUtilisateurNavigation) // Pour récupérer le nom du prof
+                .ThenInclude(e => e!.IdUtilisateurNavigation) // Pour récupérer le nom du prof
             .ToListAsync();
     }
 
@@ -26,7 +26,7 @@ public class ProjetRepository : IProjetRepository
     {
         return await _context.Projets
             .Include(p => p.IdEnseignantNavigation)
-                .ThenInclude(e => e.IdUtilisateurNavigation)
+                .ThenInclude(e => e!.IdUtilisateurNavigation)
             .Where(p => p.IdEnseignant == idEnseignant)
             .ToListAsync();
     }

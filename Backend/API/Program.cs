@@ -64,6 +64,7 @@ builder.Services.AddScoped<IClasseRepository, ClasseRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IAffectationRepository, AffectationRepository>();
 builder.Services.AddScoped<IProjetRepository, ProjetRepository>();
+builder.Services.AddScoped<IConfigurationIumRepository, ConfigurationIumRepository>();
 
 // Services
 builder.Services.AddScoped<IEtudiantService, Application.Services.EtudiantService>();
@@ -71,6 +72,7 @@ builder.Services.AddScoped<IEnseignantService, Application.Services.EnseignantSe
 builder.Services.AddScoped<IClasseService, Application.Services.ClasseService>();
 builder.Services.AddScoped<IAdminService, Application.Services.AdminService>();
 builder.Services.AddScoped<IProjetService, Application.Services.ProjetService>();
+builder.Services.AddScoped<IConfigurationIumService, Application.Services.ConfigurationIumService>();
 
 // Swagger Config
 builder.Services.AddEndpointsApiExplorer();
