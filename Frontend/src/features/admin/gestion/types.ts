@@ -1,15 +1,17 @@
 export interface Student {
   id: number;
-  code: string;
+  codeApogee: string;
   nom: string;
+  nomComplet?: string;
   email: string;
-  classe: string;
+  classeNom: string;
   statut: 'Actif' | 'Inactif';
 }
 
 export interface Teacher {
   id: number;
   nom: string;
+  nomComplet?: string;
   email: string;
   specialite: string;
   classes: string[];
@@ -18,10 +20,10 @@ export interface Teacher {
 
 export interface ClassData {
   id: number;
-  nom: string;
+  nomClasse: string;
   desc: string;
-  annee: string;
-  effectif: number;
-  capacite: number;
-  enseignant: string;
+  anneeAcademique: string;
+  effectifActuel: number;
+  effectifMax: number;
+  enseignantReferent: string;
 }

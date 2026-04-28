@@ -3,34 +3,39 @@ import {
   StudentsSection, 
   TeachersSection, 
   ClassesSection, 
-  AffectationPanel,
-  initialStudents, 
-  initialTeachers, 
-  initialClasses,
-  
+  AffectationPanel
 } from '../features/admin/gestion';
 
-import type {Student,Teacher,ClassData} from '../features/admin/gestion'
+import type { Student, Teacher, ClassData } from '../features/admin/gestion';
 
 export const GestionPage = () => {
-  const [students, setStudents] = useState<Student[]>(initialStudents);
-  const [teachers, setTeachers] = useState<Teacher[]>(initialTeachers);
-  const [classes, setClasses] = useState<ClassData[]>(initialClasses);
+  // Optionnel : tu peux initialiser avec [] puisque tes composants enfants (StudentsSection, etc.)
+  // vont faire eux-mêmes l'appel au backend pour remplir ces listes au chargement.
+  const [students, setStudents] = useState<Student[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [classes, setClasses] = useState<ClassData[]>([]); 
+  
   const [search, setSearch] = useState('');
 
   const filteredStudents = useMemo(() => 
-    students.filter(s => s.nom.toLowerCase().includes(search.toLowerCase()) || s.code.includes(search)),
-  [students, search]);
+    students.filter(s => {
+      // 1. On récupère le nom (soit nomComplet, soit nom) ou on met une chaîne vide
+      const nomAFiltrer = s.nomComplet || s.nom || "";
+      
+      // 2. On sécurise aussi le code Apogée (correction du doublon)
+      const codeAFiltrer = s.codeApogee || s.codeApogee || ""; 
+      
+      // 3. On sécurise la recherche
+      const termeRecherche = search || "";
 
-  const handleAssign = (teacherNom: string, classNom: string) => {
-    setClasses(prev => prev.map(c => 
-      c.nom === classNom ? { ...c, enseignant: teacherNom } : c
-    ));
-    setTeachers(prev => prev.map(t => 
-      t.nom === teacherNom ? { ...t, classes: Array.from(new Set([...t.classes, classNom])) } : t
-    ));
-    alert(`${teacherNom} a été assigné à la classe ${classNom} !`);
-  };
+      // 4. On fait le filtre en toute sécurité
+      return (
+        nomAFiltrer.toLowerCase().includes(termeRecherche.toLowerCase()) || 
+        codeAFiltrer.toLowerCase().includes(termeRecherche.toLowerCase())
+      );
+    }),
+    [students, search]
+  );
 
   return (
     <div className="flex-1 p-[40px] overflow-y-auto max-w-full bg-[#f8fafc]">
@@ -62,7 +67,7 @@ export const GestionPage = () => {
       <div className="grid grid-cols-1 min-[1280px]:grid-cols-[1fr_320px] gap-10 items-start">
         
         {/* Colonne Principale : Les listes */}
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-8">
           <StudentsSection students={filteredStudents} setStudents={setStudents} />
           <TeachersSection teachers={teachers} setTeachers={setTeachers} />
           <ClassesSection classes={classes} setClasses={setClasses} teachers={teachers} />
@@ -70,7 +75,13 @@ export const GestionPage = () => {
         
         {/* Colonne Latérale : L'affectation (Sticky) */}
         <div className="min-[1280px]:sticky min-[1280px]:top-10">
-          <AffectationPanel teachers={teachers} classes={classes} onAssign={handleAssign} />
+          {/* L'AffectationPanel gère l'appel API tout seul, on lui passe juste les setters */}
+          <AffectationPanel 
+            teachers={teachers} 
+            classes={classes} 
+            setTeachers={setTeachers} 
+            setClasses={setClasses} 
+          />
         </div>
         
       </div>

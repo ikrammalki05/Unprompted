@@ -1,4 +1,3 @@
-
 networks:
   platform:
     driver: bridge
@@ -31,7 +30,18 @@ services:
       retries: 10
       start_period: 30s
 
-  
+  # ---> AJOUT DE KEYCLOAK ICI <---
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak-unprompted
+    command: start-dev
+    restart: unless-stopped
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    networks: [platform]
 
   backend:
     build:
@@ -44,22 +54,19 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=Unprompted;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Unprompted@db};TrustServerCertificate=True;
-      - ConnectionStrings__Redis=redis:6379
-      - JwtSettings__Secret=${JWT_SECRET:-super-secret-dev-key-change-in-prod}
-      - JwtSettings__ExpiryMinutes=60
-      - AiService__BaseUrl=http://ai:8000
+      # Note: Si tu as toujours l'erreur "Connection refused", tu pourras ajouter la variable d'environnement pour Keycloak ici plus tard !
     depends_on:
       sqlserver:
         condition: service_healthy
-      
+      # Ajout de la dépendance à Keycloak
+      keycloak:
+        condition: service_started
     networks: [platform]
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
-
-  
 
   frontend:
     build:

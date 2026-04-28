@@ -13,11 +13,6 @@ public partial class Utilisateur
 
     public string Email { get; set; } = null!;
 
-<<<<<<< HEAD
-    public string MotDePasse { get; set; } = null!;
-
-=======
->>>>>>> feature/fix-keycloak
     public string Statut { get; set; } = null!;
 
     public DateTime? DateCreation { get; set; }

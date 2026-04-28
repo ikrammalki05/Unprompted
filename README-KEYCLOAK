@@ -1,0 +1,73 @@
+🛠️ 1. Lancement de l'Environnement (Docker)
+Le projet utilise docker-compose pour orchestrer la base de données, le serveur d'authentification Keycloak, le backend .NET et le frontend React.
+
+Prérequis
+Docker et Docker Desktop installés et lancés.
+
+Les ports 3000 (React), 5000 (.NET), 1433 (SQL Server) et 8080 (Keycloak) doivent être libres sur votre machine.
+
+Commande de lancement
+Ouvrez un terminal à la racine du projet (là où se trouve le fichier docker-compose.yml) et exécutez :
+
+Bash
+docker compose up -d --build
+(L'option --build force la recompilation du code C# et React, indispensable si vous venez de faire un git pull).
+
+🔐 2. Configuration de Keycloak
+Une fois les conteneurs lancés, Keycloak est vide. Vous devez créer le "Royaume" (Realm), le Client et les Rôles de l'application.
+
+Accédez à la console d'administration : http://localhost:8080/admin
+
+Connectez-vous avec les identifiants par défaut :
+
+Utilisateur : admin
+
+Mot de passe : admin
+
+Étape 2.1 : Création du Realm
+En haut à gauche, survolez master et cliquez sur Create Realm.
+
+Realm name : unprompted-realm (Respectez scrupuleusement la casse et le tiret !).
+
+Cliquez sur Create.
+
+Étape 2.2 : Configuration du Client (Frontend)
+Assurez-vous d'être sur unprompted-realm (menu en haut à gauche).
+
+Allez dans Clients -> Create client.
+
+Client ID : react-frontend -> Cliquez sur Next -> Next.
+
+Login settings (Très important) :
+
+Root URL : http://localhost:3000 (Si vous lancez le front sans Docker, ajoutez aussi http://localhost:5173)
+
+Valid redirect URIs : http://localhost:3000/*
+
+Web origins : + (Le signe "plus" est obligatoire pour autoriser le CORS).
+
+Cliquez sur Save.
+
+Étape 2.3 : Création des Rôles
+Notre code React et .NET utilise ces noms exacts pour gérer les permissions :
+
+Allez dans Realm roles -> Create role.
+
+Créez ces 3 rôles un par un :
+
+admin
+
+enseignant
+
+etudiant
+
+Étape 2.4 : Compte de Test (Administrateur)
+Pour accéder au Dashboard la première fois, il faut vous créer un compte admin :
+
+Allez dans Users -> Add user.
+
+Username : testadmin -> Email verified : Yes -> Cliquez sur Create.
+
+Onglet Credentials : Cliquez sur Set password, entrez un mot de passe (ex: admin123) et DÉCOCHEZ "Temporary".
+
+Onglet Role mapping : Cliquez sur Assign role et cochez le rôle admin.

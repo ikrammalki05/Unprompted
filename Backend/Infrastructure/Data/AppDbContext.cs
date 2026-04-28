@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -293,8 +293,6 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(500)
                 .HasColumnName("url_git");
 
-<<<<<<< HEAD
-=======
             entity.Property(e => e.Progression)
                 .HasColumnName("progression")
                 .HasDefaultValue(0);
@@ -303,7 +301,6 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(1000)
                 .HasColumnName("notes_enseignant");
 
->>>>>>> feature/fix-keycloak
             entity.HasOne(d => d.IdEnseignantNavigation).WithMany(p => p.Projets)
                 .HasForeignKey(d => d.IdEnseignant)
                 .HasConstraintName("FK__Projet__id_ensei__6FE99F9F");
@@ -394,12 +391,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(200)
                 .HasColumnName("email");
-<<<<<<< HEAD
-            entity.Property(e => e.MotDePasse)
-                .HasMaxLength(500)
-                .HasColumnName("mot_de_passe");
-=======
->>>>>>> feature/fix-keycloak
             entity.Property(e => e.Nom)
                 .HasMaxLength(100)
                 .HasColumnName("nom");
@@ -411,8 +402,6 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValue("Actif")
                 .HasColumnName("statut");
         });
-<<<<<<< HEAD
-=======
          modelBuilder.Entity<Classe>(entity =>
         {
             entity.HasKey(e => e.IdClasse).HasName("PK_Classe");
@@ -442,7 +431,6 @@ public partial class AppDbContext : DbContext
         .HasForeignKey(d => d.IdClasse)
         .HasConstraintName("FK_EnseignantClasse_Classe");
     });
->>>>>>> feature/fix-keycloak
 
         OnModelCreatingPartial(modelBuilder);
     }

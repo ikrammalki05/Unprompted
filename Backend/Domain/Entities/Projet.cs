@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-﻿using System;
-=======
 using System;
->>>>>>> feature/fix-keycloak
 using System.Collections.Generic;
 
 namespace Domain.Entities;
@@ -25,15 +21,12 @@ public partial class Projet
 
     public string? UrlGit { get; set; }
 
-<<<<<<< HEAD
-=======
     /// <summary>Pourcentage d'avancement du projet (0-100).</summary>
     public int? Progression { get; set; }
 
     /// <summary>Notes / observations de l'enseignant sur le suivi du projet.</summary>
     public string? NotesEnseignant { get; set; }
 
->>>>>>> feature/fix-keycloak
     public int? IdEnseignant { get; set; }
 
     public virtual ConfigurationIum? ConfigurationIum { get; set; }
