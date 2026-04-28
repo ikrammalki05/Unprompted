@@ -1,0 +1,155 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Infrastructure.Data;
+using Application.Interfaces; 
+using Infrastructure.Repositories;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    ));
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = builder.Configuration["Keycloak:Authority"];
+        options.Audience = builder.Configuration["Keycloak:Audience"];
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            NameClaimType = "preferred_username",
+            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = context =>
+            {
+                var claimsIdentity = context.Principal?.Identity as System.Security.Claims.ClaimsIdentity;
+                if (claimsIdentity == null) return Task.CompletedTask;
+
+                var realmAccess = context.Principal?.FindFirst("realm_access")?.Value;
+                if (realmAccess == null) return Task.CompletedTask;
+
+                var parsed = System.Text.Json.JsonDocument.Parse(realmAccess);
+                if (parsed.RootElement.TryGetProperty("roles", out var roles))
+                {
+                    foreach (var role in roles.EnumerateArray())
+                    {
+                        claimsIdentity.AddClaim(new System.Security.Claims.Claim(
+                            System.Security.Claims.ClaimsIdentity.DefaultRoleClaimType,
+                            role.GetString() ?? ""
+                        ));
+                    }
+                }
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+// ... 
+builder.Services.AddAuthorization();
+
+// ---> 1. AJOUTER LA CONFIGURATION CORS ICI <---
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "http://localhost:3000") // Autorise tes ports Front
+              .AllowAnyHeader()  // Autorise les headers comme 'Authorization' pour le token
+              .AllowAnyMethod(); // Autorise les méthodes GET, POST, PUT, DELETE, etc.
+    });
+});
+
+builder.Services.AddControllers();
+// ...
+
+// ---> AJOUT DU SERVICE HEALTHCHECK <---
+builder.Services.AddHealthChecks();
+
+// Repositories
+builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
+builder.Services.AddScoped<IEtudiantRepository, EtudiantRepository>();
+builder.Services.AddScoped<IEnseignantRepository, EnseignantRepository>();
+builder.Services.AddScoped<IClasseRepository, ClasseRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IAffectationRepository, AffectationRepository>();
+
+// Services
+builder.Services.AddScoped<IEtudiantService, Application.Services.EtudiantService>();
+builder.Services.AddScoped<IEnseignantService, Application.Services.EnseignantService>();
+builder.Services.AddScoped<IClasseService, Application.Services.ClasseService>();
+builder.Services.AddScoped<IAdminService, Application.Services.AdminService>();
+
+// Swagger Config
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c => {
+    c.SwaggerDoc("v1", new() { Title = "Unprompted API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Entrez 'Bearer' [espace] et votre token JWT."
+    });
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseCors("AllowReactApp");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+// ---> EXPOSITION DE LA ROUTE /health <---
+app.MapHealthChecks("/health");
+
+app.MapControllers();
+
+// ... tout le code précédent (Swagger, app.MapControllers(), etc.) ...
+
+// ---> AJOUTER CE BLOC POUR LES MIGRATIONS AUTOMATIQUES <---
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        // Applique les migrations en attente. Crée la DB si elle n'existe pas.
+        context.Database.Migrate(); 
+        
+        // (Optionnel) Si tu as un script pour insérer des données de test (Seed), 
+        // c'est ici qu'il faudrait l'appeler. Ex: DbInitializer.Initialize(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Une erreur est survenue lors de la migration de la base de données.");
+    }
+}
+
+app.Run();

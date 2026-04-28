@@ -1,5 +1,4 @@
-import { AdminHeader, RecentActivity, StatCards } from '../features/admin';
-import { Topbar } from '../features/admin/components/Topbar';
+import { AdminHeader, RecentActivity, StatCards } from '../features/admin/dash';
 
 
 

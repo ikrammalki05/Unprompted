@@ -1,34 +1,49 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
+import { RoleRedirect } from '../features/auth/components/RoleRedirect';
 import MainLayout from '../layouts/MainLayout';
-import { DashboardPage } from '../pages/DashboardPage';
-import  GestionPage from '../pages/GestionPage';
-import ProfilePage from '../pages/ProfilePage';
-// Tu peux supprimer l'import de LoginPage
+// Tes imports de pages...
+import { DashboardPage } from '../pages/DashboardPage'; 
+
+import { GestionPage } from '../pages/GestionPage';
+import { ProfilePage } from '../pages/ProfilePage';
+import { UnauthorizedPage } from '../features/auth/components/UnauthorizedPage';
 
 export const router = createBrowserRouter([
   {
+    // L'entrée principale de l'application
     path: '/',
-    // Redirection automatique de la racine vers le dashboard
-    element: <Navigate to="/dashboard" replace />, 
+    element: <RoleRedirect />, 
   },
   {
-    // On englobe nos pages dans le MainLayout
+    // Espace Administrateur
+    path: '/admin',
     element: <MainLayout />,
     children: [
-      {
-        path: '/dashboard',
-        element: <DashboardPage />,
-      },
-      {
-        path: '/gestion',
-        element: <GestionPage />,
-      },
-      {
-        path: '/profile',
-        element: <ProfilePage />,
-      },
-      // Tes futures pages iront ici...
-      // { path: '/gestion', element: <UsersPage /> },
+      { path: 'dashboard', element: <DashboardPage /> },
+      { path: 'gestion', element: <GestionPage /> },
+      { path: 'profile', element: <ProfilePage /> },
+      // Autres routes admin...
     ]
   },
+  // {
+  //   // Espace Étudiant (Tu pourras créer un Layout spécifique si la Sidebar est différente)
+  //   path: '/etudiant',
+  //   element: <MainLayout />, 
+  //   children: [
+  //     { path: 'dashboard', element: <EtudiantDashboard /> },
+  //   ]
+  // },
+  // {
+  //   // Espace Enseignant
+  //   path: '/enseignant',
+  //   element: <MainLayout />,
+  //   children: [
+  //     { path: 'dashboard', element: <EnseignantDashboard /> },
+  //   ]
+  // },
+  {
+    // Page d'erreur si pas de rôle
+    path: '/unauthorized',
+    element: <UnauthorizedPage />
+  }
 ]);
