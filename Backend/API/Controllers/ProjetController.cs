@@ -7,7 +7,7 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] // Nécessite d'être connecté via Keycloak
+//[Authorize] // Nécessite d'être connecté via Keycloak
 public class ProjetController : ControllerBase
 {
     private readonly IProjetService _projetService;

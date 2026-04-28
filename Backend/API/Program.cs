@@ -67,6 +67,7 @@ builder.Services.AddScoped<IProjetRepository, ProjetRepository>();
 builder.Services.AddScoped<IConfigurationIumRepository, ConfigurationIumRepository>();
 builder.Services.AddScoped<IGroupeRepository, GroupeRepository>();
 builder.Services.AddScoped<IPromptRepository, PromptRepository>();
+builder.Services.AddScoped<IContributionRepository, Infrastructure.Repositories.ContributionRepository>();
 
 
 // Services
@@ -78,6 +79,8 @@ builder.Services.AddScoped<IProjetService, Application.Services.ProjetService>()
 builder.Services.AddScoped<IConfigurationIumService, Application.Services.ConfigurationIumService>();
 builder.Services.AddScoped<IGroupeProjetService, Application.Services.GroupeProjetService>();
 builder.Services.AddScoped<IPromptService, Application.Services.PromptService>();
+builder.Services.AddScoped<IAnalyticsService, Application.Services.AnalyticsService>();
+
 
 // Swagger Config
 builder.Services.AddEndpointsApiExplorer();
