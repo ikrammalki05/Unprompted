@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
+
 // [Authorize(Roles = "Admin")] // Sécurité stricte : Seul un Admin Keycloak peut entrer ici
+
 [ApiController]
 [Route("api/[controller]")]
 public class AdminController : ControllerBase

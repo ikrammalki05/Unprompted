@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260422200817_AddProjetSuiviColumns")]
+    partial class AddProjetSuiviColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,11 +25,7 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Admin", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Admin", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdAdmin")
                         .ValueGeneratedOnAdd()
@@ -48,11 +47,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Admin", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Affectation", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Affectation", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdAffectation")
                         .ValueGeneratedOnAdd()
@@ -97,9 +92,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("Affectation", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.ConfigurationIum", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Classe", b =>
                 {
                     b.Property<int>("IdClasse")
@@ -136,7 +128,6 @@ namespace Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Domain.Entities.ConfigurationIum", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdConfig")
                         .ValueGeneratedOnAdd()
@@ -183,11 +174,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Configuration_IA", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Contribution", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Contribution", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdContribution")
                         .ValueGeneratedOnAdd()
@@ -244,11 +231,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Contribution", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Enseignant", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Enseignant", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdEnseignant")
                         .ValueGeneratedOnAdd()
@@ -280,9 +263,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("Enseignant", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Etudiant", b =>
-=======
             modelBuilder.Entity("Domain.Entities.EnseignantClasse", b =>
                 {
                     b.Property<int>("IdEnseignantClasse")
@@ -314,7 +294,6 @@ namespace Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Domain.Entities.Etudiant", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdEtudiant")
                         .ValueGeneratedOnAdd()
@@ -355,11 +334,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Etudiant", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Evaluation", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Evaluation", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdEvaluation")
                         .ValueGeneratedOnAdd()
@@ -410,11 +385,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Evaluation", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Groupe", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Groupe", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdGroupe")
                         .ValueGeneratedOnAdd()
@@ -441,11 +412,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Groupe", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Projet", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Projet", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdProjet")
                         .ValueGeneratedOnAdd()
@@ -474,8 +441,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id_enseignant");
 
-<<<<<<< HEAD
-=======
                     b.Property<string>("NotesEnseignant")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)")
@@ -487,7 +452,6 @@ namespace Infrastructure.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("progression");
 
->>>>>>> feature/fix-keycloak
                     b.Property<string>("Statut")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
@@ -514,11 +478,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Projet", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Prompt", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Prompt", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdPrompt")
                         .ValueGeneratedOnAdd()
@@ -568,11 +528,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Prompt", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.ReponseIum", b =>
-=======
             modelBuilder.Entity("Domain.Entities.ReponseIum", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdReponse")
                         .ValueGeneratedOnAdd()
@@ -608,11 +564,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Reponse_IA", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Role", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Role", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdRole")
                         .ValueGeneratedOnAdd()
@@ -636,11 +588,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Role", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Utilisateur", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Utilisateur", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Property<int>("IdUtilisateur")
                         .ValueGeneratedOnAdd()
@@ -661,15 +609,12 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(200)")
                         .HasColumnName("email");
 
-<<<<<<< HEAD
                     b.Property<string>("MotDePasse")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("mot_de_passe");
 
-=======
->>>>>>> feature/fix-keycloak
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -699,63 +644,37 @@ namespace Infrastructure.Migrations
                     b.ToTable("Utilisateur", (string)null);
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Admin", b =>
-                {
-                    b.HasOne("Infrastructure.Utilisateur", "IdUtilisateurNavigation")
-                        .WithOne("Admin")
-                        .HasForeignKey("Infrastructure.Admin", "IdUtilisateur")
-=======
             modelBuilder.Entity("Domain.Entities.Admin", b =>
                 {
                     b.HasOne("Domain.Entities.Utilisateur", "IdUtilisateurNavigation")
                         .WithOne("Admin")
                         .HasForeignKey("Domain.Entities.Admin", "IdUtilisateur")
->>>>>>> feature/fix-keycloak
                         .IsRequired()
                         .HasConstraintName("FK__Admin__id_utilis__6383C8BA");
 
                     b.Navigation("IdUtilisateurNavigation");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Affectation", b =>
-                {
-                    b.HasOne("Infrastructure.Enseignant", "IdEnseignantNavigation")
-=======
             modelBuilder.Entity("Domain.Entities.Affectation", b =>
                 {
                     b.HasOne("Domain.Entities.Enseignant", "IdEnseignantNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Affectations")
                         .HasForeignKey("IdEnseignant")
                         .HasConstraintName("FK__Affectati__id_en__7C4F7684");
 
-<<<<<<< HEAD
-                    b.HasOne("Infrastructure.Etudiant", "IdEtudiantNavigation")
-=======
                     b.HasOne("Domain.Entities.Etudiant", "IdEtudiantNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Affectations")
                         .HasForeignKey("IdEtudiant")
                         .IsRequired()
                         .HasConstraintName("FK__Affectati__id_et__797309D9");
 
-<<<<<<< HEAD
-                    b.HasOne("Infrastructure.Groupe", "IdGroupeNavigation")
-=======
                     b.HasOne("Domain.Entities.Groupe", "IdGroupeNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Affectations")
                         .HasForeignKey("IdGroupe")
                         .IsRequired()
                         .HasConstraintName("FK__Affectati__id_gr__7A672E12");
 
-<<<<<<< HEAD
-                    b.HasOne("Infrastructure.Role", "IdRoleNavigation")
-=======
                     b.HasOne("Domain.Entities.Role", "IdRoleNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Affectations")
                         .HasForeignKey("IdRole")
                         .IsRequired()
@@ -770,44 +689,26 @@ namespace Infrastructure.Migrations
                     b.Navigation("IdRoleNavigation");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.ConfigurationIum", b =>
-                {
-                    b.HasOne("Infrastructure.Projet", "IdProjetNavigation")
-                        .WithOne("ConfigurationIum")
-                        .HasForeignKey("Infrastructure.ConfigurationIum", "IdProjet")
-=======
             modelBuilder.Entity("Domain.Entities.ConfigurationIum", b =>
                 {
                     b.HasOne("Domain.Entities.Projet", "IdProjetNavigation")
                         .WithOne("ConfigurationIum")
                         .HasForeignKey("Domain.Entities.ConfigurationIum", "IdProjet")
->>>>>>> feature/fix-keycloak
                         .IsRequired()
                         .HasConstraintName("FK__Configura__id_pr__18EBB532");
 
                     b.Navigation("IdProjetNavigation");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Contribution", b =>
-                {
-                    b.HasOne("Infrastructure.Etudiant", "IdEtudiantNavigation")
-=======
             modelBuilder.Entity("Domain.Entities.Contribution", b =>
                 {
                     b.HasOne("Domain.Entities.Etudiant", "IdEtudiantNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Contributions")
                         .HasForeignKey("IdEtudiant")
                         .IsRequired()
                         .HasConstraintName("FK__Contribut__id_et__02084FDA");
 
-<<<<<<< HEAD
-                    b.HasOne("Infrastructure.Projet", "IdProjetNavigation")
-=======
                     b.HasOne("Domain.Entities.Projet", "IdProjetNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Contributions")
                         .HasForeignKey("IdProjet")
                         .IsRequired()
@@ -818,32 +719,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("IdProjetNavigation");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Enseignant", b =>
-                {
-                    b.HasOne("Infrastructure.Utilisateur", "IdUtilisateurNavigation")
-                        .WithOne("Enseignant")
-                        .HasForeignKey("Infrastructure.Enseignant", "IdUtilisateur")
-=======
             modelBuilder.Entity("Domain.Entities.Enseignant", b =>
                 {
                     b.HasOne("Domain.Entities.Utilisateur", "IdUtilisateurNavigation")
                         .WithOne("Enseignant")
                         .HasForeignKey("Domain.Entities.Enseignant", "IdUtilisateur")
->>>>>>> feature/fix-keycloak
                         .IsRequired()
                         .HasConstraintName("FK__Enseignan__id_ut__6754599E");
 
                     b.Navigation("IdUtilisateurNavigation");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Etudiant", b =>
-                {
-                    b.HasOne("Infrastructure.Utilisateur", "IdUtilisateurNavigation")
-                        .WithOne("Etudiant")
-                        .HasForeignKey("Infrastructure.Etudiant", "IdUtilisateur")
-=======
             modelBuilder.Entity("Domain.Entities.EnseignantClasse", b =>
                 {
                     b.HasOne("Domain.Entities.Classe", "IdClasseNavigation")
@@ -870,42 +756,27 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Utilisateur", "IdUtilisateurNavigation")
                         .WithOne("Etudiant")
                         .HasForeignKey("Domain.Entities.Etudiant", "IdUtilisateur")
->>>>>>> feature/fix-keycloak
                         .IsRequired()
                         .HasConstraintName("FK__Etudiant__id_uti__6C190EBB");
 
                     b.Navigation("IdUtilisateurNavigation");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Evaluation", b =>
-                {
-                    b.HasOne("Infrastructure.Enseignant", "IdEnseignantNavigation")
-=======
             modelBuilder.Entity("Domain.Entities.Evaluation", b =>
                 {
                     b.HasOne("Domain.Entities.Enseignant", "IdEnseignantNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Evaluations")
                         .HasForeignKey("IdEnseignant")
                         .IsRequired()
                         .HasConstraintName("FK__Evaluatio__id_en__1332DBDC");
 
-<<<<<<< HEAD
-                    b.HasOne("Infrastructure.Etudiant", "IdEtudiantNavigation")
-=======
                     b.HasOne("Domain.Entities.Etudiant", "IdEtudiantNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Evaluations")
                         .HasForeignKey("IdEtudiant")
                         .IsRequired()
                         .HasConstraintName("FK__Evaluatio__id_et__114A936A");
 
-<<<<<<< HEAD
-                    b.HasOne("Infrastructure.Projet", "IdProjetNavigation")
-=======
                     b.HasOne("Domain.Entities.Projet", "IdProjetNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Evaluations")
                         .HasForeignKey("IdProjet")
                         .IsRequired()
@@ -918,15 +789,9 @@ namespace Infrastructure.Migrations
                     b.Navigation("IdProjetNavigation");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Groupe", b =>
-                {
-                    b.HasOne("Infrastructure.Projet", "IdProjetNavigation")
-=======
             modelBuilder.Entity("Domain.Entities.Groupe", b =>
                 {
                     b.HasOne("Domain.Entities.Projet", "IdProjetNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Groupes")
                         .HasForeignKey("IdProjet")
                         .IsRequired()
@@ -935,15 +800,9 @@ namespace Infrastructure.Migrations
                     b.Navigation("IdProjetNavigation");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Projet", b =>
-                {
-                    b.HasOne("Infrastructure.Enseignant", "IdEnseignantNavigation")
-=======
             modelBuilder.Entity("Domain.Entities.Projet", b =>
                 {
                     b.HasOne("Domain.Entities.Enseignant", "IdEnseignantNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Projets")
                         .HasForeignKey("IdEnseignant")
                         .HasConstraintName("FK__Projet__id_ensei__6FE99F9F");
@@ -951,25 +810,15 @@ namespace Infrastructure.Migrations
                     b.Navigation("IdEnseignantNavigation");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Prompt", b =>
-                {
-                    b.HasOne("Infrastructure.Etudiant", "IdEtudiantNavigation")
-=======
             modelBuilder.Entity("Domain.Entities.Prompt", b =>
                 {
                     b.HasOne("Domain.Entities.Etudiant", "IdEtudiantNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Prompts")
                         .HasForeignKey("IdEtudiant")
                         .IsRequired()
                         .HasConstraintName("FK__Prompt__id_etudi__08B54D69");
 
-<<<<<<< HEAD
-                    b.HasOne("Infrastructure.Projet", "IdProjetNavigation")
-=======
                     b.HasOne("Domain.Entities.Projet", "IdProjetNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("Prompts")
                         .HasForeignKey("IdProjet")
                         .IsRequired()
@@ -980,15 +829,9 @@ namespace Infrastructure.Migrations
                     b.Navigation("IdProjetNavigation");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.ReponseIum", b =>
-                {
-                    b.HasOne("Infrastructure.Prompt", "IdPromptNavigation")
-=======
             modelBuilder.Entity("Domain.Entities.ReponseIum", b =>
                 {
                     b.HasOne("Domain.Entities.Prompt", "IdPromptNavigation")
->>>>>>> feature/fix-keycloak
                         .WithMany("ReponseIa")
                         .HasForeignKey("IdPrompt")
                         .IsRequired()
@@ -997,11 +840,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("IdPromptNavigation");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Enseignant", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Enseignant", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Navigation("Affectations");
 
@@ -1010,11 +849,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("Projets");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Etudiant", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Etudiant", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Navigation("Affectations");
 
@@ -1025,20 +860,12 @@ namespace Infrastructure.Migrations
                     b.Navigation("Prompts");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Groupe", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Groupe", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Navigation("Affectations");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Projet", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Projet", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Navigation("ConfigurationIum");
 
@@ -1051,29 +878,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("Prompts");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Prompt", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Prompt", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Navigation("ReponseIa");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Role", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Role", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Navigation("Affectations");
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Infrastructure.Utilisateur", b =>
-=======
             modelBuilder.Entity("Domain.Entities.Utilisateur", b =>
->>>>>>> feature/fix-keycloak
                 {
                     b.Navigation("Admin");
 
