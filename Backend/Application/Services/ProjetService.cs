@@ -166,7 +166,7 @@ public class ProjetService : IProjetService
         var projet = await _projetRepo.GetByIdAsync(dto.IdProjet);
         if (projet == null) throw new ArgumentException("Projet introuvable.");
 
-        var etudiant = await _etudiantRepo.GetByIdAsync(dto.IntEtudiant);
+        var etudiant = await _etudiantRepo.GetByIdAsync(dto.IdEtudiant);
         if (etudiant == null) throw new ArgumentException("Etudiant introuvable.");
 
         // Logique d'assignation à implémenter ici

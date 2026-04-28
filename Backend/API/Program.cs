@@ -55,6 +55,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddHttpClient<IKeycloakAdminService, Application.Services.KeycloakAdminService>();
+
+
 
 // Repositories
 builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();

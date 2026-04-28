@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[Authorize(Roles = "Admin")] 
+[AllowAnonymous] // TEMPORAIRE - test Postman
 [ApiController]
 [Route("api/[controller]")]
 public class EtudiantController : ControllerBase
