@@ -39,9 +39,16 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      # ---> NOUVEAU : Désactive le cache pour le développement du thème <---
+      KC_SPI_THEME_STATIC_MAX_AGE: -1
+      KC_SPI_THEME_CACHE_TEMPLATES: "false"
+      KC_SPI_THEME_CACHE_THEMES: "false"
     ports:
       - "8080:8080"
     networks: [platform]
+    # ton chemin actuel qui est parfait :
+    volumes:
+      - ./Frontend/themes/unprompted-theme:/opt/keycloak/themes/unprompted-theme
 
   backend:
     build:

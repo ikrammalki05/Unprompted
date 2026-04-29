@@ -71,3 +71,17 @@ Username : testadmin -> Email verified : Yes -> Cliquez sur Create.
 Onglet Credentials : Cliquez sur Set password, entrez un mot de passe (ex: admin123) et DÉCOCHEZ "Temporary".
 
 Onglet Role mapping : Cliquez sur Assign role et cochez le rôle admin.
+
+## 🎨 3. Activation du Thème Personnalisé (Login)
+
+Notre application utilise une interface de connexion sur-mesure qui remplace le design par défaut de Keycloak. Une fois le conteneur lancé, il faut dire à Keycloak d'utiliser ce thème :
+
+1. Connectez-vous à la console d'administration Keycloak ([http://localhost:8080/admin](http://localhost:8080/admin)).
+2. Assurez-vous d'être sur le royaume **`unprompted-realm`** (menu déroulant en haut à gauche).
+3. Dans le menu latéral gauche, cliquez sur **Realm settings**.
+4. Naviguez vers l'onglet **Themes**.
+5. Cherchez la ligne **Login theme** et sélectionnez **`unprompted-theme`** dans le menu déroulant.
+6. Cliquez sur **Save** en bas de la page.
+
+> 💡 **Note pour les développeurs (Live Reload) :** > Le dossier du thème (`Frontend/themes/unprompted-theme`) est monté directement dans le conteneur via un volume Docker. De plus, le cache de Keycloak est désactivé en mode développement. 
+> **Résultat :** Si vous modifiez le CSS ou le HTML (`.ftl`) du thème, il vous suffit de rafraîchir la page de connexion dans votre navigateur pour voir les changements instantanément, sans redémarrer le serveur !
