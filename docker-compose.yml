@@ -5,6 +5,7 @@ networks:
 
 volumes:
   sqlserver_data:
+  chroma_data:
 
 services:
 
@@ -72,4 +73,34 @@ services:
       - "3000:80"
     depends_on:
       - backend
+    networks: [platform]
+
+   # 1. AJOUT DE CHROMADB (Base vectorielle)
+  chroma-db:
+    image: chromadb/chroma:latest
+    container_name: chroma_vector_db
+    restart: unless-stopped
+    ports:
+      - "8001:8000" 
+    volumes:
+      - chroma_data:/chromadb/data
+    environment:
+      - IS_PERSISTENT=TRUE
+    networks: [platform]
+
+  # 2. AJOUT DE MICROSERVICE RAG (Python)
+  ai-service:
+    build:
+      context: ./AI-Service 
+      dockerfile: Dockerfile
+    container_name: unprompted_rag
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - CHROMA_SERVER_HOST=chroma-db
+      - CHROMA_SERVER_HTTP_PORT=8000
+      # Tu pourras ajouter ici ton API KEY OpenAI ou autre
+    depends_on:
+      - chroma-db
     networks: [platform]
