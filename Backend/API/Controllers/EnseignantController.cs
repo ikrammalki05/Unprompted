@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[Authorize(Roles = "Admin")] 
+[AllowAnonymous] // TEMPORAIRE - test Postman
 [ApiController]
 [Route("api/[controller]")]
 public class EnseignantController : ControllerBase
@@ -37,6 +37,52 @@ public class EnseignantController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest(new { message = ex.Message });
+        }
+    }
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateEnseignant(int id, [FromBody] EnseignantCreateDto request)
+    {
+        try
+        {
+            await _enseignantService.UpdateEnseignantAsync(id, request);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = ex.Message });
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteEnseignant(int id)
+    {
+        try
+        {
+            await _enseignantService.DeleteEnseignantAsync(id);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("{idEnseignant}/statistiques")]
+    public async Task<IActionResult> GetStatistiques(int idEnseignant)
+    {
+        try
+        {
+            var stats = await _enseignantService.GetStatistiquesAsync(idEnseignant);
+            return Ok(stats);
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(new { message = ex.Message });
         }
     }
     

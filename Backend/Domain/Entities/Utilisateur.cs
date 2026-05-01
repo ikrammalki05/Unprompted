@@ -13,8 +13,6 @@ public partial class Utilisateur
 
     public string Email { get; set; } = null!;
 
-    public string MotDePasse { get; set; } = null!;
-
     public string Statut { get; set; } = null!;
 
     public DateTime? DateCreation { get; set; }

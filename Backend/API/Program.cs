@@ -55,6 +55,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddHttpClient<IKeycloakAdminService, Application.Services.KeycloakAdminService>();
+
+
 
 // Repositories
 builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
@@ -69,6 +72,9 @@ builder.Services.AddScoped<IGroupeRepository, GroupeRepository>();
 builder.Services.AddScoped<IPromptRepository, PromptRepository>();
 builder.Services.AddScoped<IContributionRepository, Infrastructure.Repositories.ContributionRepository>();
 
+builder.Services.AddScoped<IEnseignantClasseRepository, EnseignantClasseRepository>();
+builder.Services.AddScoped<IProjetRepository, ProjetRepository>();
+builder.Services.AddScoped<IGroupeRepository, GroupeRepository>();
 
 // Services
 builder.Services.AddScoped<IEtudiantService, Application.Services.EtudiantService>();
@@ -81,6 +87,7 @@ builder.Services.AddScoped<IGroupeProjetService, Application.Services.GroupeProj
 builder.Services.AddScoped<IPromptService, Application.Services.PromptService>();
 builder.Services.AddScoped<IAnalyticsService, Application.Services.AnalyticsService>();
 
+builder.Services.AddScoped<IGroupeService, Application.Services.GroupeService>();
 
 // Swagger Config
 builder.Services.AddEndpointsApiExplorer();
