@@ -22,4 +22,13 @@ public class ContributionRepository : IContributionRepository
             .Where(c => c.IdProjet == idProjet)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Contribution>> GetByEtudiantIdAsync(int idEtudiant)
+    {
+        return await _context.Contributions
+            .Include(c => c.IdProjetNavigation) // On charge le projet pour avoir son Titre
+            .Where(c => c.IdEtudiant == idEtudiant)
+            .OrderByDescending(c => c.DateCommit)
+            .ToListAsync();
+    }
 }

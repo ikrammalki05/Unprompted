@@ -32,4 +32,14 @@ public class PromptRepository : IPromptRepository
             .OrderByDescending(p => p.DatePrompt) // Du plus récent au plus ancien
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Prompt>> GetByEtudiantIdAsync(int idEtudiant)
+    {
+        return await _context.Prompts
+            .Include(p => p.IdProjetNavigation)
+            .Where(p => p.IdEtudiant == idEtudiant)
+            .OrderByDescending(p => p.DatePrompt)
+            .ToListAsync();
+    }
+    
 }

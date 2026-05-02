@@ -99,6 +99,7 @@ builder.Services.AddScoped<IConfigurationIumService, Application.Services.Config
 builder.Services.AddScoped<IGroupeProjetService, Application.Services.GroupeProjetService>();
 builder.Services.AddScoped<IPromptService, Application.Services.PromptService>();
 builder.Services.AddScoped<IAnalyticsService, Application.Services.AnalyticsService>();
+builder.Services.AddScoped<IEvaluationRepository, EvaluationRepository>();
 
 builder.Services.AddScoped<IGroupeService, Application.Services.GroupeService>();
 
