@@ -116,30 +116,6 @@ public class ProjetController : ControllerBase
         return Ok(contributions);
     }
 
-    [HttpGet("{id:int}/etudiant/{idEtudiant:int}/contributions")]
-    [Authorize(Roles = "Admin,Enseignant,Etudiant")]
-    public async Task<IActionResult> GetEtudiantContributions(int id, int idEtudiant)
-    {
-        var contributions = await _projetService.GetContributionsByProjectAndEtudiantAsync(id, idEtudiant);
-        return Ok(contributions);
-    }
-
-    // POST: api/projet/{id}/etudiant/{idEtudiant}/contributions
-    [HttpPost("{id:int}/etudiant/{idEtudiant:int}/contributions")]
-    [Authorize(Roles = "Etudiant")]
-    public async Task<IActionResult> CreateContribution(int id, int idEtudiant, [FromBody] ContributionCreateDto request)
-    {
-        try
-        {
-            var contribution = await _projetService.CreateContributionAsync(id, idEtudiant, request);
-            return CreatedAtAction(nameof(GetContributions), new { id }, contribution);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-    }
-
     [HttpPatch("{id:int}/suivi")]
     [Authorize(Roles = "Enseignant,Admin")]
     public async Task<IActionResult> UpdateProjetSuivi(int id, [FromBody] ProjetSuiviDto request)
@@ -185,7 +161,7 @@ public class ProjetController : ControllerBase
         }
     }
 
-    [HttpGet("{idProjet:int}/etudiant/{idEtudiant:int}/activite")]
+   /* [HttpGet("{idProjet:int}/etudiant/{idEtudiant:int}/activite")]
     [Authorize(Roles = "Admin,Enseignant")]
     public async Task<ActionResult<EtudiantActiviteDto>> GetEtudiantActivite(int idProjet, int idEtudiant)
     {
@@ -199,5 +175,5 @@ public class ProjetController : ControllerBase
     {
         var prompt = await _projetService.CreatePromptAsync(idProjet, request);
         return CreatedAtAction(nameof(GetEtudiantActivite), new { idProjet, idEtudiant = request.IdEtudiant }, prompt);
-    }
+    }*/
 }
