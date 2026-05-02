@@ -7,11 +7,13 @@ using Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 1. BASE DE DONNÉES
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
+// 2. SÉCURITÉ KEYCLOAK
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -54,12 +56,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+// 3. CONFIGURATION CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 builder.Services.AddHttpClient<IKeycloakAdminService, Application.Services.KeycloakAdminService>();
 
-
-
-// Repositories
+// 4. REPOSITORIES
 builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
 builder.Services.AddScoped<IEtudiantRepository, EtudiantRepository>();
 builder.Services.AddScoped<IEnseignantRepository, EnseignantRepository>();
@@ -76,7 +89,7 @@ builder.Services.AddScoped<IEnseignantClasseRepository, EnseignantClasseReposito
 builder.Services.AddScoped<IProjetRepository, ProjetRepository>();
 builder.Services.AddScoped<IGroupeRepository, GroupeRepository>();
 
-// Services
+// 5. SERVICES
 builder.Services.AddScoped<IEtudiantService, Application.Services.EtudiantService>();
 builder.Services.AddScoped<IEnseignantService, Application.Services.EnseignantService>();
 builder.Services.AddScoped<IClasseService, Application.Services.ClasseService>();
@@ -89,7 +102,7 @@ builder.Services.AddScoped<IAnalyticsService, Application.Services.AnalyticsServ
 
 builder.Services.AddScoped<IGroupeService, Application.Services.GroupeService>();
 
-// Swagger Config
+// 6. SWAGGER
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new() { Title = "Unprompted API", Version = "v1" });
@@ -122,8 +135,28 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// 7. MIDDLEWARES (L'ordre est crucial !)
+app.UseCors("AllowReactApp"); 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHealthChecks("/health");
 app.MapControllers();
+
+// 8. MIGRATIONS AUTO
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate(); 
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Une erreur est survenue lors de la migration de la base de données.");
+    }
+}
 
 app.Run();

@@ -26,13 +26,31 @@ services:
       retries: 10
       start_period: 30s
 
+  # ---> AJOUT DE KEYCLOAK <---
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak-unprompted
+    command: start-dev
+    restart: unless-stopped
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_SPI_THEME_STATIC_MAX_AGE: -1
+      KC_SPI_THEME_CACHE_TEMPLATES: "false"
+      KC_SPI_THEME_CACHE_THEMES: "false"
+    ports:
+      - "8080:8080"
+    networks: [ platform ]
+    volumes:
+      - ./Frontend/themes/unprompted-theme:/opt/keycloak/themes/unprompted-theme
+
   backend:
     build:
       context: ./Backend
-      dockerfile: DOCKERFILE
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "5066:5000"
+      - "5066:5000" # Ton port personnalisé préservé
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
@@ -44,7 +62,8 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
-
+      keycloak:
+        condition: service_started
     networks: [ platform ]
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:5000/health || exit 1" ]
@@ -55,12 +74,12 @@ services:
   frontend:
     build:
       context: ./Frontend
-      dockerfile: DOCKERFILE
+      dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://localhost:5066
+        VITE_API_URL: http://localhost:5066 # Ton port d'API préservé
     restart: unless-stopped
     ports:
-      - "3001:80"
+      - "3001:80" # Ton port Frontend préservé
     depends_on:
       - backend
     networks: [ platform ]
