@@ -9,8 +9,8 @@ public class AssignationProjetRequestDto
     public List<EtudiantRoleDto> Etudiants { get; set; } = new();
 }
 
-public class EtudiantRoleDto
+/*public class EtudiantRoleDto
 {
     public int IdEtudiant { get; set; }
     public int IdRole { get; set; } // 1: Chef, 2: Dev Front, 3: Dev Back, etc.
-}
+}*/

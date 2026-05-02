@@ -34,7 +34,8 @@ public class GroupeProjetService : IGroupeProjetService
             IdProjet = request.IdProjet
         };
 
-        var groupeCree = await _groupeRepo.AddAsync(nouveauGroupe);
+        // On n'affecte plus à une variable, on attend juste la fin de l'opération
+        await _groupeRepo.AddAsync(nouveauGroupe); 
 
         // 3. On crée les affectations pour chaque étudiant
         foreach (var etu in request.Etudiants)
@@ -42,7 +43,8 @@ public class GroupeProjetService : IGroupeProjetService
             var affectation = new Affectation
             {
                 IdEtudiant = etu.IdEtudiant,
-                IdGroupe = groupeCree.IdGroupe, // L'ID qui vient d'être généré
+                // EF Core a automatiquement rempli l'ID dans nouveauGroupe !
+                IdGroupe = nouveauGroupe.IdGroupe, 
                 IdRole = etu.IdRole,
                 DateAffectation = DateTime.UtcNow
             };
