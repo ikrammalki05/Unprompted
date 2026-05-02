@@ -40,4 +40,6 @@ public partial class Projet
     public virtual Enseignant? IdEnseignantNavigation { get; set; }
 
     public virtual ICollection<Prompt> Prompts { get; set; } = new List<Prompt>();
+
+    public virtual ICollection<Dossier> Dossiers { get; set; } = new List<Dossier>();
 }
