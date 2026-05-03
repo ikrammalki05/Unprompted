@@ -200,4 +200,49 @@ public class ProjetController : ControllerBase
         var prompt = await _projetService.CreatePromptAsync(idProjet, request);
         return CreatedAtAction(nameof(GetEtudiantActivite), new { idProjet, idEtudiant = request.IdEtudiant }, prompt);
     }
+
+    [HttpGet("etudiant/{idEtudiant:int}")]
+    [Authorize(Roles = "Admin,Enseignant,Etudiant")]
+    public async Task<ActionResult<IEnumerable<ProjetDto>>> GetProjectsByEtudiant(int idEtudiant)
+    {
+        var projets = await _projetService.GetProjectsByEtudiantIdAsync(idEtudiant);
+        return Ok(projets);
+    }
+
+    [HttpGet("{idProjet:int}/etudiant/{idEtudiant:int}/collegues")]
+    [Authorize(Roles = "Admin,Enseignant,Etudiant")]
+    public async Task<ActionResult<IEnumerable<EtudiantGroupeDto>>> GetCollegues(int idProjet, int idEtudiant)
+    {
+        var collegues = await _projetService.GetColleguesAsync(idProjet, idEtudiant);
+        return Ok(collegues);
+    }
+
+    // POST: api/projet/1/upload-cahier
+[HttpPost("{id}/upload-cahier")]
+[Authorize(Roles = "Enseignant,Admin")]
+public async Task<IActionResult> UploadCahier(int id, IFormFile fichier)
+{
+    if (fichier == null || fichier.Length == 0)
+        return BadRequest(new { message = "Fichier vide." });
+
+    if (!fichier.ContentType.Contains("pdf"))
+        return BadRequest(new { message = "Seulement les PDF sont acceptés." });
+
+    using var memoryStream = new MemoryStream();
+    await fichier.CopyToAsync(memoryStream);
+    await _projetService.SaveCahierAsync(id, memoryStream.ToArray());
+    return Ok(new { message = "Cahier des charges uploadé." });
+}
+
+// GET: api/projet/1/download-cahier
+[HttpGet("{id}/download-cahier")]
+[Authorize(Roles = "Enseignant,Admin,Etudiant")]
+public async Task<IActionResult> DownloadCahier(int id)
+{
+    var bytes = await _projetService.GetCahierAsync(id);
+    if (bytes == null)
+        return NotFound(new { message = "Cahier des charges introuvable." });
+
+    return File(bytes, "application/pdf", "cahier_des_charges.pdf");
+}
 }
