@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Domain.Entities;
@@ -40,4 +40,12 @@ public partial class Projet
     public virtual Enseignant? IdEnseignantNavigation { get; set; }
 
     public virtual ICollection<Prompt> Prompts { get; set; } = new List<Prompt>();
+    
+    public string? Objectifs { get; set; }
+public string? Livrables { get; set; }
+public string? CriteresEvaluation { get; set; }
+public string? TechnologiesRequises { get; set; } // JSON
+public string? Contraintes { get; set; }
+public string? RessourcesDisponibles { get; set; }
+public byte[]? CahierDesCharges { get; set; } // BLOB
 }

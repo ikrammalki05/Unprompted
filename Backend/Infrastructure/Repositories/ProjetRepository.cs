@@ -25,6 +25,12 @@ public class ProjetRepository : IProjetRepository
             .Include(p => p.IdEnseignantNavigation)
                 .ThenInclude(e => e.IdUtilisateurNavigation)
             .Include(p => p.Groupes)
+                .ThenInclude(g => g.Affectations)
+                    .ThenInclude(a => a.IdEtudiantNavigation)
+                        .ThenInclude(e => e.IdUtilisateurNavigation)
+            .Include(p => p.Groupes)
+                .ThenInclude(g => g.Affectations)
+                    .ThenInclude(a => a.IdRoleNavigation)
             .FirstOrDefaultAsync(p => p.IdProjet == id);
 
     public async Task<IEnumerable<Projet>> GetByEnseignantIdAsync(int idEnseignant)
@@ -67,6 +73,18 @@ public class ProjetRepository : IProjetRepository
         await _context.SaveChangesAsync();
     }
 
+    public async Task AddPromptAsync(Prompt prompt)
+    {
+        await _context.Prompts.AddAsync(prompt);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task AddAffectationAsync(Affectation affectation)
+    {
+        await _context.Affectations.AddAsync(affectation);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<int> CountAsync()
         => await _context.Projets.CountAsync();
 
@@ -79,4 +97,36 @@ public class ProjetRepository : IProjetRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<IEnumerable<Projet>> GetByEtudiantIdAsync(int idEtudiant)
+    {
+        var projetIds = await _context.Affectations
+            .Where(a => a.IdEtudiant == idEtudiant)
+            .Select(a => a.IdGroupeNavigation.IdProjet)
+            .Distinct()
+            .ToListAsync();
+
+        return await _context.Projets
+            .Where(p => projetIds.Contains(p.IdProjet))
+            .Include(p => p.Groupes.Where(g => g.Affectations.Any(a => a.IdEtudiant == idEtudiant)))
+                .ThenInclude(g => g.Affectations)
+                    .ThenInclude(a => a.IdEtudiantNavigation)
+                        .ThenInclude(e => e.IdUtilisateurNavigation)
+            .Include(p => p.Groupes.Where(g => g.Affectations.Any(a => a.IdEtudiant == idEtudiant)))
+                .ThenInclude(g => g.Affectations)
+                    .ThenInclude(a => a.IdRoleNavigation)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Prompt>> GetPromptsByProjectAndEtudiantAsync(int idProjet, int idEtudiant)
+        => await _context.Prompts
+            .Where(p => p.IdProjet == idProjet && p.IdEtudiant == idEtudiant)
+            .OrderByDescending(p => p.DatePrompt)
+            .ToListAsync();
+
+    public async Task<IEnumerable<Contribution>> GetContributionsByProjectAndEtudiantAsync(int idProjet, int idEtudiant)
+        => await _context.Contributions
+            .Where(c => c.IdProjet == idProjet && c.IdEtudiant == idEtudiant)
+            .OrderByDescending(c => c.DateCommit)
+            .ToListAsync();
 }

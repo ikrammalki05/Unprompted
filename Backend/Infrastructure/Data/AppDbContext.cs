@@ -304,6 +304,33 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.IdEnseignantNavigation).WithMany(p => p.Projets)
                 .HasForeignKey(d => d.IdEnseignant)
                 .HasConstraintName("FK__Projet__id_ensei__6FE99F9F");
+            entity.Property(e => e.Objectifs)
+    .HasColumnType("nvarchar(max)")
+    .HasColumnName("Objectifs");
+
+entity.Property(e => e.Livrables)
+    .HasColumnType("nvarchar(max)")
+    .HasColumnName("Livrables");
+
+entity.Property(e => e.CriteresEvaluation)
+    .HasColumnType("nvarchar(max)")
+    .HasColumnName("CriteresEvaluation");
+
+entity.Property(e => e.TechnologiesRequises)
+    .HasColumnType("nvarchar(max)")
+    .HasColumnName("TechnologiesRequises");
+
+entity.Property(e => e.Contraintes)
+    .HasColumnType("nvarchar(max)")
+    .HasColumnName("Contraintes");
+
+entity.Property(e => e.RessourcesDisponibles)
+    .HasColumnType("nvarchar(max)")
+    .HasColumnName("RessourcesDisponibles");
+
+entity.Property(e => e.CahierDesCharges)
+    .HasColumnType("varbinary(max)")
+    .HasColumnName("CahierDesCharges");
         });
 
         modelBuilder.Entity<Prompt>(entity =>
@@ -391,9 +418,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(200)
                 .HasColumnName("email");
-            entity.Property(e => e.MotDePasse)
-                .HasMaxLength(500)
-                .HasColumnName("mot_de_passe");
             entity.Property(e => e.Nom)
                 .HasMaxLength(100)
                 .HasColumnName("nom");

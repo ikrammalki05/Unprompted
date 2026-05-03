@@ -27,7 +27,6 @@ public class EtudiantService : IEtudiantService
             Nom = request.Nom,
             Prenom = request.Prenom,
             Email = request.Email,
-            MotDePasse = request.MotDePasse, 
             Statut = "Actif" // Par défaut
         };
         await _utilisateurRepo.AddAsync(nouvelUtilisateur);
