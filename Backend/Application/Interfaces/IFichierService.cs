@@ -1,0 +1,12 @@
+using Application.DTOs;
+
+namespace Application.Interfaces;
+
+public interface IFichierService
+{
+    Task<FichierDto> CreateAsync(FichierCreateDto dto, string userId);
+    Task<FichierDto?> GetByIdAsync(int id);
+    Task UpdateAsync(int id, FichierUpdateDto dto);
+    Task DeleteAsync(int id);
+    Task AutosaveAsync(int fichierId, string contenu, string userId);
+}

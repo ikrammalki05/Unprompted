@@ -33,6 +33,8 @@ public partial class AppDbContext : DbContext
     public DbSet<Dossier> Dossiers { get; set; }
     public DbSet<Fichier> Fichiers { get; set; }
 
+    public DbSet<FichierVersion> FichierVersions { get; set; }
+
     public virtual DbSet<Prompt> Prompts { get; set; } = null!;
 
     public virtual DbSet<ReponseIum> ReponseIa { get; set; } = null!;
@@ -102,17 +104,17 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Fichier>(entity =>
         {
-            entity.HasKey(e => e.Id);
+            entity.HasKey(e => e.IdFichier);
             entity.ToTable("Fichier");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.IdFichier).HasColumnName("id_fichier");
             entity.Property(e => e.Nom).HasMaxLength(255).HasColumnName("nom");
             entity.Property(e => e.Extension).HasMaxLength(50).HasColumnName("extension");
             entity.Property(e => e.Language).HasMaxLength(100).HasColumnName("language");
             entity.Property(e => e.Contenu).HasColumnType("nvarchar(max)").HasColumnName("contenu");
             entity.Property(e => e.Size).HasColumnName("size");
             entity.Property(e => e.Version).HasDefaultValue(1).HasColumnName("version");
-            entity.Property(e => e.LastModified)
+            entity.Property(e => e.DerniereModification)
                 .HasDefaultValueSql("GETDATE()")
                 .HasColumnType("datetime")
                 .HasColumnName("last_modified");
@@ -128,6 +130,23 @@ public partial class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(f => f.IdProjet)
                 .OnDelete(DeleteBehavior.ClientCascade);
+        });
+
+        modelBuilder.Entity<FichierVersion>(entity =>
+        {
+            entity.ToTable("FichierVersion");
+
+            entity.HasKey(e => e.IdFichierVersion);
+
+            entity.Property(e => e.Contenu)
+                .HasColumnType("nvarchar(max)");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            entity.HasOne(v => v.Fichier)
+                .WithMany()
+                .HasForeignKey(v => v.IdFichier);
         });
 
         modelBuilder.Entity<Affectation>(entity =>

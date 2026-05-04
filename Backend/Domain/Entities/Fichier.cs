@@ -5,7 +5,7 @@ namespace Domain.Entities;
 
 public class Fichier
 {
-    public int Id { get; set; }
+    public int IdFichier { get; set; }
 
     public string? Nom { get; set; }
 
@@ -19,7 +19,7 @@ public class Fichier
 
     public int Version { get; set; } = 1;
 
-    public DateTime LastModified { get; set; } = DateTime.UtcNow;
+    public DateTime DerniereModification { get; set; } = DateTime.UtcNow;
 
     public int IdProjet { get; set; }
     public Projet? Projet { get; set; }
