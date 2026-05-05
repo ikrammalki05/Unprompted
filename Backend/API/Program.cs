@@ -108,6 +108,7 @@ builder.Services.AddScoped<IGroupeService, Application.Services.GroupeService>()
 builder.Services.AddScoped<ITreeService, TreeService>();
 builder.Services.AddScoped<IFichierService, Application.Services.FichierService>();
 builder.Services.AddScoped<IDossierService, Application.Services.DossierService>();
+builder.Services.AddScoped<ICodeExecutionService, Application.Services.CodeExecutionService>();
 
 // 6. SWAGGER
 builder.Services.AddEndpointsApiExplorer();
