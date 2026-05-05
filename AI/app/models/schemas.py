@@ -3,8 +3,8 @@ from typing import Optional
 
 # Ce que le Backend envoie pour poser une question
 class ChatRequest(BaseModel):
-    student_id: str
-    project_id: str
+    student_id: int
+    project_id: int
     message: str
     # Le niveau d'accès défini par le prof (unlimited, limited, restricted)
     access_level: str 
