@@ -116,4 +116,51 @@ public class FichierService : IFichierService
 
         await _versionRepo.AddAsync(version);
     }
+
+    public async Task<IEnumerable<FichierVersionDto>> GetVersionsAsync(int fichierId)
+    {
+        var versions = await _versionRepo.GetByFichierIdAsync(fichierId);
+
+        return versions.Select(v => new FichierVersionDto
+        {
+            Id = v.IdFichierVersion,
+            Version = v.Version,
+            Contenu = v.Contenu,
+            CreatedBy = v.CreatedBy,
+            CreatedAt = v.CreatedAt
+        });
+    }
+
+    public async Task RestoreVersionAsync(int fichierId, int versionId, string userId)
+    {
+        var fichier = await _fichierRepo.GetByIdAsync(fichierId);
+
+        if (fichier == null)
+            throw new Exception("Fichier introuvable");
+
+        var versions = await _versionRepo.GetByFichierIdAsync(fichierId);
+
+        var version = versions.FirstOrDefault(v => v.IdFichierVersion == versionId);
+
+        if (version == null)
+            throw new Exception("Version introuvable");
+
+        // restaurer contenu
+        fichier.Contenu = version.Contenu;
+        fichier.Version += 1;
+        fichier.DerniereModification = DateTime.UtcNow;
+
+        await _fichierRepo.UpdateAsync(fichier);
+
+        // enregistrer restauration comme nouvelle version
+        var newVersion = new FichierVersion
+        {
+            IdFichier = fichier.IdFichier,
+            Contenu = version.Contenu,
+            Version = fichier.Version,
+            CreatedBy = userId
+        };
+
+        await _versionRepo.AddAsync(newVersion);
+    }
 }

@@ -9,4 +9,6 @@ public interface IFichierService
     Task UpdateAsync(int id, FichierUpdateDto dto);
     Task DeleteAsync(int id);
     Task AutosaveAsync(int fichierId, string contenu, string userId);
+    Task<IEnumerable<FichierVersionDto>> GetVersionsAsync(int fichierId);
+    Task RestoreVersionAsync(int fichierId, int versionId, string userId);
 }

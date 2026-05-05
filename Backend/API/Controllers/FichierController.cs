@@ -85,4 +85,30 @@ public class FichierController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    // GET: api/fichier/{id}/versions
+    [HttpGet("{id}/versions")]
+    public async Task<IActionResult> GetVersions(int id)
+    {
+        var versions = await _fichierService.GetVersionsAsync(id);
+        return Ok(versions);
+    }
+
+    // POST: api/fichier/{id}/restore/{versionId}
+    [HttpPost("{id}/restore/{versionId}")]
+    public async Task<IActionResult> Restore(int id, int versionId)
+    {
+        try
+        {
+            var userId = User.FindFirst("sub")?.Value ?? "system";
+
+            await _fichierService.RestoreVersionAsync(id, versionId, userId);
+
+            return Ok("Version restaurée");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }
