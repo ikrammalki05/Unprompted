@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
-namespace Infrastructure;
+namespace Domain.Entities;
 
 public partial class Projet
 {
@@ -20,6 +20,12 @@ public partial class Projet
     public int? Duree { get; set; }
 
     public string? UrlGit { get; set; }
+
+    /// <summary>Pourcentage d'avancement du projet (0-100).</summary>
+    public int? Progression { get; set; }
+
+    /// <summary>Notes / observations de l'enseignant sur le suivi du projet.</summary>
+    public string? NotesEnseignant { get; set; }
 
     public int? IdEnseignant { get; set; }
 
