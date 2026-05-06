@@ -1,5 +1,6 @@
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File, Form,Depends 
 from app.models.schemas import ChatRequest, ChatResponse
+from app.core.security import verify_service_key
 from app.engine.vectordb import VectorDBManager
 from app.services.processor import DocumentProcessor
 from app.engine.llm_chain import LLMChain
@@ -16,7 +17,7 @@ processor = DocumentProcessor()
 async def health_check():
     return {"status": "healthy", "service": "ai-governance-service"}
 
-@router.post("/upload")
+@router.post("/upload", dependencies=[Depends(verify_service_key)])
 async def upload_pdf(project_id: str = Form(...), file: UploadFile = File(...)):
     temp_file_path = f"temp_{file.filename}"
     with open(temp_file_path, "wb") as buffer:
@@ -32,7 +33,7 @@ async def upload_pdf(project_id: str = Form(...), file: UploadFile = File(...)):
     os.remove(temp_file_path)
     return {"status": "error", "message": "Impossible de lire le document."}
 
-@router.post("/ask", response_model=ChatResponse)
+@router.post("/ask", response_model=ChatResponse, dependencies=[Depends(verify_service_key)])
 async def ask_ai(request: ChatRequest):
     
     # 1. Recherche du contexte
