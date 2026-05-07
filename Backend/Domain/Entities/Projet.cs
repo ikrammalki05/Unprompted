@@ -41,5 +41,6 @@ public partial class Projet
 
     public virtual ICollection<Prompt> Prompts { get; set; } = new List<Prompt>();
 
-    public virtual ICollection<Dossier> Dossiers { get; set; } = new List<Dossier>();
+    public ICollection<Dossier>? Dossiers { get; set; }
+    public ICollection<Fichier>? Fichiers { get; set; }
 }

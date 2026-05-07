@@ -14,9 +14,9 @@ public class Dossier
     public int? DossierParentId { get; set; }
     public Dossier? DossierParent { get; set; }
 
-    public ICollection<Dossier>? Dossiersfils { get; set; }
+    public ICollection<Dossier> Dossiersfils { get; set; } = new List<Dossier>();
 
-    public ICollection<Fichier>? Fichiers { get; set; }
+    public ICollection<Fichier>? Fichiers { get; set; } = new List<Fichier>();
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

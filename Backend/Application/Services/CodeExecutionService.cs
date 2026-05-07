@@ -8,7 +8,7 @@ public class CodeExecutionService : ICodeExecutionService
 {
     public async Task<string> ExecuteAsync(RunProjectDto dto)
     {
-        var folder = Path.Combine("temp", Guid.NewGuid().ToString());
+        var folder = Path.Combine(Path.GetTempPath(), "unprompted", Guid.NewGuid().ToString());
         Directory.CreateDirectory(folder);
 
         try
@@ -65,45 +65,15 @@ public class CodeExecutionService : ICodeExecutionService
 
         return language.ToLower() switch
         {
-            "python" => $@"
-docker run --rm 
---memory=100m --cpus=0.5 --network none 
--v {path}:/app 
-python:3.9 
-bash -c ""cd /app && python main.py""
-",
+            "python" => $"docker run --rm --memory=100m --cpus=0.5 --network none -v {path}:/app python:3.9 bash -c \"cd /app && python main.py\"",
 
-            "javascript" => $@"
-docker run --rm 
---memory=100m --cpus=0.5 --network none 
--v {path}:/app 
-node:18 
-bash -c ""cd /app && node main.js""
-",
+            "javascript" => $"docker run --rm --memory=100m --cpus=0.5 --network none -v {path}:/app node:18 bash -c \"cd /app && node main.js\"",
 
-            "csharp" => $@"
-docker run --rm 
---memory=200m --cpus=1 
--v {path}:/app 
-mcr.microsoft.com/dotnet/sdk:7.0 
-bash -c ""cd /app && dotnet new console -n app && cp *.cs app/ && cd app && dotnet run""
-",
+            "csharp" => $"docker run --rm --memory=200m --cpus=1 -v {path}:/app mcr.microsoft.com/dotnet/sdk:7.0 bash -c \"cd /app && dotnet new console -n app && cp *.cs app/ && cd app && dotnet run\"",
 
-            "java" => $@"
-docker run --rm 
---memory=100m --cpus=0.5 --network none 
--v {path}:/app 
-openjdk:17 
-bash -c ""cd /app && javac *.java && java Main""
-",
+            "java" => $"docker run --rm --memory=100m --cpus=0.5 --network none -v {path}:/app openjdk:17 bash -c \"cd /app && javac *.java && java Main\"",
 
-            "cpp" => $@"
-docker run --rm 
---memory=100m --cpus=0.5 --network none 
--v {path}:/app 
-gcc:latest 
-bash -c ""cd /app && g++ *.cpp -o main && ./main""
-",
+            "cpp" => $"docker run --rm --memory=100m --cpus=0.5 --network none -v {path}:/app gcc:latest bash -c \"cd /app && g++ *.cpp -o main && ./main\"",
 
             _ => ""
         };

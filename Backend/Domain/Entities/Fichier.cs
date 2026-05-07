@@ -19,6 +19,8 @@ public class Fichier
 
     public int Version { get; set; } = 1;
 
+    public ICollection<FichierVersion> Versions { get; set; } = new List<FichierVersion>();
+
     public DateTime DerniereModification { get; set; } = DateTime.UtcNow;
 
     public int IdProjet { get; set; }

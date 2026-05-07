@@ -99,7 +99,7 @@ public partial class AppDbContext : DbContext
             entity.HasMany(d => d.Fichiers)
                 .WithOne(f => f.Dossier)
                 .HasForeignKey(f => f.IdDossier)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<Fichier>(entity =>
@@ -127,9 +127,9 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("created_at");
 
             entity.HasOne(f => f.Projet)
-                .WithMany()
+                .WithMany(p => p.Fichiers)
                 .HasForeignKey(f => f.IdProjet)
-                .OnDelete(DeleteBehavior.ClientCascade);
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<FichierVersion>(entity =>
@@ -138,15 +138,32 @@ public partial class AppDbContext : DbContext
 
             entity.HasKey(e => e.IdFichierVersion);
 
+            entity.Property(e => e.IdFichierVersion)
+                .HasColumnName("id_fichier_version");
+
+            entity.Property(e => e.IdFichier)
+                .HasColumnName("id_fichier");
+
             entity.Property(e => e.Contenu)
-                .HasColumnType("nvarchar(max)");
+                .HasColumnType("nvarchar(max)")
+                .HasColumnName("contenu");
+
+            entity.Property(e => e.Version)
+                .HasColumnName("version");
+
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(255)
+                .HasColumnName("created_by");
 
             entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");
+                .HasDefaultValueSql("GETDATE()")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
 
             entity.HasOne(v => v.Fichier)
-                .WithMany()
-                .HasForeignKey(v => v.IdFichier);
+                .WithMany(f => f.Versions)
+                .HasForeignKey(v => v.IdFichier)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Affectation>(entity =>
@@ -394,9 +411,7 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.IdEnseignant)
                 .HasConstraintName("FK__Projet__id_ensei__6FE99F9F");
 
-            entity.HasOne(d => d.IdEnseignantNavigation).WithMany(p => p.Projets)
-                .HasForeignKey(d => d.IdEnseignant)
-                .HasConstraintName("FK__Projet__id_ensei__6FE99F9F");
+            
         });
 
         modelBuilder.Entity<Prompt>(entity =>
