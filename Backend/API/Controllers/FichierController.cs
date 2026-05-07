@@ -1,8 +1,10 @@
 using Application.DTOs;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
+
 
 [ApiController]
 [Route("api/[controller]")]
@@ -47,11 +49,11 @@ public class FichierController : ControllerBase
 
     // PUT: api/fichier/{id}
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, FichierUpdateDto dto)
+    public async Task<IActionResult> Update(int id, FichierUpdateDto dto, string userId)
     {
         try
         {
-            await _fichierService.UpdateAsync(id, dto);
+            await _fichierService.UpdateAsync(id, dto, userId);
             return NoContent();
         }
         catch (ArgumentException ex)
@@ -111,4 +113,20 @@ public class FichierController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    // PUT: api/fichier/{id}/rename
+    [HttpPut("{id}/rename")]
+    public async Task<IActionResult> Rename(int id, FichierRenameDto dto)
+    {
+        try
+        {
+            var result = await _fichierService.RenameAsync(id, dto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
 }

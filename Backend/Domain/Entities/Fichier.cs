@@ -14,6 +14,7 @@ public class Fichier
     public string? Language { get; set; }
 
     public string? Contenu { get; set; }
+    public string? ContentHash { get; set; }
 
     public long Size { get; set; }
 

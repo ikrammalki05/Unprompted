@@ -4,6 +4,8 @@ public class FichierVersionDto
 {
     public int Id { get; set; }
 
+    public int IdFichier { get; set; }
+
     public int Version { get; set; }
 
     public string Contenu { get; set; } = string.Empty;

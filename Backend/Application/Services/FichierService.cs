@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Application.DTOs;
 using Application.Interfaces;
 using Domain.Entities;
@@ -33,8 +35,9 @@ public class FichierService : IFichierService
             IdDossier = dto.IdDossier,
             IdProjet = dto.IdProjet,
             Contenu = dto.Contenu,
-            Size = dto.Size,
-            CreatedBy = userId
+            Size = dto.Contenu?.Length ?? 0,
+            CreatedBy = userId,
+            ContentHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(dto.Contenu ?? "")))
         };
 
         await _fichierRepo.AddAsync(fichier);
@@ -67,7 +70,7 @@ public class FichierService : IFichierService
         };
     }
 
-    public async Task UpdateAsync(int id, FichierUpdateDto dto)
+    public async Task UpdateAsync(int id, FichierUpdateDto dto, string userId)
     {
         var fichier = await _fichierRepo.GetByIdAsync(id);
 
@@ -80,6 +83,14 @@ public class FichierService : IFichierService
         fichier.DerniereModification = DateTime.UtcNow;
 
         await _fichierRepo.UpdateAsync(fichier);
+        var newVersion = new FichierVersion
+        {
+            IdFichier = fichier.IdFichier,
+            Contenu = fichier.Contenu, // ancien contenu avant écrasement
+            Version = fichier.Version,
+            CreatedBy = userId  // ← il faut ajouter userId au paramètre
+        };
+        await _versionRepo.AddAsync(newVersion);
     }
 
     public async Task DeleteAsync(int id)
@@ -95,13 +106,15 @@ public class FichierService : IFichierService
             throw new Exception("Fichier introuvable");
 
         // éviter sauvegarde inutile
-        if (fichier.Contenu == contenu)
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(contenu)));
+        if (fichier.ContentHash == hash) 
             return;
 
         fichier.Contenu = contenu;
         fichier.Size = contenu.Length;
         fichier.Version += 1;
         fichier.DerniereModification = DateTime.UtcNow;
+        fichier.ContentHash = hash;
 
         await _fichierRepo.UpdateAsync(fichier);
 
@@ -162,5 +175,28 @@ public class FichierService : IFichierService
         };
 
         await _versionRepo.AddAsync(newVersion);
+    }
+
+    public async Task<FichierDto> RenameAsync(int id, FichierRenameDto dto)
+    {
+        var fichier = await _fichierRepo.GetByIdAsync(id)
+            ?? throw new Exception("Fichier introuvable.");
+
+        var exists = await _fichierRepo.ExistsAsync(dto.Nom, fichier.IdDossier, fichier.IdProjet);
+        if (exists)
+            throw new Exception("Un fichier avec ce nom existe déjà.");
+
+        fichier.Nom = dto.Nom;
+        await _fichierRepo.UpdateAsync(fichier);
+
+        return new FichierDto
+        {
+            Id = fichier.IdFichier,
+            Nom = fichier.Nom,
+            Extension = fichier.Extension,
+            Contenu = fichier.Contenu,
+            Version = fichier.Version,
+            DerniereModification = fichier.DerniereModification
+        };
     }
 }
