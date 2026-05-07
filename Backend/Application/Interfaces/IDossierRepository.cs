@@ -11,4 +11,5 @@ public interface IDossierRepository
 
     Task AddAsync(Dossier dossier);
     Task DeleteAsync(int id);
+    Task UpdateAsync(Dossier dossier);
 }

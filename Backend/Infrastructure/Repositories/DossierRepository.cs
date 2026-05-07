@@ -50,4 +50,10 @@ public class DossierRepository : IDossierRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task UpdateAsync(Dossier dossier)
+    {
+        _context.Dossiers.Update(dossier);
+        await _context.SaveChangesAsync();
+    }
 }
