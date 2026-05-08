@@ -17,13 +17,13 @@ public class ProjetRepository : IProjetRepository
     public async Task<IEnumerable<Projet>> GetAllAsync()
         => await _context.Projets
             .Include(p => p.IdEnseignantNavigation)
-                .ThenInclude(e => e.IdUtilisateurNavigation)
+                .ThenInclude(e => e!.IdUtilisateurNavigation)
             .ToListAsync();
 
     public async Task<Projet?> GetByIdAsync(int id)
         => await _context.Projets
             .Include(p => p.IdEnseignantNavigation)
-                .ThenInclude(e => e.IdUtilisateurNavigation)
+                .ThenInclude(e => e!.IdUtilisateurNavigation)
             .Include(p => p.Groupes)
                 .ThenInclude(g => g.Affectations)
                     .ThenInclude(a => a.IdEtudiantNavigation)

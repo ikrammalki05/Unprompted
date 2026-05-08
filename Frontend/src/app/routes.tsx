@@ -1,20 +1,49 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { LoginPage } from '../pages/LoginPage';
+import { createBrowserRouter } from 'react-router-dom';
+import { RoleRedirect } from '../features/auth/components/RoleRedirect';
+import MainLayout from '../layouts/MainLayout';
+// Tes imports de pages...
+import { DashboardPage } from '../pages/DashboardPage'; 
+
+import { GestionPage } from '../pages/GestionPage';
+import { ProfilePage } from '../pages/ProfilePage';
+import { UnauthorizedPage } from '../features/auth/components/UnauthorizedPage';
 
 export const router = createBrowserRouter([
   {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    // Redirection par défaut : si l'utilisateur arrive sur la racine '/', 
-    // on l'envoie vers la page de connexion pour l'instant.
+    // L'entrée principale de l'application
     path: '/',
-    element: <Navigate to="/login" replace />,
+    element: <RoleRedirect />, 
   },
   {
-    // Page 404 (Optionnel pour le moment) : si l'URL n'existe pas
-    path: '*',
-    element: <div className="flex h-screen items-center justify-center">Page introuvable</div>,
+    // Espace Administrateur
+    path: '/admin',
+    element: <MainLayout />,
+    children: [
+      { path: 'dashboard', element: <DashboardPage /> },
+      { path: 'gestion', element: <GestionPage /> },
+      { path: 'profile', element: <ProfilePage /> },
+      // Autres routes admin...
+    ]
+  },
+  // {
+  //   // Espace Étudiant (Tu pourras créer un Layout spécifique si la Sidebar est différente)
+  //   path: '/etudiant',
+  //   element: <MainLayout />, 
+  //   children: [
+  //     { path: 'dashboard', element: <EtudiantDashboard /> },
+  //   ]
+  // },
+  // {
+  //   // Espace Enseignant
+  //   path: '/enseignant',
+  //   element: <MainLayout />,
+  //   children: [
+  //     { path: 'dashboard', element: <EnseignantDashboard /> },
+  //   ]
+  // },
+  {
+    // Page d'erreur si pas de rôle
+    path: '/unauthorized',
+    element: <UnauthorizedPage />
   }
 ]);

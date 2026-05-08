@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[Authorize(Roles = "Admin")] 
+
+// [Authorize(Roles = "Admin")] 
+
 [ApiController]
 [Route("api/[controller]")]
 public class ClasseController : ControllerBase
@@ -24,6 +26,7 @@ public class ClasseController : ControllerBase
         var classes = await _classeService.GetAllClassesAsync();
         return Ok(classes);
     }
+
     // GET: api/classe/5
     [HttpGet("{id}")]
     public async Task<ActionResult<ClasseDto>> GetClasse(int id)
