@@ -1,12 +1,5 @@
 {
   "compilerOptions": {
-<<<<<<< HEAD
-    "composite": true,
-    "skipLibCheck": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true
-=======
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2023",
     "lib": ["ES2023"],
@@ -28,7 +21,6 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
->>>>>>> feature/etudiants-projets-cahier-charge
   },
   "include": ["vite.config.ts"]
 }

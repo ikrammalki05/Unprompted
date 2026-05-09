@@ -1,20 +1,29 @@
 import axios from 'axios';
-import { keycloak } from './keycloak';
+import { keycloak } from './keycloak';   // Make sure path is correct
 
 export const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // Remplace par l'URL de ton vrai Backend
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
-// Intercepteur : Avant chaque requête, on ajoute le token
+// 🔥 Important: Attach Keycloak token to every request
 api.interceptors.request.use(
-  (config) => {
-    if (keycloak.token) {
-      config.headers.Authorization = `Bearer ${keycloak.token}`;
+  async (config) => {
+    if (keycloak.authenticated) {
+      try {
+        // Refresh token if it's about to expire
+        await keycloak.updateToken(30);
+        config.headers.Authorization = `Bearer ${keycloak.token}`;
+      } catch (error) {
+        console.error('Failed to refresh token', error);
+        // Optionally logout user
+        // keycloak.logout();
+      }
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
+

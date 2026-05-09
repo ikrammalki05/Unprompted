@@ -1,4 +1,4 @@
-import { AdminHeader, RecentActivity, StatCards } from '../features/admin/dash';
+import { AdminHeader, RecentActivity, StatCards } from '../../features/admin/dash';
 
 
 

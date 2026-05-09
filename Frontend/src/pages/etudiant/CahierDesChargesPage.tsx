@@ -4,8 +4,7 @@ import {
   ChevronRight,
   FileText,
   Circle,
-  Github,
-  BookMarked,
+  
   CheckCircle2,
   Clock,
   CalendarDays,

@@ -1,25 +1,30 @@
 # ── Build stage ────────────────────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 WORKDIR /src
 
-# Copy csproj and restore dependencies first (layer cache)
+# Copy csproj files and restore (important for layer caching)
 COPY API/API.csproj ./API/
 COPY Application/Application.csproj ./Application/
 COPY Domain/Domain.csproj ./Domain/
 COPY Infrastructure/Infrastructure.csproj ./Infrastructure/
+
 RUN dotnet restore ./API/API.csproj
 
-# Copy everything else and publish
+# Copy the rest of the source code
 COPY . .
-RUN dotnet publish ./API/API.csproj -c Release -o /app/publish 
+
+# Publish WITHOUT --no-restore (this fixes the analyzer issue)
+RUN dotnet publish ./API/API.csproj -c Release -o /app/publish
+
 # ── Runtime stage ───────────────────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 
 WORKDIR /app
 
-# Create a non-root user for security
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+# Create non-root user
+RUN groupadd --system appgroup && \
+    useradd --system --gid appgroup --no-create-home --shell /bin/false appuser
 
 COPY --from=build /app/publish .
 

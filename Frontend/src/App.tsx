@@ -4,6 +4,7 @@ import DashboardPage from './pages/etudiant/DashboardPage';
 import ProfilePage from './pages/etudiant/ProfilePage';
 import CahierDesChargesPage from './pages/etudiant/CahierDesChargesPage';
 
+
 function App() {
   return (
     <BrowserRouter>

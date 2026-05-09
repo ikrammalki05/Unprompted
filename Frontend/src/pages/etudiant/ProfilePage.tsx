@@ -16,6 +16,7 @@ const ProfilePage: React.FC = () => {
    const [loading, setLoading] = useState(true);
  useEffect(() => {
   const fetchData = async () => {
+    console.log(studentId)
     if (!studentId) return; 
 
     try {
@@ -52,8 +53,8 @@ const ProfilePage: React.FC = () => {
   }
 };
 
-  if (loading) return <div className="p-10 text-center text-gray-400">Chargement du profil...</div>;
-
+   if (loading) return <div className="p-10 text-center text-gray-400">Chargement du profil...</div>;
+ 
   return (
     <div className="relative min-h-full">
       {/* Blurred background header */}

@@ -1,19 +1,48 @@
-import { Navigate } from 'react-router-dom';
-import { getUserMainRole } from '../../../utils/authUtils';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { keycloak } from '../../../services/keycloak';
 
 export const RoleRedirect = () => {
-  const role = getUserMainRole();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
-  // On redirige vers la bonne URL en fonction du rôle
-  switch (role) {
-    case 'admin':
-      return <Navigate to="/admin/dashboard" replace />;
-    case 'enseignant':
-      return <Navigate to="/enseignant/dashboard" replace />;
-    case 'etudiant':
-      return <Navigate to="/etudiant/dashboard" replace />;
-    default:
-      // Si l'utilisateur n'a aucun rôle reconnu, on peut l'envoyer sur une page d'erreur
-      return <Navigate to="/unauthorized" replace />;
+  useEffect(() => {
+    const redirectByRole = () => {
+      if (!keycloak.authenticated) {
+        navigate('/unauthorized');
+        return;
+      }
+
+      const roles = keycloak.realmAccess?.roles || [];
+
+      console.log("🔑 Roles détectés:", roles); // Debug
+
+      // Priority order
+      if (roles.includes('Admin')) {
+        navigate('/admin/dashboard', { replace: true });
+      } 
+      else if (roles.includes('Enseignant')) {
+        navigate('/enseignant/dashboard', { replace: true });
+      } 
+      else if (roles.includes('Etudiant')) {
+        navigate('/etudiant/dashboard', { replace: true });   // ← Change if you prefer /profile
+      } 
+      else {
+        navigate('/unauthorized', { replace: true });
+      }
+    };
+
+    redirectByRole();
+    setLoading(false);
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p className="text-lg">Redirection en cours...</p>
+      </div>
+    );
   }
+
+  return null;
 };

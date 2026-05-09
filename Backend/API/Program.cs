@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Infrastructure.Data;
 using Application.Interfaces; 
 using Infrastructure.Repositories;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.Authority = builder.Configuration["Keycloak:Authority"];
         options.Audience = builder.Configuration["Keycloak:Audience"];
         options.RequireHttpsMetadata = false;
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -27,29 +29,41 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             NameClaimType = "preferred_username",
-            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+            RoleClaimType = "role"          // ← Changed to simple "role"
         };
+
         options.Events = new JwtBearerEvents
         {
             OnTokenValidated = context =>
             {
-                var claimsIdentity = context.Principal?.Identity as System.Security.Claims.ClaimsIdentity;
+                var claimsIdentity = context.Principal?.Identity as ClaimsIdentity;
                 if (claimsIdentity == null) return Task.CompletedTask;
 
                 var realmAccess = context.Principal?.FindFirst("realm_access")?.Value;
-                if (realmAccess == null) return Task.CompletedTask;
+                if (string.IsNullOrEmpty(realmAccess)) return Task.CompletedTask;
 
-                var parsed = System.Text.Json.JsonDocument.Parse(realmAccess);
-                if (parsed.RootElement.TryGetProperty("roles", out var roles))
+                try
                 {
-                    foreach (var role in roles.EnumerateArray())
+                    var parsed = System.Text.Json.JsonDocument.Parse(realmAccess);
+                    if (parsed.RootElement.TryGetProperty("roles", out var roles))
                     {
-                        claimsIdentity.AddClaim(new System.Security.Claims.Claim(
-                            System.Security.Claims.ClaimsIdentity.DefaultRoleClaimType,
-                            role.GetString() ?? ""
-                        ));
+                        foreach (var role in roles.EnumerateArray())
+                        {
+                            var roleValue = role.GetString();
+                            if (!string.IsNullOrEmpty(roleValue))
+                            {
+                                // Add role with simple "role" claim type
+                                claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, roleValue));
+                                claimsIdentity.AddClaim(new Claim("role", roleValue)); // extra safety
+                            }
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error parsing realm_access: {ex.Message}");
+                }
+
                 return Task.CompletedTask;
             }
         };

@@ -13,20 +13,24 @@ services:
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-Unprompted@db}
-      MSSQL_PID: Developer
+      MSSQL_PID: Developer                  
     ports:
       - "1433:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
-    networks: [ platform ]
+    networks: [platform]
     healthcheck:
-      test: [ "CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"${MSSQL_SA_PASSWORD:-Unprompted@db}\" -Q 'SELECT 1' -No -C || exit 1" ]
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"${MSSQL_SA_PASSWORD:-Unprompted@db}\" -Q 'SELECT 1' -No -C || exit 1"
+        ]
       interval: 15s
       timeout: 10s
       retries: 10
       start_period: 30s
 
-  # ---> AJOUT DE KEYCLOAK <---
+  # ---> AJOUT DE KEYCLOAK ICI <---
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     container_name: keycloak-unprompted
@@ -35,38 +39,38 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      # ---> NOUVEAU : Désactive le cache pour le développement du thème <---
       KC_SPI_THEME_STATIC_MAX_AGE: -1
       KC_SPI_THEME_CACHE_TEMPLATES: "false"
       KC_SPI_THEME_CACHE_THEMES: "false"
     ports:
       - "8080:8080"
-    networks: [ platform ]
+    networks: [platform]
+    # ton chemin actuel qui est parfait :
     volumes:
       - ./Frontend/themes/unprompted-theme:/opt/keycloak/themes/unprompted-theme
 
   backend:
     build:
       context: ./Backend
-      dockerfile: Dockerfile
+      dockerfile: DOCKERFILE
     restart: unless-stopped
     ports:
-      - "5066:5000" # Ton port personnalisé préservé
+      - "5000:5000"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=Unprompted;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Unprompted@db};TrustServerCertificate=True;
-      - ConnectionStrings__Redis=redis:6379
-      - JwtSettings__Secret=${JWT_SECRET:-super-secret-dev-key-change-in-prod}
-      - JwtSettings__ExpiryMinutes=60
-      - AiService__BaseUrl=http://ai:8000
+      # Note: Si tu as toujours l'erreur "Connection refused", tu pourras ajouter la variable d'environnement pour Keycloak ici plus tard !
     depends_on:
       sqlserver:
         condition: service_healthy
+      # Ajout de la dépendance à Keycloak
       keycloak:
         condition: service_started
-    networks: [ platform ]
+    networks: [platform]
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:5000/health || exit 1" ]
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -74,12 +78,12 @@ services:
   frontend:
     build:
       context: ./Frontend
-      dockerfile: Dockerfile
+      dockerfile: DOCKERFILE
       args:
-        VITE_API_URL: http://localhost:5066 # Ton port d'API préservé
+        VITE_API_URL: http://localhost:5000
     restart: unless-stopped
     ports:
-      - "3001:80" # Ton port Frontend préservé
+      - "3000:80"
     depends_on:
       - backend
-    networks: [ platform ]
+    networks: [platform]

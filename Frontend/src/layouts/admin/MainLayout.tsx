@@ -1,7 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Sidebar from "../components/Sidebar";
-import { Topbar } from "../features/admin/dash/components/Topbar";
+import Sidebar from "../../components/admin/Sidebar";
+import { Topbar } from "../../features/admin/dash/components/Topbar";
 
 export default function MainLayout() {
   const location = useLocation();

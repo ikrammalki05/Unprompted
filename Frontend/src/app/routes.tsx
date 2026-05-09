@@ -1,12 +1,15 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { RoleRedirect } from '../features/auth/components/RoleRedirect';
-import MainLayout from '../layouts/MainLayout';
+import MainLayout from '../layouts/admin/MainLayout';
 // Tes imports de pages...
-import { DashboardPage } from '../pages/DashboardPage'; 
+import { DashboardPage } from '../pages/admin/DashboardPage'; 
 
-import { GestionPage } from '../pages/GestionPage';
-import { ProfilePage } from '../pages/ProfilePage';
+import { GestionPage } from '../pages/admin/GestionPage';
+import { ProfilePage } from '../pages/admin/ProfilePage';
 import { UnauthorizedPage } from '../features/auth/components/UnauthorizedPage';
+import EtudiantDashboard from '../pages/etudiant/DashboardPage'
+import EtudiantProfile from '../pages/etudiant/ProfilePage'
+
 
 export const router = createBrowserRouter([
   {
@@ -25,14 +28,15 @@ export const router = createBrowserRouter([
       // Autres routes admin...
     ]
   },
-  // {
-  //   // Espace Étudiant (Tu pourras créer un Layout spécifique si la Sidebar est différente)
-  //   path: '/etudiant',
-  //   element: <MainLayout />, 
-  //   children: [
-  //     { path: 'dashboard', element: <EtudiantDashboard /> },
-  //   ]
-  // },
+      {
+        // Espace Étudiant (Tu pourras créer un Layout spécifique si la Sidebar est différente)
+        path: '/etudiant',
+        element: <MainLayout />, 
+        children: [
+          { path: 'dashboard', element: <EtudiantDashboard /> },
+          { path: 'profile', element: <EtudiantProfile /> },
+      ]
+      },
   // {
   //   // Espace Enseignant
   //   path: '/enseignant',

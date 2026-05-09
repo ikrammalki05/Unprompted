@@ -4,9 +4,9 @@ import {
   TeachersSection, 
   ClassesSection, 
   AffectationPanel
-} from '../features/admin/gestion';
+} from '../../features/admin/gestion';
 
-import type { Student, Teacher, ClassData } from '../features/admin/gestion';
+import type { Student, Teacher, ClassData } from '../../features/admin/gestion';
 
 export const GestionPage = () => {
   // Optionnel : tu peux initialiser avec [] puisque tes composants enfants (StudentsSection, etc.)
