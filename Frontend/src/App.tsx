@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
-import DashboardPage from './pages/DashboardPage';
-import ProfilePage from './pages/ProfilePage';
-import CahierDesChargesPage from './pages/CahierDesChargesPage';
+import DashboardPage from './pages/etudiant/DashboardPage';
+import ProfilePage from './pages/etudiant/ProfilePage';
+import CahierDesChargesPage from './pages/etudiant/CahierDesChargesPage';
 
 function App() {
   return (

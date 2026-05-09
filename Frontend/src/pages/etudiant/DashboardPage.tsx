@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Cpu, ArrowRight } from 'lucide-react';
-import { api } from '../services/api';
-import { keycloak } from '../services/keycloak';
+import { api } from '../../services/api';
+import { keycloak } from '../../services/keycloak';
 
 const studentId = keycloak.subject;
 

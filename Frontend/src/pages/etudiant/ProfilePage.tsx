@@ -5,9 +5,9 @@ import {
   Camera,
   GraduationCap
 } from 'lucide-react';
-import type { etudiantData } from '../features/etudiant/profile/types';
-import { api } from '../services/api';
-import {keycloak} from '../services/keycloak';
+import type { etudiantData } from '../../features/etudiant/profile/types';
+import { api } from '../../services/api';
+import {keycloak} from '../../services/keycloak';
 
 const ProfilePage: React.FC = () => {
 
