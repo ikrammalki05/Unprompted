@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
@@ -76,3 +77,6 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+=======
+@import "tailwindcss";
+>>>>>>> feature/etudiants-projets-cahier-charge
