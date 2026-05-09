@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260507171221_AddFileSystemEntities")]
+    partial class AddFileSystemEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -421,61 +424,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("Evaluation", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.ExecutionCode", b =>
-                {
-                    b.Property<Guid>("IdExecution")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("id_execution");
-
-                    b.Property<DateTime>("DateDebut")
-                        .HasColumnType("datetime")
-                        .HasColumnName("date_debut");
-
-                    b.Property<DateTime?>("DateFin")
-                        .HasColumnType("datetime")
-                        .HasColumnName("date_fin");
-
-                    b.Property<string>("IdConteneurDocker")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("id_conteneur_docker");
-
-                    b.Property<int?>("IdProjet")
-                        .HasColumnType("int")
-                        .HasColumnName("id_projet");
-
-                    b.Property<string>("IdUtilisateur")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("id_utilisateur");
-
-                    b.Property<string>("Langage")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("langage");
-
-                    b.Property<string>("Sortie")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("sortie");
-
-                    b.Property<string>("Statut")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("statut");
-
-                    b.HasKey("IdExecution");
-
-                    b.HasIndex("IdProjet");
-
-                    b.ToTable("ExecutionCode", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Entities.Fichier", b =>
                 {
                     b.Property<int>("IdFichier")
@@ -484,9 +432,6 @@ namespace Infrastructure.Migrations
                         .HasColumnName("id_fichier");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdFichier"));
-
-                    b.Property<string>("ContentHash")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Contenu")
                         .HasColumnType("nvarchar(max)")
@@ -629,15 +574,6 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdProjet"));
 
-                    b.Property<byte[]>("CahierDesCharges")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("Contraintes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CriteresEvaluation")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateOnly?>("DateDebut")
                         .HasColumnType("date")
                         .HasColumnName("date_debut");
@@ -658,16 +594,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id_enseignant");
 
-                    b.Property<string>("Livrables")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("NotesEnseignant")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)")
                         .HasColumnName("notes_enseignant");
-
-                    b.Property<string>("Objectifs")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Progression")
                         .ValueGeneratedOnAdd()
@@ -675,18 +605,12 @@ namespace Infrastructure.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("progression");
 
-                    b.Property<string>("RessourcesDisponibles")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Statut")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasDefaultValue("En cours")
                         .HasColumnName("statut");
-
-                    b.Property<string>("TechnologiesRequises")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Titre")
                         .IsRequired()
@@ -1030,16 +954,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("IdProjetNavigation");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ExecutionCode", b =>
-                {
-                    b.HasOne("Domain.Entities.Projet", "Projet")
-                        .WithMany("ExecutionsCode")
-                        .HasForeignKey("IdProjet")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Projet");
-                });
-
             modelBuilder.Entity("Domain.Entities.Fichier", b =>
                 {
                     b.HasOne("Domain.Entities.Dossier", "Dossier")
@@ -1166,8 +1080,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Dossiers");
 
                     b.Navigation("Evaluations");
-
-                    b.Navigation("ExecutionsCode");
 
                     b.Navigation("Fichiers");
 
