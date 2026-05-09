@@ -182,3 +182,31 @@
     border-right-color: var(--border);
   }
 }
+
+
+/* --- src/index.css --- */
+
+/* Style de barre de défilement type VS Code */
+.vscode-scrollbar {
+  scrollbar-width: thin; /* Pour Firefox */
+  scrollbar-color: #424242 transparent; /* Pouce gris, fond transparent */
+}
+
+/* Pour Chrome, Edge et Safari */
+.vscode-scrollbar::-webkit-scrollbar {
+  width: 10px; /* Largeur de la barre verticale */
+  height: 10px; /* Hauteur de la barre horizontale */
+}
+
+.vscode-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* Le fond reste transparent, comme tu l'as demandé */
+}
+
+.vscode-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #424242; /* Le gris sombre de VS Code */
+  border: 2px solid #252526; /* Crée un faux espacement (padding) avec la même couleur que le fond de la sidebar */
+}
+
+.vscode-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #4f4f4f; /* Un peu plus clair quand on passe la souris dessus */
+}

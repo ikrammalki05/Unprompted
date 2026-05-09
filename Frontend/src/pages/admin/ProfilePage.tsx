@@ -4,8 +4,8 @@ import {
   PersonalInfoCard, 
   InstitutionCard, 
   initialAdminData
-} from '../features/admin/profile';
-import type {AdminData} from '../features/admin/profile';
+} from '../../features/admin/profile';
+import type {AdminData} from '../../features/admin/profile';
 
 
 export const ProfilePage = () => {

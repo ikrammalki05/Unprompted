@@ -2,11 +2,12 @@ import { createBrowserRouter } from 'react-router-dom';
 import { RoleRedirect } from '../features/auth/components/RoleRedirect';
 import MainLayout from '../layouts/MainLayout';
 // Tes imports de pages...
-import { DashboardPage } from '../pages/DashboardPage'; 
+import { DashboardPage } from '../pages/admin/DashboardPage'; 
 
-import { GestionPage } from '../pages/GestionPage';
-import { ProfilePage } from '../pages/ProfilePage';
+import { GestionPage } from '../pages/admin/GestionPage';
+import { ProfilePage } from '../pages/admin/ProfilePage';
 import { UnauthorizedPage } from '../features/auth/components/UnauthorizedPage';
+import CodeEditorPage from '../pages/student/CodeEditorPage';
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'gestion', element: <GestionPage /> },
       { path: 'profile', element: <ProfilePage /> },
+      { path: 'code', element: <CodeEditorPage /> },
       // Autres routes admin...
     ]
   },

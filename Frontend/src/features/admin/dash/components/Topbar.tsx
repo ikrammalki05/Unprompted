@@ -41,7 +41,7 @@ export const Topbar = () => {
         </button>
 
         {/* Avatar Profil Admin */}
-        <Link to="/profile" >
+        <Link to="/admin/profile" >
         <div className="w-10 h-10 rounded-full bg-[#021124] text-white flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md transition-all ml-2">
           {/* Icône Utilisateur */}
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
