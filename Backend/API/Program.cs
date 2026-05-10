@@ -79,9 +79,18 @@ builder.Services.AddScoped<IEnseignantRepository, EnseignantRepository>();
 builder.Services.AddScoped<IClasseRepository, ClasseRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IAffectationRepository, AffectationRepository>();
+builder.Services.AddScoped<IProjetRepository, ProjetRepository>();
+builder.Services.AddScoped<IConfigurationIumRepository, ConfigurationIumRepository>();
+builder.Services.AddScoped<IGroupeRepository, GroupeRepository>();
+builder.Services.AddScoped<IPromptRepository, PromptRepository>();
+builder.Services.AddScoped<IContributionRepository, Infrastructure.Repositories.ContributionRepository>();
+
 builder.Services.AddScoped<IEnseignantClasseRepository, EnseignantClasseRepository>();
 builder.Services.AddScoped<IProjetRepository, ProjetRepository>();
 builder.Services.AddScoped<IGroupeRepository, GroupeRepository>();
+builder.Services.AddScoped<IDossierRepository, DossierRepository>();
+builder.Services.AddScoped<IFichierRepository, FichierRepository>();
+builder.Services.AddScoped<IFichierVersionRepository, FichierVersionRepository>();
 
 // 5. SERVICES
 builder.Services.AddScoped<IEtudiantService, Application.Services.EtudiantService>();
@@ -89,7 +98,17 @@ builder.Services.AddScoped<IEnseignantService, Application.Services.EnseignantSe
 builder.Services.AddScoped<IClasseService, Application.Services.ClasseService>();
 builder.Services.AddScoped<IAdminService, Application.Services.AdminService>();
 builder.Services.AddScoped<IProjetService, Application.Services.ProjetService>();
+builder.Services.AddScoped<IConfigurationIumService, Application.Services.ConfigurationIumService>();
+builder.Services.AddScoped<IGroupeProjetService, Application.Services.GroupeProjetService>();
+builder.Services.AddScoped<IPromptService, Application.Services.PromptService>();
+builder.Services.AddScoped<IAnalyticsService, Application.Services.AnalyticsService>();
+builder.Services.AddScoped<IEvaluationRepository, EvaluationRepository>();
+
 builder.Services.AddScoped<IGroupeService, Application.Services.GroupeService>();
+builder.Services.AddScoped<ITreeService, TreeService>();
+builder.Services.AddScoped<IFichierService, Application.Services.FichierService>();
+builder.Services.AddScoped<IDossierService, Application.Services.DossierService>();
+builder.Services.AddScoped<ICodeExecutionService, Application.Services.CodeExecutionService>();
 
 // 6. SWAGGER
 builder.Services.AddEndpointsApiExplorer();

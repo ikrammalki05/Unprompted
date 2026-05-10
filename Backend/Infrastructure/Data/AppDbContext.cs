@@ -30,6 +30,11 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Projet> Projets { get; set; } = null!;
 
+    public DbSet<Dossier> Dossiers { get; set; }
+    public DbSet<Fichier> Fichiers { get; set; }
+
+    public DbSet<FichierVersion> FichierVersions { get; set; }
+
     public virtual DbSet<Prompt> Prompts { get; set; } = null!;
 
     public virtual DbSet<ReponseIum> ReponseIa { get; set; } = null!;
@@ -58,6 +63,107 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey<Admin>(d => d.IdUtilisateur)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Admin__id_utilis__6383C8BA");
+        });
+
+        modelBuilder.Entity<Dossier>(entity =>
+        {
+            entity.HasKey(e => e.IdDossier).HasName("PK__Dossier__3214EC27C9A8B1F0");
+
+            entity.ToTable("Dossier");
+
+            entity.HasIndex(e => e.IdProjet, "IX__Dossier__IdProjet");
+            entity.HasIndex(e => e.DossierParentId, "IX__Dossier__DossierParentId");
+
+            entity.Property(e => e.IdDossier).HasColumnName("id_dossier");
+            entity.Property(e => e.Nom)
+                .HasMaxLength(255)
+                .HasColumnName("nom");
+
+            entity.Property(e => e.IdProjet).HasColumnName("id_projet");
+            entity.Property(e => e.DossierParentId).HasColumnName("dossier_parent_id");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("GETDATE()")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+
+            entity.HasOne(f => f.DossierParent)
+                .WithMany(f => f.Dossiersfils)
+                .HasForeignKey(f => f.DossierParentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(d => d.Projet)
+                .WithMany(p => p.Dossiers)
+                .HasForeignKey(d => d.IdProjet);
+
+            entity.HasMany(d => d.Fichiers)
+                .WithOne(f => f.Dossier)
+                .HasForeignKey(f => f.IdDossier)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<Fichier>(entity =>
+        {
+            entity.HasKey(e => e.IdFichier);
+            entity.ToTable("Fichier");
+
+            entity.Property(e => e.IdFichier).HasColumnName("id_fichier");
+            entity.Property(e => e.Nom).HasMaxLength(255).HasColumnName("nom");
+            entity.Property(e => e.Extension).HasMaxLength(50).HasColumnName("extension");
+            entity.Property(e => e.Language).HasMaxLength(100).HasColumnName("language");
+            entity.Property(e => e.Contenu).HasColumnType("nvarchar(max)").HasColumnName("contenu");
+            entity.Property(e => e.Size).HasColumnName("size");
+            entity.Property(e => e.Version).HasDefaultValue(1).HasColumnName("version");
+            entity.Property(e => e.DerniereModification)
+                .HasDefaultValueSql("GETDATE()")
+                .HasColumnType("datetime")
+                .HasColumnName("last_modified");
+            entity.Property(e => e.IdProjet).HasColumnName("id_projet");
+            entity.Property(e => e.IdDossier).HasColumnName("id_dossier");
+            entity.Property(e => e.CreatedBy).HasMaxLength(255).HasColumnName("created_by");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("GETDATE()")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+
+            entity.HasOne(f => f.Projet)
+                .WithMany(p => p.Fichiers)
+                .HasForeignKey(f => f.IdProjet)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<FichierVersion>(entity =>
+        {
+            entity.ToTable("FichierVersion");
+
+            entity.HasKey(e => e.IdFichierVersion);
+
+            entity.Property(e => e.IdFichierVersion)
+                .HasColumnName("id_fichier_version");
+
+            entity.Property(e => e.IdFichier)
+                .HasColumnName("id_fichier");
+
+            entity.Property(e => e.Contenu)
+                .HasColumnType("nvarchar(max)")
+                .HasColumnName("contenu");
+
+            entity.Property(e => e.Version)
+                .HasColumnName("version");
+
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(255)
+                .HasColumnName("created_by");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("GETDATE()")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+
+            entity.HasOne(v => v.Fichier)
+                .WithMany(f => f.Versions)
+                .HasForeignKey(v => v.IdFichier)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Affectation>(entity =>
@@ -304,6 +410,8 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.IdEnseignantNavigation).WithMany(p => p.Projets)
                 .HasForeignKey(d => d.IdEnseignant)
                 .HasConstraintName("FK__Projet__id_ensei__6FE99F9F");
+
+            
         });
 
         modelBuilder.Entity<Prompt>(entity =>

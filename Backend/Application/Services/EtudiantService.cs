@@ -10,17 +10,26 @@ public class EtudiantService : IEtudiantService
     private readonly IUtilisateurRepository _utilisateurRepo;
     private readonly IKeycloakAdminService _keycloakService;
     private readonly ILogger<EtudiantService> _logger;
+    private readonly IContributionRepository _contributionRepo;
+    private readonly IPromptRepository _promptRepo;
+    private readonly IEvaluationRepository _evaluationRepo; // Remplacement propre du DbContext !
 
     public EtudiantService(
         IEtudiantRepository etudiantRepo,
         IUtilisateurRepository utilisateurRepo,
         IKeycloakAdminService keycloakService,
-        ILogger<EtudiantService> logger)
+        ILogger<EtudiantService> logger,
+        IContributionRepository contributionRepo,
+        IPromptRepository promptRepo,
+        IEvaluationRepository evaluationRepo) // Injection du nouveau repo
     {
         _etudiantRepo = etudiantRepo;
         _utilisateurRepo = utilisateurRepo;
         _keycloakService = keycloakService;
         _logger = logger;
+        _contributionRepo = contributionRepo;
+        _promptRepo = promptRepo;
+        _evaluationRepo = evaluationRepo;
     }
 
     public async Task<EtudiantDto> CreateEtudiantAsync(EtudiantCreateDto request)
@@ -89,7 +98,6 @@ public class EtudiantService : IEtudiantService
         };
     }
 
-
     public async Task<IEnumerable<EtudiantDto>> GetAllEtudiantsAsync()
     {
         var etudiants = await _etudiantRepo.GetAllAsync();
@@ -131,5 +139,79 @@ public class EtudiantService : IEtudiantService
             throw new ArgumentException($"Etudiant avec l'id {id} introuvable.");
 
         await _etudiantRepo.DeleteAsync(id);
+    }
+
+    public async Task<EtudiantProfilDto?> GetProfilEtudiantAsync(int idEtudiant)
+    {
+        // On récupère l'étudiant via le Repository de ton collègue
+        var etudiant = await _etudiantRepo.GetByIdAsync(idEtudiant);
+        
+        if (etudiant == null) 
+            return null;
+
+        // On mappe les données de l'entité vers le DTO
+        return new EtudiantProfilDto
+        {
+            IdEtudiant = etudiant.IdEtudiant,
+            CodeApogee = etudiant.CodeApogee,
+            Niveau = etudiant.Niveau ?? "Non spécifié",
+            Filiere = etudiant.Filiere ?? "Non spécifiée",
+            
+            // La navigation vers Utilisateur a été incluse par le Repository
+            NomComplet = $"{etudiant.IdUtilisateurNavigation?.Prenom} {etudiant.IdUtilisateurNavigation?.Nom}",
+            Email = etudiant.IdUtilisateurNavigation?.Email ?? "Inconnu",
+            Statut = etudiant.IdUtilisateurNavigation?.Statut ?? "Inconnu"
+        };
+    }
+
+    public async Task<HistoriqueEtudiantDto?> GetHistoriqueAsync(int idEtudiant)
+    {
+        // On vérifie que l'étudiant existe
+        var etudiant = await _etudiantRepo.GetByIdAsync(idEtudiant);
+        if (etudiant == null) return null;
+
+        // 1. Récupérer les Commits Git
+        var contributions = await _contributionRepo.GetByEtudiantIdAsync(idEtudiant);
+        
+        // 2. Récupérer les Requêtes IA
+        var prompts = await _promptRepo.GetByEtudiantIdAsync(idEtudiant);
+
+        // 3. Récupérer les Notes via le nouveau Repository
+        var evaluationsBrutes = await _evaluationRepo.GetByEtudiantIdAsync(idEtudiant);
+        
+        var evaluations = evaluationsBrutes.Select(e => new EvaluationItemDto
+        {
+            Note = e.Note,
+            Commentaire = e.Commentaire ?? string.Empty,
+            DateEvaluation = e.DateEvaluation,
+            NomProjet = e.IdProjetNavigation?.Titre ?? "Inconnu",
+            NomEnseignant = e.IdEnseignantNavigation?.IdUtilisateurNavigation != null
+                ? $"{e.IdEnseignantNavigation.IdUtilisateurNavigation.Prenom} {e.IdEnseignantNavigation.IdUtilisateurNavigation.Nom}"
+                : "Inconnu"
+        }).ToList();
+
+        // 4. On assemble le tout dans la boîte finale !
+        return new HistoriqueEtudiantDto
+        {
+            IdEtudiant = idEtudiant,
+            ContributionsGit = contributions.Select(c => new ContributionItemDto
+            {
+                MessageCommit = c.MessageCommit ?? "Sans message",
+                DateCommit = c.DateCommit,
+                NomProjet = c.IdProjetNavigation?.Titre ?? "Inconnu",
+                LignesAjoutees = c.LignesAjoutees ?? 0,
+                LignesSupprimees = c.LignesSupprimees ?? 0
+            }).ToList(),
+            
+            InteractionsIa = prompts.Select(p => new PromptItemDto
+            {
+                Question = p.Contenu ?? string.Empty,
+                DateQuestion = p.DatePrompt,
+                NomProjet = p.IdProjetNavigation?.Titre ?? "Inconnu",
+                TokensConsommes = (p.NbTokensEntree ?? 0) + (p.NbTokensSortie ?? 0)
+            }).ToList(),
+            
+            Evaluations = evaluations
+        };
     }
 }
