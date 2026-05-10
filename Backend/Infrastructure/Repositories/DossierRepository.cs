@@ -17,6 +17,9 @@ public class DossierRepository : IDossierRepository
     public async Task<IEnumerable<Dossier>> GetByProjectIdAsync(int projectId)
     {
         return await _context.Dossiers
+            .Include(d => d.Fichiers)
+            .Include(d => d.Dossiersfils)
+                .ThenInclude(sd => sd.Fichiers)
             .Where(d => d.IdProjet == projectId)
             .ToListAsync();
     }
@@ -24,6 +27,9 @@ public class DossierRepository : IDossierRepository
     public async Task<Dossier?> GetByIdAsync(int id)
     {
         return await _context.Dossiers
+            .Include(d => d.Dossiersfils)
+                .ThenInclude(sd => sd.Fichiers)
+            .Include(d => d.Fichiers)
             .FirstOrDefaultAsync(d => d.IdDossier == id);
     }
 

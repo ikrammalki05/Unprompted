@@ -48,7 +48,9 @@ public class DossierService : IDossierService
     public async Task<DossierDto?> GetByIdAsync(int id)
     {
         var dossier = await _dossierRepo.GetByIdAsync(id);
-        if (dossier == null) return null;
+
+        if (dossier == null)
+            return null;
 
         return new DossierDto
         {
@@ -56,7 +58,37 @@ public class DossierService : IDossierService
             Nom = dossier.Nom,
             IdProjet = dossier.IdProjet,
             DossierParentId = dossier.DossierParentId,
-            CreatedAt = dossier.CreatedAt
+            CreatedAt = dossier.CreatedAt,
+
+            SousDossiers = dossier.Dossiersfils.Select(sd => new DossierDto
+            {
+                Id = sd.IdDossier,
+                Nom = sd.Nom,
+                IdProjet = sd.IdProjet,
+                DossierParentId = sd.DossierParentId,
+                CreatedAt = sd.CreatedAt,
+
+                Fichiers = sd.Fichiers!.Select(f => new FichierDto
+                {
+                    Id = f.IdFichier,
+                    Nom = f.Nom,
+                    Extension = f.Extension,
+                    Language = f.Language,
+                    Size = f.Size,
+                    DerniereModification = f.DerniereModification
+                }).ToList()
+
+            }).ToList(),
+
+            Fichiers = dossier.Fichiers!.Select(f => new FichierDto
+            {
+                Id = f.IdFichier,
+                Nom = f.Nom,
+                Extension = f.Extension,
+                Language = f.Language,
+                Size = f.Size,
+                DerniereModification = f.DerniereModification
+            }).ToList()
         };
     }
 
@@ -70,7 +102,37 @@ public class DossierService : IDossierService
             Nom = d.Nom,
             IdProjet = d.IdProjet,
             DossierParentId = d.DossierParentId,
-            CreatedAt = d.CreatedAt
+            CreatedAt = d.CreatedAt,
+
+            SousDossiers = d.Dossiersfils.Select(sd => new DossierDto
+            {
+                Id = sd.IdDossier,
+                Nom = sd.Nom,
+                IdProjet = sd.IdProjet,
+                DossierParentId = sd.DossierParentId,
+                CreatedAt = sd.CreatedAt,
+
+                Fichiers = sd.Fichiers!.Select(f => new FichierDto
+                {
+                    Id = f.IdFichier,
+                    Nom = f.Nom,
+                    Extension = f.Extension,
+                    Language = f.Language,
+                    Size = f.Size,
+                    DerniereModification = f.DerniereModification
+                }).ToList()
+
+            }).ToList(),
+
+            Fichiers = d.Fichiers!.Select(f => new FichierDto
+            {
+                Id = f.IdFichier,
+                Nom = f.Nom,
+                Extension = f.Extension,
+                Language = f.Language,
+                Size = f.Size,
+                DerniereModification = f.DerniereModification
+            }).ToList()
         });
     }
 
