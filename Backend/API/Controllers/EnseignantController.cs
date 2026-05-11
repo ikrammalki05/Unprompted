@@ -85,5 +85,15 @@ public class EnseignantController : ControllerBase
             return NotFound(new { message = ex.Message });
         }
     }
+    // GET: api/Enseignant/5
+    [HttpGet("{id}")]
+    [Authorize(Roles = "Admin, Enseignant")]
+    public async Task<ActionResult<EnseignantDto>> GetProfil(int id)
+    {
+        var profil = await _enseignantService.GetProfilEnseignantAsync(id);
+        if (profil == null) return NotFound(new { message = "Enseignant introuvable." });
+    return Ok(profil);
+}
+
     
 }

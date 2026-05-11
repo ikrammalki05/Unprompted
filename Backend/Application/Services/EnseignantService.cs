@@ -161,4 +161,23 @@ public class EnseignantService : IEnseignantService
             ActivitésRécentes = 0
         };
     }
+    public async Task<EnseignantDto?> GetProfilEnseignantAsync(int idEnseignant)
+    {
+        // On utilise le repository pour récupérer l'enseignant spécifique
+        var e = await _enseignantRepo.GetByIdAsync(idEnseignant);
+        
+        if (e == null) return null;
+
+        return new EnseignantDto
+        {
+            Id = e.IdEnseignant,
+            NomComplet = $"{e.IdUtilisateurNavigation?.Prenom} {e.IdUtilisateurNavigation?.Nom}",
+            Email = e.IdUtilisateurNavigation?.Email ?? "Email inconnu",
+            Specialite = e.Specialite ?? "Non spécifiée",
+            Statut = e.IdUtilisateurNavigation?.Statut ?? "Inactif",
+            ClassesAssignees = e.Affectations != null 
+                ? e.Affectations.Select(a => a.IdGroupeNavigation?.NomGroupe ?? "").Where(n => !string.IsNullOrEmpty(n)).ToList()
+                : new List<string>()
+        };
+    }
 }
