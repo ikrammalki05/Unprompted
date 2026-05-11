@@ -1,0 +1,87 @@
+🛠️ 1. Lancement de l'Environnement (Docker)
+Le projet utilise docker-compose pour orchestrer la base de données, le serveur d'authentification Keycloak, le backend .NET et le frontend React.
+
+Prérequis
+Docker et Docker Desktop installés et lancés.
+
+Les ports 3000 (React), 5000 (.NET), 1433 (SQL Server) et 8080 (Keycloak) doivent être libres sur votre machine.
+
+Commande de lancement
+Ouvrez un terminal à la racine du projet (là où se trouve le fichier docker-compose.yml) et exécutez :
+
+Bash
+docker compose up -d --build
+(L'option --build force la recompilation du code C# et React, indispensable si vous venez de faire un git pull).
+
+🔐 2. Configuration de Keycloak
+Une fois les conteneurs lancés, Keycloak est vide. Vous devez créer le "Royaume" (Realm), le Client et les Rôles de l'application.
+
+Accédez à la console d'administration : http://localhost:8080/admin
+
+Connectez-vous avec les identifiants par défaut :
+
+Utilisateur : admin
+
+Mot de passe : admin
+
+Étape 2.1 : Création du Realm
+En haut à gauche, survolez master et cliquez sur Create Realm.
+
+Realm name : unprompted-realm (Respectez scrupuleusement la casse et le tiret !).
+
+Cliquez sur Create.
+
+Étape 2.2 : Configuration du Client (Frontend)
+Assurez-vous d'être sur unprompted-realm (menu en haut à gauche).
+
+Allez dans Clients -> Create client.
+
+Client ID : react-frontend -> Cliquez sur Next -> Next.
+
+Login settings (Très important) :
+
+Root URL : http://localhost:3000 (Si vous lancez le front sans Docker, ajoutez aussi http://localhost:5173)
+
+Valid redirect URIs : http://localhost:3000/*
+
+Web origins : + (Le signe "plus" est obligatoire pour autoriser le CORS).
+
+Cliquez sur Save.
+
+Étape 2.3 : Création des Rôles
+Notre code React et .NET utilise ces noms exacts pour gérer les permissions :
+
+Allez dans Realm roles -> Create role.
+
+Créez ces 3 rôles un par un :
+
+admin
+
+enseignant
+
+etudiant
+
+Étape 2.4 : Compte de Test (Administrateur)
+Pour accéder au Dashboard la première fois, il faut vous créer un compte admin :
+
+Allez dans Users -> Add user.
+
+Username : testadmin -> Email verified : Yes -> Cliquez sur Create.
+
+Onglet Credentials : Cliquez sur Set password, entrez un mot de passe (ex: admin123) et DÉCOCHEZ "Temporary".
+
+Onglet Role mapping : Cliquez sur Assign role et cochez le rôle admin.
+
+## 🎨 3. Activation du Thème Personnalisé (Login)
+
+Notre application utilise une interface de connexion sur-mesure qui remplace le design par défaut de Keycloak. Une fois le conteneur lancé, il faut dire à Keycloak d'utiliser ce thème :
+
+1. Connectez-vous à la console d'administration Keycloak ([http://localhost:8080/admin](http://localhost:8080/admin)).
+2. Assurez-vous d'être sur le royaume **`unprompted-realm`** (menu déroulant en haut à gauche).
+3. Dans le menu latéral gauche, cliquez sur **Realm settings**.
+4. Naviguez vers l'onglet **Themes**.
+5. Cherchez la ligne **Login theme** et sélectionnez **`unprompted-theme`** dans le menu déroulant.
+6. Cliquez sur **Save** en bas de la page.
+
+> 💡 **Note pour les développeurs (Live Reload) :** > Le dossier du thème (`Frontend/themes/unprompted-theme`) est monté directement dans le conteneur via un volume Docker. De plus, le cache de Keycloak est désactivé en mode développement. 
+> **Résultat :** Si vous modifiez le CSS ou le HTML (`.ftl`) du thème, il vous suffit de rafraîchir la page de connexion dans votre navigateur pour voir les changements instantanément, sans redémarrer le serveur !
