@@ -35,6 +35,8 @@ public partial class AppDbContext : DbContext
 
     public DbSet<FichierVersion> FichierVersions { get; set; }
 
+    public DbSet<ExecutionCode> CodeExecutions { get; set; }
+
     public virtual DbSet<Prompt> Prompts { get; set; } = null!;
 
     public virtual DbSet<ReponseIum> ReponseIa { get; set; } = null!;
@@ -163,6 +165,52 @@ public partial class AppDbContext : DbContext
             entity.HasOne(v => v.Fichier)
                 .WithMany(f => f.Versions)
                 .HasForeignKey(v => v.IdFichier)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ExecutionCode>(entity =>
+        {
+            entity.HasKey(e => e.IdExecution);
+
+            entity.ToTable("ExecutionCode");
+
+            entity.Property(e => e.IdExecution)
+                .HasColumnName("id_execution");
+
+            entity.Property(e => e.Langage)
+                .HasMaxLength(50)
+                .HasColumnName("langage");
+
+            entity.Property(e => e.Statut)
+                .HasMaxLength(50)
+                .HasColumnName("statut");
+
+            entity.Property(e => e.Sortie)
+                .HasColumnType("nvarchar(max)")
+                .HasColumnName("sortie");
+
+            entity.Property(e => e.IdConteneurDocker)
+                .HasMaxLength(255)
+                .HasColumnName("id_conteneur_docker");
+
+            entity.Property(e => e.DateDebut)
+                .HasColumnType("datetime")
+                .HasColumnName("date_debut");
+
+            entity.Property(e => e.DateFin)
+                .HasColumnType("datetime")
+                .HasColumnName("date_fin");
+
+            entity.Property(e => e.IdUtilisateur)
+                .HasMaxLength(255)
+                .HasColumnName("id_utilisateur");
+
+            entity.Property(e => e.IdProjet)
+                .HasColumnName("id_projet");
+
+            entity.HasOne(e => e.Projet)
+                .WithMany(p => p.ExecutionsCode)
+                .HasForeignKey(e => e.IdProjet)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -411,7 +459,33 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.IdEnseignant)
                 .HasConstraintName("FK__Projet__id_ensei__6FE99F9F");
 
-            
+            entity.Property(e => e.Objectifs)
+                .HasColumnType("nvarchar(max)")
+                .HasColumnName("Objectifs");
+
+            entity.Property(e => e.Livrables)
+                .HasColumnType("nvarchar(max)")
+                .HasColumnName("Livrables");
+
+            entity.Property(e => e.CriteresEvaluation)
+                .HasColumnType("nvarchar(max)")
+                .HasColumnName("CriteresEvaluation");
+
+            entity.Property(e => e.TechnologiesRequises)
+                .HasColumnType("nvarchar(max)")
+                .HasColumnName("TechnologiesRequises");
+
+            entity.Property(e => e.Contraintes)
+                .HasColumnType("nvarchar(max)")
+                .HasColumnName("Contraintes");
+
+            entity.Property(e => e.RessourcesDisponibles)
+                .HasColumnType("nvarchar(max)")
+                .HasColumnName("RessourcesDisponibles");
+
+            entity.Property(e => e.CahierDesCharges)
+                .HasColumnType("varbinary(max)")
+                .HasColumnName("CahierDesCharges");
         });
 
         modelBuilder.Entity<Prompt>(entity =>

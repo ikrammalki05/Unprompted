@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260503165432_AddCahierDesChargesToProjet")]
+    partial class AddCahierDesChargesToProjet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -228,45 +231,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("Contribution", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Dossier", b =>
-                {
-                    b.Property<int>("IdDossier")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id_dossier");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdDossier"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<int?>("DossierParentId")
-                        .HasColumnType("int")
-                        .HasColumnName("dossier_parent_id");
-
-                    b.Property<int>("IdProjet")
-                        .HasColumnType("int")
-                        .HasColumnName("id_projet");
-
-                    b.Property<string>("Nom")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("nom");
-
-                    b.HasKey("IdDossier")
-                        .HasName("PK__Dossier__3214EC27C9A8B1F0");
-
-                    b.HasIndex(new[] { "DossierParentId" }, "IX__Dossier__DossierParentId");
-
-                    b.HasIndex(new[] { "IdProjet" }, "IX__Dossier__IdProjet");
-
-                    b.ToTable("Dossier", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Entities.Enseignant", b =>
                 {
                     b.Property<int>("IdEnseignant")
@@ -419,178 +383,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("IdProjet");
 
                     b.ToTable("Evaluation", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.ExecutionCode", b =>
-                {
-                    b.Property<Guid>("IdExecution")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("id_execution");
-
-                    b.Property<DateTime>("DateDebut")
-                        .HasColumnType("datetime")
-                        .HasColumnName("date_debut");
-
-                    b.Property<DateTime?>("DateFin")
-                        .HasColumnType("datetime")
-                        .HasColumnName("date_fin");
-
-                    b.Property<string>("IdConteneurDocker")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("id_conteneur_docker");
-
-                    b.Property<int?>("IdProjet")
-                        .HasColumnType("int")
-                        .HasColumnName("id_projet");
-
-                    b.Property<string>("IdUtilisateur")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("id_utilisateur");
-
-                    b.Property<string>("Langage")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("langage");
-
-                    b.Property<string>("Sortie")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("sortie");
-
-                    b.Property<string>("Statut")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("statut");
-
-                    b.HasKey("IdExecution");
-
-                    b.HasIndex("IdProjet");
-
-                    b.ToTable("ExecutionCode", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.Fichier", b =>
-                {
-                    b.Property<int>("IdFichier")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id_fichier");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdFichier"));
-
-                    b.Property<string>("ContentHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Contenu")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("contenu");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime>("DerniereModification")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasColumnName("last_modified")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("Extension")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("extension");
-
-                    b.Property<int?>("IdDossier")
-                        .HasColumnType("int")
-                        .HasColumnName("id_dossier");
-
-                    b.Property<int>("IdProjet")
-                        .HasColumnType("int")
-                        .HasColumnName("id_projet");
-
-                    b.Property<string>("Language")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("language");
-
-                    b.Property<string>("Nom")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("nom");
-
-                    b.Property<long>("Size")
-                        .HasColumnType("bigint")
-                        .HasColumnName("size");
-
-                    b.Property<int>("Version")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1)
-                        .HasColumnName("version");
-
-                    b.HasKey("IdFichier");
-
-                    b.HasIndex("IdDossier");
-
-                    b.HasIndex("IdProjet");
-
-                    b.ToTable("Fichier", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.FichierVersion", b =>
-                {
-                    b.Property<int>("IdFichierVersion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id_fichier_version");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdFichierVersion"));
-
-                    b.Property<string>("Contenu")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("contenu");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("created_by");
-
-                    b.Property<int>("IdFichier")
-                        .HasColumnType("int")
-                        .HasColumnName("id_fichier");
-
-                    b.Property<int>("Version")
-                        .HasColumnType("int")
-                        .HasColumnName("version");
-
-                    b.HasKey("IdFichierVersion");
-
-                    b.HasIndex("IdFichier");
-
-                    b.ToTable("FichierVersion", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Groupe", b =>
@@ -942,24 +734,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("IdProjetNavigation");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Dossier", b =>
-                {
-                    b.HasOne("Domain.Entities.Dossier", "DossierParent")
-                        .WithMany("Dossiersfils")
-                        .HasForeignKey("DossierParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Domain.Entities.Projet", "Projet")
-                        .WithMany("Dossiers")
-                        .HasForeignKey("IdProjet")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DossierParent");
-
-                    b.Navigation("Projet");
-                });
-
             modelBuilder.Entity("Domain.Entities.Enseignant", b =>
                 {
                     b.HasOne("Domain.Entities.Utilisateur", "IdUtilisateurNavigation")
@@ -1030,45 +804,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("IdProjetNavigation");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ExecutionCode", b =>
-                {
-                    b.HasOne("Domain.Entities.Projet", "Projet")
-                        .WithMany("ExecutionsCode")
-                        .HasForeignKey("IdProjet")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Projet");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Fichier", b =>
-                {
-                    b.HasOne("Domain.Entities.Dossier", "Dossier")
-                        .WithMany("Fichiers")
-                        .HasForeignKey("IdDossier")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Domain.Entities.Projet", "Projet")
-                        .WithMany("Fichiers")
-                        .HasForeignKey("IdProjet")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Dossier");
-
-                    b.Navigation("Projet");
-                });
-
-            modelBuilder.Entity("Domain.Entities.FichierVersion", b =>
-                {
-                    b.HasOne("Domain.Entities.Fichier", "Fichier")
-                        .WithMany("Versions")
-                        .HasForeignKey("IdFichier")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Fichier");
-                });
-
             modelBuilder.Entity("Domain.Entities.Groupe", b =>
                 {
                     b.HasOne("Domain.Entities.Projet", "IdProjetNavigation")
@@ -1120,13 +855,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("IdPromptNavigation");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Dossier", b =>
-                {
-                    b.Navigation("Dossiersfils");
-
-                    b.Navigation("Fichiers");
-                });
-
             modelBuilder.Entity("Domain.Entities.Enseignant", b =>
                 {
                     b.Navigation("Affectations");
@@ -1147,11 +875,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Prompts");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Fichier", b =>
-                {
-                    b.Navigation("Versions");
-                });
-
             modelBuilder.Entity("Domain.Entities.Groupe", b =>
                 {
                     b.Navigation("Affectations");
@@ -1163,13 +886,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("Contributions");
 
-                    b.Navigation("Dossiers");
-
                     b.Navigation("Evaluations");
-
-                    b.Navigation("ExecutionsCode");
-
-                    b.Navigation("Fichiers");
 
                     b.Navigation("Groupes");
 

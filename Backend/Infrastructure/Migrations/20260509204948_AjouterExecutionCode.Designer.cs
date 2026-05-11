@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260509204948_AjouterExecutionCode")]
+    partial class AjouterExecutionCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -629,15 +632,6 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdProjet"));
 
-                    b.Property<byte[]>("CahierDesCharges")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("Contraintes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CriteresEvaluation")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateOnly?>("DateDebut")
                         .HasColumnType("date")
                         .HasColumnName("date_debut");
@@ -658,16 +652,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id_enseignant");
 
-                    b.Property<string>("Livrables")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("NotesEnseignant")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)")
                         .HasColumnName("notes_enseignant");
-
-                    b.Property<string>("Objectifs")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Progression")
                         .ValueGeneratedOnAdd()
@@ -675,18 +663,12 @@ namespace Infrastructure.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("progression");
 
-                    b.Property<string>("RessourcesDisponibles")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Statut")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasDefaultValue("En cours")
                         .HasColumnName("statut");
-
-                    b.Property<string>("TechnologiesRequises")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Titre")
                         .IsRequired()
