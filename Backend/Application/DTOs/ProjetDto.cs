@@ -12,4 +12,12 @@ public class ProjetDto
     public int? Progression { get; set; }
     public string? NotesEnseignant { get; set; }
     public int? IdEnseignant { get; set; }
+    public List<EtudiantGroupeDto> Membres { get; set; } = new();
+    public string? Objectifs { get; set; }
+public string? Livrables { get; set; }
+public string? CriteresEvaluation { get; set; }
+public string? TechnologiesRequises { get; set; }
+public string? Contraintes { get; set; }
+public string? RessourcesDisponibles { get; set; }
+public bool HasCahierDesCharges { get; set; } // true/false si PDF existe
 }

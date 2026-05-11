@@ -12,6 +12,9 @@ public class PromptDto
     
     // On inclut directement la/les réponse(s) associée(s)
     public List<ReponseIumDto> Reponses { get; set; } = new();
+
+    public int IdEtudiant { get; set; }
+    public int IdProjet { get; set; }
 }
 
 public class ReponseIumDto
