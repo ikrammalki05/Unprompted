@@ -50,7 +50,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "5066:5000" # Ton port personnalisé préservé
+      - "5000:5000" # Ton port personnalisé préservé
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
@@ -76,10 +76,10 @@ services:
       context: ./Frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://localhost:5066 # Ton port d'API préservé
+        VITE_API_URL: http://localhost:5000 # Ton port d'API préservé
     restart: unless-stopped
     ports:
-      - "3001:80" # Ton port Frontend préservé
+      - "3000:80" # Ton port Frontend préservé
     depends_on:
       - backend
     networks: [ platform ]
