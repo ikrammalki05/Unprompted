@@ -1,5 +1,3 @@
-// Infrastructure/Repositories/FichierRepository.cs
-
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
