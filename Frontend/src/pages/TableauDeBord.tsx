@@ -1,86 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FolderOpen,
   Users,
   ClipboardList,
   BarChart2,
   Bell,
-  ArrowRight,
   Calendar,
   Check,
   X,
   ChevronRight,
 } from 'lucide-react';
-
-/* ─────────────── Data ─────────────── */
-const stats = [
-  {
-    icon: FolderOpen,
-    value: 12,
-    label: 'Projets supervisés',
-    badge: '+2 ce mois',
-    iconBg: 'bg-blue-50',
-    iconColor: 'text-blue-500',
-    dark: false,
-  },
-  {
-    icon: Users,
-    value: 45,
-    label: 'Étudiants actifs',
-    badge: null,
-    iconBg: 'bg-purple-50',
-    iconColor: 'text-purple-500',
-    dark: false,
-  },
-  {
-    icon: ClipboardList,
-    value: 8,
-    label: 'Évaluations en attente',
-    badge: null,
-    iconBg: 'bg-orange-50',
-    iconColor: 'text-orange-500',
-    dark: false,
-  },
-  {
-    icon: BarChart2,
-    value: '+24',
-    label: 'Activités récentes',
-    badge: 'Dernières 24h',
-    iconBg: 'bg-white/10',
-    iconColor: 'text-white',
-    dark: true,
-  },
-];
-
-const projects = [
-  {
-    initials: 'IA',
-    name: 'IA Éthique & Gouvernance',
-    group: 'Groupe Master 2 – Architecture',
-    pct: 82,
-    color: '#3b82f6',
-    avatarBg: '#dbeafe',
-    avatarText: '#1d4ed8',
-  },
-  {
-    initials: 'ML',
-    name: 'Machine Learning Avancé',
-    group: 'Doctorants – Lab 04',
-    pct: 45,
-    color: '#6366f1',
-    avatarBg: '#ede9fe',
-    avatarText: '#4f46e5',
-  },
-  {
-    initials: 'DS',
-    name: 'Data Science Appliquée',
-    group: 'Licence 3 – TD B',
-    pct: 15,
-    color: '#ef4444',
-    avatarBg: '#fee2e2',
-    avatarText: '#dc2626',
-  },
-];
+import userService from '../services/userService';
+import projetService from '../services/projetService';
 
 const approvals = [
   {
@@ -123,8 +54,18 @@ const deadlines = [
   },
 ];
 
+interface StatItem {
+  icon: React.ElementType;
+  value: string | number;
+  label: string;
+  badge?: string | null;
+  iconBg: string;
+  iconColor: string;
+  dark?: boolean;
+}
+
 /* ─────────────── Sub-components ─────────────── */
-const StatCard: React.FC<(typeof stats)[0]> = ({
+const StatCard: React.FC<StatItem> = ({
   icon: Icon,
   value,
   label,
@@ -166,8 +107,97 @@ const StatCard: React.FC<(typeof stats)[0]> = ({
 );
 
 /* ─────────────── Main Page ─────────────── */
-const TableauDeBord: React.FC = () => {
+interface TableauDeBordProps {
+  onProjectClick?: (id: number) => void;
+}
+
+const TableauDeBord: React.FC<TableauDeBordProps> = ({ onProjectClick }) => {
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
+  const [realStats, setRealStats] = useState<any>(null);
+  const [realProjects, setRealProjects] = useState<any[]>([]);
   const [approved, setApproved] = useState<Record<number, boolean | null>>({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // 1. Get Profile
+        const userProfile = await userService.getCurrentUser();
+        setProfile(userProfile);
+
+        // 2. Get Stats
+        const statsData = await userService.getTeacherStats(userProfile.id);
+        setRealStats(statsData);
+
+        // 3. Get Projects
+        const projectsData = await projetService.getByEnseignant(userProfile.id);
+        setRealProjects(projectsData);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-slate-500">Erreur lors de la récupération du profil. Veuillez vous reconnecter.</p>
+        <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Réessayer</button>
+      </div>
+    );
+  }
+
+  const dynamicStats = [
+    {
+      icon: FolderOpen,
+      value: realStats?.projetsSupervisés || 0,
+      label: 'Projets supervisés',
+      badge: null,
+      iconBg: 'bg-blue-50',
+      iconColor: 'text-blue-500',
+      dark: false,
+    },
+    {
+      icon: Users,
+      value: realStats?.étudiantsActifs || 0,
+      label: 'Étudiants actifs',
+      badge: null,
+      iconBg: 'bg-purple-50',
+      iconColor: 'text-purple-500',
+      dark: false,
+    },
+    {
+      icon: ClipboardList,
+      value: realStats?.évaluationsEnAttente || 0,
+      label: 'Évaluations en attente',
+      badge: null,
+      iconBg: 'bg-orange-50',
+      iconColor: 'text-orange-500',
+      dark: false,
+    },
+    {
+      icon: BarChart2,
+      value: realStats?.activitésRécentes || 0,
+      label: 'Activités récentes',
+      badge: 'Dernières 24h',
+      iconBg: 'bg-white/10',
+      iconColor: 'text-white',
+      dark: true,
+    },
+  ];
 
   return (
     <div className="p-8 pb-20 max-w-7xl mx-auto animate-in fade-in duration-500">
@@ -178,7 +208,7 @@ const TableauDeBord: React.FC = () => {
           <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">
             Dashboard Enseignant
           </h1>
-          <p className="text-[14px] text-slate-400 font-medium">Bienvenue Mr Ghailani</p>
+          <p className="text-[14px] text-slate-400 font-medium">Bienvenue {profile?.nomComplet || '...'}</p>
         </div>
         <div className="flex items-center gap-4">
           <button className="relative w-9 h-9 flex items-center justify-center bg-white border border-slate-100 rounded-xl shadow-sm hover:bg-slate-50 transition-colors">
@@ -187,11 +217,11 @@ const TableauDeBord: React.FC = () => {
           </button>
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-[13px] font-black text-slate-900 leading-none mb-0.5">Ghailani</p>
-              <p className="text-[10px] text-slate-400 font-semibold">Professeur Titulaire</p>
+              <p className="text-[13px] font-black text-slate-900 leading-none mb-0.5">{profile?.nomComplet?.split(' ')[1] || '...'}</p>
+              <p className="text-[10px] text-slate-400 font-semibold">{profile?.specialite || 'Enseignant'}</p>
             </div>
             <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-black text-sm border-2 border-white shadow-sm">
-              G
+              {profile?.nomComplet?.[0] || 'U'}
             </div>
           </div>
         </div>
@@ -199,7 +229,7 @@ const TableauDeBord: React.FC = () => {
 
       {/* ── Stats row ── */}
       <div className="flex gap-4 mb-8">
-        {stats.map((s, i) => (
+        {dynamicStats.map((s, i) => (
           <StatCard key={i} {...s} />
         ))}
       </div>
@@ -215,49 +245,49 @@ const TableauDeBord: React.FC = () => {
                 Aperçu du suivi de projet
               </h2>
               <p className="text-[12px] text-slate-400 font-medium">
-                Progression moyenne par groupe de recherche
+                Progression réelle de vos projets
               </p>
             </div>
-            <button className="flex items-center gap-1 text-[12px] font-bold text-blue-600 hover:text-blue-700 transition-colors group">
-              Voir tout
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </button>
           </div>
 
           <div className="flex flex-col gap-4">
-            {projects.map((p, i) => (
+            {realProjects.length > 0 ? realProjects.map((p, i) => (
               <div
                 key={i}
+                onClick={p.id ? () => onProjectClick?.(p.id) : undefined}
                 className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100/60 hover:bg-slate-100/50 transition-colors cursor-pointer group"
               >
                 {/* Avatar */}
                 <div
-                  className="w-10 h-10 rounded-2xl flex items-center justify-center text-[11px] font-black flex-shrink-0"
-                  style={{ background: p.avatarBg, color: p.avatarText }}
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center text-[11px] font-black flex-shrink-0 bg-blue-100 text-blue-600"
                 >
-                  {p.initials}
+                  {p.titre?.[0] || 'P'}
                 </div>
 
                 {/* Name + bar */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-[13px] font-black text-slate-800 truncate">{p.name}</p>
+                    <p className="text-[13px] font-black text-slate-800 truncate">{p.titre}</p>
                     <span className="text-[12px] font-black text-slate-700 ml-3 flex-shrink-0">
-                      {p.pct}%
+                      {p.progression || 0}%
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400 font-medium mb-2">{p.group}</p>
+                  <p className="text-[11px] text-slate-400 font-medium mb-2">{p.statut}</p>
                   <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
                     <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${p.pct}%`, background: p.color }}
+                      className="h-full bg-blue-500 rounded-full transition-all duration-700"
+                      style={{ width: `${p.progression || 0}%` }}
                     />
                   </div>
                 </div>
 
                 <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors flex-shrink-0" />
               </div>
-            ))}
+            )) : (
+                <div className="text-center py-10 text-slate-400 font-medium">
+                    Aucun projet trouvé pour cet enseignant.
+                </div>
+            )}
           </div>
         </div>
 

@@ -6,6 +6,7 @@ public interface IEtudiantRepository
     Task<IEnumerable<Etudiant>> GetAllAsync();
     Task<Etudiant?> GetByIdAsync(int id);
     Task<int> CountAsync();
+    Task<Etudiant?> GetByUtilisateurIdAsync(int utilisateurId);
     Task AddAsync(Etudiant etudiant);
     Task UpdateAsync(Etudiant etudiant);
     Task DeleteAsync(int id);

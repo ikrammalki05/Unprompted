@@ -6,7 +6,6 @@ import {
   ClipboardCheck,
   Settings,
   LogOut,
-  Plus,
   HelpCircle
 } from 'lucide-react';
 import logo from '../assets/logo.png';
@@ -45,7 +44,7 @@ interface SidebarProps {
   onNewProject?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activePage, onPageChange, onNewProject }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activePage, onPageChange }) => {
   return (
     <aside className="w-[300px] h-screen bg-[#f8fafc] border-r border-slate-100 flex flex-col fixed left-0 top-0 z-20">
       <div className="p-10 mb-2">
@@ -72,15 +71,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, onPageChange, onNewProjec
 
       {/* Sidebar Footer */}
       <div className="p-5 border-t border-slate-100 space-y-2 bg-[#f8fafc]">
-
-        {/* Nouveau Projet button */}
-        <button
-          onClick={onNewProject}
-          className="w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white text-[13px] font-black rounded-2xl transition-all shadow-md shadow-slate-900/10 mb-2 tracking-tight"
-        >
-          <Plus className="w-4 h-4" strokeWidth={3} />
-          Nouveau Projet
-        </button>
 
         <div onClick={() => onPageChange('profile')} className="cursor-pointer group">
           <div className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all ${activePage === 'profile' ? 'bg-white shadow-sm border border-slate-100' : 'hover:bg-white/50'}`}>

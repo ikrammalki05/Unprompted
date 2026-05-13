@@ -1,73 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Calendar, CheckCircle2, Circle, FileText, GitCommit, Clock,
-  Search, RefreshCw, User, MessageSquare, Bot, AlertTriangle,
-  ChevronDown, ChevronRight, Zap, Brain, Eye,
+  Calendar, CheckCircle2, Circle, FileText, GitCommit, MessageSquare, Bot, Clock
 } from 'lucide-react';
+
+import projetService from '../services/projetService';
+import iaService from '../services/iaService';
 
 /* ── Types ── */
 interface Step { id: number; label: string; status: 'done'|'in-progress'|'todo' }
-interface Prompt {
-  id: number; student: string; initials: string; color: string;
-  prompt: string; model: string; time: string; date: string;
-  tokens: number; flagged: boolean; response: string;
-}
-interface Commit {
-  hash: string; message: string; author: string;
-  date: string; branch: string; branchColor: string;
-}
 
-/* ── Data ── */
-const steps: Step[] = [
+/* ── Mock Data for static parts ── */
+const mockSteps: Step[] = [
   { id:1, label:'Preprocessing', status:'done' },
   { id:2, label:'Model Setup', status:'done' },
   { id:3, label:'Training', status:'in-progress' },
   { id:4, label:'Evaluation', status:'todo' },
 ];
 
-const prompts: Prompt[] = [
-  { id:1, student:'Marie Curie', initials:'MC', color:'#4f6ef7',
-    prompt:'Explique-moi comment fonctionne la quantization dans les LLM et comment l\'implémenter en PyTorch',
-    model:'GPT-4', time:'il y a 2h', date:'10/05/2024', tokens:342, flagged:false,
-    response:'La quantization est une technique qui réduit la précision des poids du modèle...' },
-  { id:2, student:'Jean Dupont', initials:'JD', color:'#22c55e',
-    prompt:'Génère le code complet pour le module de preprocessing des données textuelles',
-    model:'Claude 3.5', time:'il y a 3h', date:'10/05/2024', tokens:891, flagged:true,
-    response:'Voici le code complet pour le preprocessing...' },
-  { id:3, student:'Marie Curie', initials:'MC', color:'#4f6ef7',
-    prompt:'Quelles sont les meilleures pratiques pour fine-tuner un modèle de langage sur un dataset spécifique ?',
-    model:'GPT-4', time:'il y a 5h', date:'10/05/2024', tokens:256, flagged:false,
-    response:'Pour fine-tuner efficacement un LLM, voici les étapes recommandées...' },
-  { id:4, student:'Jean Dupont', initials:'JD', color:'#22c55e',
-    prompt:'Compare les architectures Transformer et LSTM pour le traitement du langage naturel',
-    model:'Gemini Pro', time:'il y a 1j', date:'09/05/2024', tokens:478, flagged:false,
-    response:'Les Transformers et les LSTM sont deux architectures fondamentales...' },
-  { id:5, student:'Marie Curie', initials:'MC', color:'#4f6ef7',
-    prompt:'Écris-moi un script Python pour évaluer les performances du modèle avec BLEU et ROUGE',
-    model:'GPT-4', time:'il y a 1j', date:'09/05/2024', tokens:623, flagged:false,
-    response:'Voici un script complet d\'évaluation utilisant les métriques BLEU et ROUGE...' },
-  { id:6, student:'Jean Dupont', initials:'JD', color:'#22c55e',
-    prompt:'Donne-moi la solution complète du TP3 sur les réseaux de neurones récurrents',
-    model:'Claude 3.5', time:'il y a 2j', date:'08/05/2024', tokens:1205, flagged:true,
-    response:'Voici les réponses aux exercices du TP3...' },
-];
-
-const commits: Commit[] = [
-  { hash:'a3f2c1d', message:'Feat: Add quantization layer', author:'Marie Curie', date:'10/05/2024', branch:'main', branchColor:'#6366f1' },
-  { hash:'b7e4f9a', message:'Fix: Model inference bug', author:'Jean Dupont', date:'09/05/2024', branch:'dev', branchColor:'#f59e0b' },
-  { hash:'c1d8e3b', message:'Refactor: Clean up data pipeline', author:'Marie Curie', date:'08/05/2024', branch:'main', branchColor:'#6366f1' },
-  { hash:'d4a9f2c', message:'Docs: Update README with new setup', author:'Jean Dupont', date:'07/05/2024', branch:'dev', branchColor:'#f59e0b' },
-  { hash:'e5b0c3d', message:'Feat: Implement attention mechanism', author:'Marie Curie', date:'06/05/2024', branch:'main', branchColor:'#6366f1' },
-  { hash:'f6c1d4e', message:'Fix: Memory leak in training loop', author:'Jean Dupont', date:'05/05/2024', branch:'dev', branchColor:'#f59e0b' },
-];
-
-const progress = 65;
-type TabKey = 'overview'|'activity'|'commits';
 const TABS: {key:TabKey;label:string}[] = [
   { key:'overview', label:"Vue d'ensemble" },
   { key:'activity', label:'Activité' },
   { key:'commits', label:'Historique des commits' },
 ];
+
+type TabKey = 'overview'|'activity'|'commits';
 
 /* ── Sub-components ── */
 const StepBadge: React.FC<{status:Step['status']}> = ({status}) => {
@@ -81,21 +37,20 @@ const StepIcon: React.FC<{status:Step['status']}> = ({status}) => {
   return <Circle className="w-5 h-5 text-slate-300" />;
 };
 
-/* ── Vue d'ensemble ── */
-const OverviewTab: React.FC<{note:string;setNote:(v:string)=>void}> = ({note,setNote}) => (
+/* ── Tabs ── */
+const OverviewTab: React.FC<{project: any, note:string;setNote:(v:string)=>void}> = ({project, note,setNote}) => (
   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div className="lg:col-span-2 flex flex-col gap-6">
-      {/* Progression */}
       <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm p-7">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[15px] font-black text-slate-900">Progression</h2>
-          <span className="text-[13px] font-black text-blue-600">{progress}% complété</span>
+          <span className="text-[13px] font-black text-blue-600">{project?.progression || 0}% complété</span>
         </div>
         <div className="w-full h-2.5 bg-slate-100 rounded-full mb-6 overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-700" style={{width:`${progress}%`}} />
+          <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-700" style={{width:`${project?.progression || 0}%`}} />
         </div>
         <div className="grid grid-cols-2 gap-3">
-          {steps.map(s=>(
+          {mockSteps.map(s=>(
             <div key={s.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100/60">
               <StepIcon status={s.status}/><span className="flex-1 text-[13px] font-semibold text-slate-700">{s.label}</span><StepBadge status={s.status}/>
             </div>
@@ -103,54 +58,14 @@ const OverviewTab: React.FC<{note:string;setNote:(v:string)=>void}> = ({note,set
         </div>
       </div>
 
-      {/* Activité récente - prompts */}
       <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm p-7">
-        <h2 className="text-[15px] font-black text-slate-900 mb-5">Activité récente</h2>
-        <div className="space-y-4">
-          {prompts.slice(0,2).map(p=>(
-            <div key={p.id} className="flex items-start gap-3 group">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-black flex-shrink-0 mt-0.5" style={{background:p.color}}>{p.initials}</div>
-              <div className="flex-1 flex items-start justify-between gap-2">
-                <div>
-                  <p className="text-[13px] text-slate-600 leading-snug">
-                    <span className="font-black text-slate-900">{p.student}</span> a envoyé un prompt
-                    {p.flagged && <span className="ml-1.5 inline-flex items-center gap-0.5 text-[10px] font-black text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full"><AlertTriangle className="w-2.5 h-2.5"/>Suspect</span>}
-                  </p>
-                  <p className="text-[12px] text-slate-400 mt-1 line-clamp-1 italic">"{p.prompt}"</p>
-                </div>
-                <span className="flex items-center gap-1 text-[11px] text-slate-400 font-semibold whitespace-nowrap flex-shrink-0">
-                  <Clock className="w-3 h-3"/>{p.time}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Commits summary */}
-      <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm p-7">
-        <h2 className="text-[15px] font-black text-slate-900 mb-5">Historique des commits</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-[12px]">
-            <thead><tr className="border-b border-slate-100">
-              {['MESSAGE','AUTEUR','DATE','BRANCHE'].map(h=><th key={h} className="pb-3 text-left font-black text-slate-400 uppercase tracking-widest pr-4 last:pr-0">{h}</th>)}
-            </tr></thead>
-            <tbody className="divide-y divide-slate-50">
-              {commits.slice(0,2).map((c,i)=>(
-                <tr key={i} className="group hover:bg-slate-50/60 transition-colors">
-                  <td className="py-3.5 pr-4 font-semibold text-slate-700 flex items-center gap-2"><GitCommit className="w-3.5 h-3.5 text-slate-300 flex-shrink-0"/>{c.message}</td>
-                  <td className="py-3.5 pr-4 text-slate-600 font-medium">{c.author}</td>
-                  <td className="py-3.5 pr-4 text-slate-500">{c.date}</td>
-                  <td className="py-3.5"><span className="px-2.5 py-1 rounded-lg text-white text-[10px] font-black" style={{background:c.branchColor}}>{c.branch}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <h2 className="text-[15px] font-black text-slate-900 mb-5">Description du projet</h2>
+        <p className="text-[14px] text-slate-600 leading-relaxed">
+            {project?.description || "Aucune description fournie pour ce projet."}
+        </p>
       </div>
     </div>
 
-    {/* Right col */}
     <div className="flex flex-col gap-6">
       <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm p-7">
         <div className="flex items-center gap-2 mb-5"><FileText className="w-4 h-4 text-slate-400"/><h2 className="text-[15px] font-black text-slate-900">Notes de l'enseignant</h2></div>
@@ -161,174 +76,207 @@ const OverviewTab: React.FC<{note:string;setNote:(v:string)=>void}> = ({note,set
   </div>
 );
 
-/* ── Activité (Prompts IA) ── */
-const ActivityTab: React.FC = () => {
-  const [search, setSearch] = useState('');
-  const [expandedId, setExpandedId] = useState<number|null>(null);
+const ActivityTab: React.FC<{prompts: any[]}> = ({prompts}) => {
+    const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 
-  const filtered = prompts.filter(p => {
-    return !search || p.prompt.toLowerCase().includes(search.toLowerCase()) || p.student.toLowerCase().includes(search.toLowerCase());
-  });
-  const flaggedCount = prompts.filter(p=>p.flagged).length;
-  const totalTokens = prompts.reduce((s,p)=>s+p.tokens,0);
-
-  return (
-    <div className="flex flex-col gap-6 max-w-5xl">
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
-        {[
-          { label:'Total prompts', count:prompts.length, icon:<MessageSquare className="w-4 h-4"/>, color:'#4f6ef7' },
-          { label:'Prompts suspects', count:flaggedCount, icon:<AlertTriangle className="w-4 h-4"/>, color:'#ef4444' },
-          { label:'Tokens utilisés', count:totalTokens, icon:<Zap className="w-4 h-4"/>, color:'#f59e0b' },
-          { label:'Modèles utilisés', count:[...new Set(prompts.map(p=>p.model))].length, icon:<Brain className="w-4 h-4"/>, color:'#8b5cf6' },
-        ].map(s=>(
-          <div key={s.label} className="bg-white rounded-[20px] border border-slate-100 shadow-sm p-5 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{background:s.color}}>{s.icon}</div>
-            <div><p className="text-xl font-black text-slate-900">{s.count.toLocaleString()}</p><p className="text-[11px] font-semibold text-slate-400">{s.label}</p></div>
-          </div>
-        ))}
-      </div>
-
-      {/* Toolbar */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-2xl px-4 py-2.5 flex-1 max-w-sm shadow-sm">
-          <Search className="w-4 h-4 text-slate-400"/>
-          <input type="text" placeholder="Rechercher un prompt..." className="bg-transparent text-[13px] text-slate-700 placeholder-slate-400 outline-none w-full font-medium" value={search} onChange={e=>setSearch(e.target.value)}/>
-        </div>
-      </div>
-
-      {/* Prompts list */}
-      <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm p-7">
-        <h2 className="text-[15px] font-black text-slate-900 mb-6">Prompts envoyés par les étudiants</h2>
-        <div className="space-y-3">
-          {filtered.map(p=>(
-            <div key={p.id} className={`rounded-2xl border transition-all ${p.flagged?'border-amber-200 bg-amber-50/30':'border-slate-100 bg-slate-50/50 hover:bg-slate-50'}`}>
-              <button onClick={()=>setExpandedId(expandedId===p.id?null:p.id)} className="w-full flex items-start gap-3 p-4 text-left">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[10px] font-black flex-shrink-0 mt-0.5" style={{background:p.color}}>{p.initials}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-[13px] font-black text-slate-900">{p.student}</span>
-                    <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full flex items-center gap-1"><Bot className="w-2.5 h-2.5"/>{p.model}</span>
-                    <span className="text-[10px] font-semibold text-slate-400">{p.tokens} tokens</span>
-                    {p.flagged && <span className="text-[10px] font-black text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full flex items-center gap-1"><AlertTriangle className="w-2.5 h-2.5"/>Suspect</span>}
-                  </div>
-                  <p className="text-[13px] text-slate-600 leading-snug line-clamp-2">"{p.prompt}"</p>
-                  <span className="flex items-center gap-1 text-[11px] text-slate-400 font-semibold mt-1.5"><Clock className="w-3 h-3"/>{p.time} · {p.date}</span>
-                </div>
-                {expandedId===p.id?<ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0 mt-1"/>:<ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0 mt-1"/>}
-              </button>
-              {expandedId===p.id && (
-                <div className="px-4 pb-4 pl-16">
-                  <div className="bg-white rounded-xl border border-slate-200 p-4">
-                    <div className="flex items-center gap-2 mb-2"><Bot className="w-4 h-4 text-indigo-500"/><span className="text-[12px] font-black text-slate-700">Réponse de {p.model}</span></div>
-                    <p className="text-[13px] text-slate-600 leading-relaxed">{p.response}</p>
-                    <div className="flex items-center gap-3 mt-3 pt-3 border-t border-slate-100">
-                      <button className="text-[11px] font-bold text-blue-600 flex items-center gap-1 hover:text-blue-700"><Eye className="w-3 h-3"/>Voir la réponse complète</button>
-                    </div>
-                  </div>
-                </div>
-              )}
+    return (
+        <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm p-7 min-h-[400px]">
+            <div className="flex items-center justify-between mb-8">
+                <h2 className="text-[15px] font-black text-slate-900 flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-blue-600" />
+                    Flux d'activité IA
+                </h2>
+                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{prompts.length} Échanges</span>
             </div>
-          ))}
-          {filtered.length===0 && (
-            <div className="text-center py-12"><MessageSquare className="w-10 h-10 text-slate-200 mx-auto mb-3"/><p className="text-[13px] font-semibold text-slate-400">Aucun prompt trouvé</p></div>
-          )}
+
+            <div className="flex flex-col gap-8">
+                {prompts.map((p, idx) => (
+                    <div key={idx} className="relative pl-8 border-l-2 border-slate-50 space-y-4">
+                        {/* Dot on the line */}
+                        <div className="absolute -left-[9px] top-0 w-4 h-4 bg-white border-2 border-blue-600 rounded-full shadow-sm" />
+                        
+                        {/* Student Prompt */}
+                        <div className="flex flex-col gap-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">
+                                    {getInitials(p.nomEtudiant)}
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[13px] font-black text-slate-900">{p.nomEtudiant}</span>
+                                    <span className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
+                                        <Clock className="w-3 h-3" /> {p.datePrompt ? new Date(p.datePrompt).toLocaleString() : 'Date inconnue'}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="bg-slate-50 p-5 rounded-[24px] border border-slate-100 ml-11">
+                                <p className="text-[14px] text-slate-700 leading-relaxed font-medium italic">
+                                    "{p.contenu}"
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* AI Response(s) */}
+                        {p.reponses && p.reponses.map((rep: any, rIdx: number) => (
+                            <div key={rIdx} className="flex flex-col gap-3 ml-11">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
+                                        <Bot className="w-3.5 h-3.5" />
+                                    </div>
+                                    <span className="text-[11px] font-black text-blue-600 uppercase tracking-widest">Réponse de l'IA ({rep.modeleIa || 'GPT-4'})</span>
+                                </div>
+                                <div className="bg-blue-50/30 p-5 rounded-[24px] border border-blue-100/50">
+                                    <p className="text-[13px] text-slate-600 leading-relaxed">
+                                        {rep.contenuReponse}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ))}
+
+                {prompts.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
+                            <MessageSquare className="w-8 h-8 text-slate-200" />
+                        </div>
+                        <p className="text-slate-400 font-medium">Aucune activité IA enregistrée pour ce projet.</p>
+                    </div>
+                )}
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
-/* ── Historique des commits ── */
-const CommitsTab: React.FC = () => {
-  const [search, setSearch] = useState('');
-  const [branchFilter, setBranchFilter] = useState<string|null>(null);
-  const branches = [...new Set(commits.map(c=>c.branch))];
-  const filtered = commits.filter(c=>{
-    const ms = !search || c.message.toLowerCase().includes(search.toLowerCase()) || c.author.toLowerCase().includes(search.toLowerCase());
-    const mb = !branchFilter || c.branch===branchFilter;
-    return ms&&mb;
-  });
-
-  return (
-    <div className="flex flex-col gap-6 max-w-5xl">
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-2xl px-4 py-2.5 flex-1 max-w-sm shadow-sm">
-          <Search className="w-4 h-4 text-slate-400"/>
-          <input type="text" placeholder="Rechercher un commit..." className="bg-transparent text-[13px] text-slate-700 placeholder-slate-400 outline-none w-full font-medium" value={search} onChange={e=>setSearch(e.target.value)}/>
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={()=>setBranchFilter(null)} className={`px-3 py-2 rounded-xl text-[12px] font-bold transition-colors ${!branchFilter?'bg-slate-900 text-white shadow-md':'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}>Toutes</button>
-          {branches.map(b=>{
-            const bc=commits.find(c=>c.branch===b)?.branchColor??'#94a3b8';
-            return <button key={b} onClick={()=>setBranchFilter(branchFilter===b?null:b)} className={`px-3 py-2 rounded-xl text-[12px] font-bold transition-colors flex items-center gap-1.5 ${branchFilter===b?'text-white shadow-md':'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`} style={branchFilter===b?{background:bc}:{}}><span className="w-2 h-2 rounded-full" style={{background:bc}}/>{b}</button>;
-          })}
-        </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-[13px] font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm ml-auto"><RefreshCw className="w-3.5 h-3.5"/>Actualiser</button>
-      </div>
-
-      <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm p-7">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-[15px] font-black text-slate-900">{filtered.length} commit{filtered.length>1?'s':''}</h2>
-          <span className="text-[11px] font-semibold text-slate-400">Dernière mise à jour: {commits[0]?.date}</span>
-        </div>
+const CommitsTab: React.FC<{commits: any[]}> = ({commits}) => (
+    <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm p-7">
+        <h2 className="text-[15px] font-black text-slate-900 mb-5">{commits.length} commit{commits.length>1?'s':''}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-[12px]">
             <thead><tr className="border-b border-slate-100">
-              {['HASH','MESSAGE','AUTEUR','DATE','BRANCHE'].map(h=><th key={h} className="pb-3 text-left font-black text-slate-400 uppercase tracking-widest pr-4 last:pr-0">{h}</th>)}
+              {['HASH','MESSAGE','DATE'].map(h=><th key={h} className="pb-3 text-left font-black text-slate-400 uppercase tracking-widest pr-4 last:pr-0">{h}</th>)}
             </tr></thead>
             <tbody className="divide-y divide-slate-50">
-              {filtered.map((c,i)=>(
+              {commits.map((c,i)=>(
                 <tr key={i} className="group hover:bg-slate-50/60 transition-colors">
-                  <td className="py-3.5 pr-4"><code className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-lg text-[11px] font-mono font-bold">{c.hash}</code></td>
-                  <td className="py-3.5 pr-4 font-semibold text-slate-700 flex items-center gap-2"><GitCommit className="w-3.5 h-3.5 text-slate-300 flex-shrink-0"/>{c.message}</td>
-                  <td className="py-3.5 pr-4 text-slate-600 font-medium"><span className="flex items-center gap-1.5"><User className="w-3 h-3 text-slate-400"/>{c.author}</span></td>
-                  <td className="py-3.5 pr-4 text-slate-500">{c.date}</td>
-                  <td className="py-3.5"><span className="px-2.5 py-1 rounded-lg text-white text-[10px] font-black" style={{background:c.branchColor}}>{c.branch}</span></td>
+                  <td className="py-3.5 pr-4"><code className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-lg text-[11px] font-mono font-bold">{c.hashCommit?.substring(0,7) || '---'}</code></td>
+                  <td className="py-3.5 pr-4 font-semibold text-slate-700 flex items-center gap-2"><GitCommit className="w-3.5 h-3.5 text-slate-300 flex-shrink-0"/>{c.messageCommit}</td>
+                  <td className="py-3.5 pr-4 text-slate-500">{new Date(c.dateCommit).toLocaleDateString()}</td>
                 </tr>
               ))}
+              {commits.length === 0 && (
+                  <tr>
+                      <td colSpan={3} className="py-10 text-center text-slate-400 font-medium">Aucun commit trouvé pour ce projet.</td>
+                  </tr>
+              )}
             </tbody>
           </table>
         </div>
-        {filtered.length===0 && <div className="text-center py-12"><GitCommit className="w-10 h-10 text-slate-200 mx-auto mb-3"/><p className="text-[13px] font-semibold text-slate-400">Aucun commit trouvé</p></div>}
-      </div>
     </div>
-  );
-};
+);
 
-/* ── Main ── */
-const ProjetDetails: React.FC = () => {
+/* ── Main Component ── */
+const ProjetDetails: React.FC<{id?: number | null}> = ({id}) => {
+  const [project, setProject] = useState<any>(null);
+  const [commits, setCommits] = useState<any[]>([]);
+  const [prompts, setPrompts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [note, setNote] = useState('');
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
 
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // 1. Details du projet
+        const pData = await projetService.getById(id);
+        setProject(pData);
+        setNote(pData.notesEnseignant || '');
+
+        // 2. Commits
+        const cData = await projetService.getContributions(id);
+        setCommits(cData);
+
+        // 3. Prompts IA
+        const prData = await iaService.getPrompts();
+        // Optionnel: filtrer les prompts par projet si l'API ne le fait pas déjà
+        // Pour l'instant on les affiche tous ou on filtre côté client
+        setPrompts(prData);
+
+      } catch (error) {
+        console.error("Erreur lors du chargement des détails du projet", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (!id) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+        <div className="w-20 h-20 bg-slate-50 text-slate-300 rounded-3xl flex items-center justify-center mb-6">
+            <FolderRight className="w-10 h-10" />
+        </div>
+        <h2 className="text-xl font-black text-slate-900 mb-2">Aucun projet sélectionné</h2>
+        <p className="text-slate-500 max-w-sm">Veuillez sélectionner un projet dans le tableau de bord pour voir ses détails et son activité.</p>
+      </div>
+    );
+  }
+
+  if (loading) {
+      return (
+          <div className="flex items-center justify-center min-h-[60vh]">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+      );
+  }
+
   const renderTab = () => {
     switch(activeTab) {
-      case 'overview': return <OverviewTab note={note} setNote={setNote}/>;
-      case 'activity': return <ActivityTab/>;
-      case 'commits': return <CommitsTab/>;
+      case 'overview': return <OverviewTab project={project} note={note} setNote={setNote}/>;
+      case 'activity': return <ActivityTab prompts={prompts}/>;
+      case 'commits': return <CommitsTab commits={commits}/>;
     }
   };
 
   return (
     <div className="p-8 pb-20 max-w-7xl mx-auto animate-in fade-in duration-500">
       <div className="flex items-center gap-2 text-[12px] font-semibold text-slate-400 mb-4 uppercase tracking-widest">
-        <span className="cursor-pointer hover:text-blue-600 transition-colors">PROJETS</span><span>›</span><span className="text-slate-600">OPTIMISATION DE LLM LOCAL</span>
+        <span className="cursor-pointer hover:text-blue-600 transition-colors">PROJETS</span><span>›</span><span className="text-slate-600 uppercase">{project?.titre || 'DÉTAILS'}</span>
       </div>
+      
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Optimisation de LLM local</h1>
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight">{project?.titre}</h1>
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#dcfce7] text-[#16a34a] text-[11px] font-black rounded-full uppercase tracking-wide"><span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] inline-block"/>En cours</span>
-          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-100 rounded-full text-[11px] font-semibold text-slate-500 shadow-sm"><Calendar className="w-3.5 h-3.5"/>Deadline: 15 Oct 2024</span>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#dcfce7] text-[#16a34a] text-[11px] font-black rounded-full uppercase tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] inline-block"/>{project?.status || 'En cours'}
+          </span>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-100 rounded-full text-[11px] font-semibold text-slate-500 shadow-sm">
+              <Calendar className="w-3.5 h-3.5"/>Deadline: {project?.dateFin ? new Date(project.dateFin).toLocaleDateString() : 'Non définie'}
+          </span>
         </div>
       </div>
+
       <div className="flex gap-6 border-b border-slate-100 mb-8">
         {TABS.map(tab=>(
           <button key={tab.key} onClick={()=>setActiveTab(tab.key)} className={`pb-3 text-[13px] font-bold tracking-tight transition-colors border-b-2 ${activeTab===tab.key?'border-blue-600 text-blue-600':'border-transparent text-slate-400 hover:text-slate-600'}`}>{tab.label}</button>
         ))}
       </div>
+
       <div className="animate-in fade-in duration-300">{renderTab()}</div>
     </div>
   );
 };
+
+// Simple Icon for empty state
+const FolderRight = ({className}: {className?: string}) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
+        <path d="M12 10l3 3-3 3" /><path d="M8 13h7" />
+    </svg>
+);
 
 export default ProjetDetails;

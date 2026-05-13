@@ -68,7 +68,7 @@ public class ProjetController : ControllerBase
         try
         {
             var result = await _projetService.CreateProjetAsync(idEnseignant, request);
-            return CreatedAtAction(nameof(GetProjet), new { id = result.IDProjet }, result);
+            return CreatedAtAction(nameof(GetProjet), new { id = result.Id }, result);
         }
         catch (ArgumentException ex)
         {

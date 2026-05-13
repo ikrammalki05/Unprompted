@@ -17,6 +17,52 @@ public class ProfilController : ControllerBase
         _etudiantService = etudiantService;
     }
 
+    // GET: api/Profil/me
+    [HttpGet("me")]
+    public async Task<ActionResult<EtudiantProfilDto>> GetMonProfil()
+    {
+        try
+        {
+            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value 
+                        ?? User.FindFirst("email")?.Value;
+
+            if (string.IsNullOrEmpty(email))
+                return Unauthorized(new { message = "Email non trouvé dans le token." });
+
+            var profil = await _etudiantService.GetProfilByEmailAsync(email);
+            
+            if (profil == null)
+                return NotFound(new { message = "Profil étudiant introuvable." });
+
+            return Ok(profil);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erreur lors de la récupération du profil.", detail = ex.Message });
+        }
+    }
+
+    // PUT: api/Profil/me
+    [HttpPut("me")]
+    public async Task<IActionResult> UpdateMonProfil([FromBody] EtudiantCreateDto request)
+    {
+        try
+        {
+            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value 
+                        ?? User.FindFirst("email")?.Value;
+
+            if (string.IsNullOrEmpty(email))
+                return Unauthorized(new { message = "Email non trouvé dans le token." });
+
+            await _etudiantService.UpdateProfilByEmailAsync(email, request);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erreur lors de la mise à jour du profil.", detail = ex.Message });
+        }
+    }
+
     // GET: api/Profil/etudiant/5
     [HttpGet("etudiant/{idEtudiant}")]
     public async Task<ActionResult<EtudiantProfilDto>> GetMonProfil(int idEtudiant)

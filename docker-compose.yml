@@ -76,7 +76,7 @@ services:
       context: ./Frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://localhost:5066 # Ton port d'API préservé
+        VITE_API_URL: http://localhost:5066/api # Ton port d'API préservé avec le préfixe /api
     restart: unless-stopped
     ports:
       - "3001:80" # Ton port Frontend préservé

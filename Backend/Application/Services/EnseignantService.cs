@@ -161,4 +161,71 @@ public class EnseignantService : IEnseignantService
             ActivitésRécentes = 0
         };
     }
+
+    public async Task<EnseignantDto?> GetEnseignantByEmailAsync(string email)
+    {
+        var enseignants = await _enseignantRepo.GetAllAsync();
+        var e = enseignants.FirstOrDefault(x => x.IdUtilisateurNavigation?.Email?.ToLower() == email.ToLower());
+
+        if (e == null) return null;
+
+        return new EnseignantDto
+        {
+            Id = e.IdEnseignant,
+            NomComplet = $"{e.IdUtilisateurNavigation?.Prenom} {e.IdUtilisateurNavigation?.Nom}",
+            Email = e.IdUtilisateurNavigation?.Email ?? "Email inconnu",
+            Specialite = e.Specialite ?? "Non spécifiée",
+            Statut = e.IdUtilisateurNavigation?.Statut ?? "Inactif"
+        };
+    }
+
+    public async Task UpdateProfilByEmailAsync(string email, EnseignantCreateDto request)
+    {
+        var utilisateur = await _utilisateurRepo.GetByEmailAsync(email);
+        if (utilisateur == null) throw new Exception("Utilisateur introuvable.");
+
+        var enseignant = await _enseignantRepo.GetByEmailAsync(email);
+        if (enseignant == null) throw new Exception("Profil enseignant introuvable.");
+
+        await UpdateEnseignantAsync(enseignant.IdEnseignant, request);
+    }
+
+    public async Task<EnseignantDto> EnsureEnseignantExistsAsync(string email, string firstName, string lastName)
+    {
+        var existing = await GetEnseignantByEmailAsync(email);
+        if (existing != null) return existing;
+
+        _logger.LogInformation($"Création automatique du profil enseignant pour {email}");
+
+        // 1. Vérifier si l'utilisateur existe déjà
+        var utilisateur = await _utilisateurRepo.GetByEmailAsync(email);
+        if (utilisateur == null)
+        {
+            utilisateur = new Domain.Entities.Utilisateur
+            {
+                Nom = lastName,
+                Prenom = firstName,
+                Email = email,
+                Statut = "Actif"
+            };
+            await _utilisateurRepo.AddAsync(utilisateur);
+        }
+
+        // 2. Créer le profil Enseignant
+        var enseignant = new Domain.Entities.Enseignant
+        {
+            IdUtilisateur = utilisateur.IdUtilisateur,
+            Specialite = "Auto-généré"
+        };
+        await _enseignantRepo.AddAsync(enseignant);
+
+        return new EnseignantDto
+        {
+            Id = enseignant.IdEnseignant,
+            NomComplet = $"{utilisateur.Prenom} {utilisateur.Nom}",
+            Email = utilisateur.Email,
+            Specialite = enseignant.Specialite,
+            Statut = utilisateur.Statut
+        };
+    }
 }

@@ -1,0 +1,58 @@
+Ran command: `cd ..`
+Ran command: `docker compose up -d --build`
+
+Voici un guide complet pour créer votre compte de test **Enseignant** et vérifier les nouvelles fonctionnalités que nous avons implémentées.
+
+J'ai créé ce document sous forme d'artefact pour que vous puissiez le consulter facilement à tout moment.
+
+### 📝 Guide de Connexion Enseignant
+
+> [!IMPORTANT]
+> Assurez-vous d'avoir déjà suivi les étapes de configuration globale (création du Realm `nprompted-realm` et des rôles) avant de procéder.
+
+#### Étape 1 : Création du compte Enseignant dans Keycloak
+1.  Accédez à la console d'administration : [http://localhost:8080/admin](http://localhost:8080/admin)
+2.  Connectez-vous avec `admin` / `admin`.
+3.  Vérifiez que vous êtes bien sur le royaume **`nprompted-realm`**.
+4.  Allez dans **Users** -> **Add user**.
+5.  Saisissez les informations :
+    *   **Username** : `prof_test`
+    *   **Email verified** : Yes
+6.  Cliquez sur **Create**.
+7.  Allez dans l'onglet **Credentials** :
+    *   Cliquez sur **Set password**.
+    *   Saisissez un mot de passe (ex: `enseignant123`).
+    *   **DÉCOCHEZ** "Temporary".
+    *   Cliquez sur **Save**.
+8.  Allez dans l'onglet **Role mapping** :
+    *   Cliquez sur **Assign role**.
+    *   Sélectionnez le rôle **`enseignant`**.
+    *   Cliquez sur **Assign**.
+
+#### Étape 2 : Initialisation des données (Optionnel mais recommandé)
+Pour que les pages fonctionnent correctement (sans erreur 404), assurez-vous qu'un enseignant avec l'ID `1` existe en base de données SQL. Le backend crée automatiquement les tables au démarrage, mais il se peut que vous deviez créer l'enregistrement initial si vous ne passez pas par une procédure d'inscription complète.
+
+#### Étape 3 : Connexion à l'Application
+1.  Lancez le frontend (si non Docker) : `http://localhost:5173` ou via Docker : [http://localhost:3001](http://localhost:3001).
+2.  La page de connexion (thème personnalisé) s'affichera.
+3.  Connectez-vous avec vos nouveaux identifiants :
+    *   **Utilisateur** : `prof_test`
+    *   **Mot de passe** : `enseignant123`
+
+#### Étape 4 : Vérification des pages corrigées
+Une fois connecté, vous pourrez tester les pages suivantes sans les erreurs précédentes :
+
+*   **Gestion des Projets** : Vous pouvez maintenant créer un projet. Le bouton appellera `dateFin` et `duree` correctement au lieu de faire une erreur.
+*   **Configuration IA** : La sauvegarde fonctionnera sur la route `/api/ConfigurationIum` avec le bon format de données.
+*   **Évaluation** : Le bouton "Soumettre l'évaluation" ne donnera plus d'erreur 404 car j'ai créé l' `EvaluationController` dans le backend.
+*   **Upload PDF** : Vous pouvez tester l'import du cahier des charges, il sera envoyé au nouveau `FileController` et stocké sur le serveur.
+
+---
+
+### Résumé de mon intervention 🛠️
+1.  **Linkage Axios** : Implémentation de toutes les routes manquantes (Groupes, Assignations, Projets).
+2.  **Correction de Bugs** : Fix des typos (ConfigurationUm -> ConfigurationIum) et des noms de champs DTO (DateFin, Duree).
+3.  **Backend** : Création de l' `EvaluationController` et d'un `FileController` pour l'upload de PDF.
+4.  **Middleware** : Activation du support des fichiers statiques pour prévisualiser les documents uploadés.
+
+Tout est désormais prêt pour votre démonstration !

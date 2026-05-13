@@ -164,6 +164,28 @@ public class EtudiantService : IEtudiantService
         };
     }
 
+    public async Task<EtudiantProfilDto?> GetProfilByEmailAsync(string email)
+    {
+        var utilisateur = await _utilisateurRepo.GetByEmailAsync(email);
+        if (utilisateur == null) return null;
+
+        var etudiant = await _etudiantRepo.GetByUtilisateurIdAsync(utilisateur.IdUtilisateur);
+        if (etudiant == null) return null;
+
+        return await GetProfilEtudiantAsync(etudiant.IdEtudiant);
+    }
+
+    public async Task UpdateProfilByEmailAsync(string email, EtudiantCreateDto request)
+    {
+        var utilisateur = await _utilisateurRepo.GetByEmailAsync(email);
+        if (utilisateur == null) throw new Exception("Utilisateur introuvable.");
+
+        var etudiant = await _etudiantRepo.GetByUtilisateurIdAsync(utilisateur.IdUtilisateur);
+        if (etudiant == null) throw new Exception("Profil étudiant introuvable.");
+
+        await UpdateEtudiantAsync(etudiant.IdEtudiant, request);
+    }
+
     public async Task<HistoriqueEtudiantDto?> GetHistoriqueAsync(int idEtudiant)
     {
         // On vérifie que l'étudiant existe

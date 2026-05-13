@@ -9,4 +9,7 @@ public interface IEnseignantService
     Task UpdateEnseignantAsync(int id, EnseignantCreateDto request);
     Task DeleteEnseignantAsync(int id);
     Task<StatistiquesEnseignantDto> GetStatistiquesAsync(int idEnseignant);
+    Task<EnseignantDto?> GetEnseignantByEmailAsync(string email);
+    Task UpdateProfilByEmailAsync(string email, EnseignantCreateDto request);
+    Task<EnseignantDto> EnsureEnseignantExistsAsync(string email, string firstName, string lastName);
 }

@@ -205,7 +205,7 @@ public class ProjetService : IProjetService
 
     private static ProjetDto MapToDto(Projet p) => new ProjetDto
     {
-        IDProjet = p.IdProjet,
+        Id = p.IdProjet,
         Titre = p.Titre,
         Description = p.Description,
         Status = p.Statut,

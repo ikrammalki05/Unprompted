@@ -49,6 +49,13 @@ public class EtudiantRepository : IEtudiantRepository
         return await _context.Etudiants.CountAsync();
     }
 
+    public async Task<Etudiant?> GetByUtilisateurIdAsync(int utilisateurId)
+    {
+        return await _context.Etudiants
+            .Include(e => e.IdUtilisateurNavigation)
+            .FirstOrDefaultAsync(e => e.IdUtilisateur == utilisateurId);
+    }
+
     public async Task AddAsync(Etudiant etudiant)
     {
         await _context.Etudiants.AddAsync(etudiant);
