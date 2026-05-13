@@ -9,6 +9,8 @@ public class PromptDto
     public int? NbTokensEntree { get; set; }
     public int? NbTokensSortie { get; set; }
     public string NomEtudiant { get; set; } = string.Empty;
+    public int IdEtudiant { get; set; }
+    public int IdProjet { get; set; }
     
     // On inclut directement la/les réponse(s) associée(s)
     public List<ReponseIumDto> Reponses { get; set; } = new();
