@@ -8,6 +8,7 @@ import { GestionPage } from '../pages/admin/GestionPage';
 import { ProfilePage } from '../pages/admin/ProfilePage';
 import { UnauthorizedPage } from '../features/auth/components/UnauthorizedPage';
 import CodeEditorPage from '../pages/student/CodeEditorPage';
+import { UnifiedHistoryPage } from '../pages/student/Historique';
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,9 @@ export const router = createBrowserRouter([
       { path: 'gestion', element: <GestionPage /> },
       { path: 'profile', element: <ProfilePage /> },
       { path: 'code', element: <CodeEditorPage /> },
+      { path: 'code', element: <CodeEditorPage /> },
+      { path: 'historique', element: <UnifiedHistoryPage /> },
+
       // Autres routes admin...
     ]
   },

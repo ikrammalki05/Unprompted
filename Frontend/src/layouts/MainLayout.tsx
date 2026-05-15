@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+// Plus besoin d'importer useState et useEffect !
 import Sidebar from "../components/Sidebar";
 import { Topbar } from "../features/admin/dash/components/Topbar";
 
@@ -7,21 +7,19 @@ export default function MainLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [activeNav, setActiveNav] = useState("dashboard");
-
-  useEffect(() => {
-    // La logique "includes" continue de fonctionner même avec les préfixes
-    if (location.pathname.includes("dashboard")) setActiveNav("dashboard");
-    if (location.pathname.includes("gestion")) setActiveNav("users");
-    if (location.pathname.includes("profile")) setActiveNav("profile");
-  }, [location.pathname]);
+  // 1. Calcul direct de l'onglet actif basé sur l'URL actuelle
+  const activeNav = 
+    location.pathname.includes("dashboard") ? "dashboard" :
+    location.pathname.includes("gestion") ? "users" :
+    location.pathname.includes("profile") ? "profile" : 
+    "dashboard"; // Valeur par défaut
 
   const handleNav = (id: string) => {
-    setActiveNav(id);
+    // 2. Plus besoin de setActiveNav(id) ! 
+    // Le simple fait d'appeler navigate() va changer location.pathname, 
+    // re-rendre le composant, et recalculer activeNav automatiquement.
 
-    // 💡 L'ASTUCE EST ICI : On extrait le rôle depuis l'URL
-    // Si l'URL est "/admin/dashboard", split('/') donne ["", "admin", "dashboard"]
-    // Donc basePath deviendra "/admin"
+    // 💡 On extrait le rôle depuis l'URL
     const rolePrefix = `/${location.pathname.split('/')[1]}`;
 
     // On utilise ce préfixe dynamique pour la navigation
@@ -32,6 +30,7 @@ export default function MainLayout() {
 
   return (
     <div className="flex">
+      {/* On passe toujours handleNav à la prop setActiveNav de la Sidebar */}
       <Sidebar activeNav={activeNav} setActiveNav={handleNav} />
       <div className="flex-1">
         <Topbar />
