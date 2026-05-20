@@ -92,6 +92,7 @@ builder.Services.AddScoped<IDossierRepository, DossierRepository>();
 builder.Services.AddScoped<IFichierRepository, FichierRepository>();
 builder.Services.AddScoped<IFichierVersionRepository, FichierVersionRepository>();
 builder.Services.AddScoped<IExecutionCodeRepository, ExecutionCodeRepository>();
+builder.Services.AddScoped<ISessionTerminalRepository, SessionTerminalRepository>();
 
 // 5. SERVICES
 builder.Services.AddScoped<IEtudiantService, Application.Services.EtudiantService>();
@@ -110,6 +111,7 @@ builder.Services.AddScoped<ITreeService, TreeService>();
 builder.Services.AddScoped<IFichierService, Application.Services.FichierService>();
 builder.Services.AddScoped<IDossierService, Application.Services.DossierService>();
 builder.Services.AddScoped<IExecutionCodeService, Application.Services.ExecutionCodeService>();
+builder.Services.AddScoped<ITerminalService, Application.Services.TerminalService>();
 
 // 6. SWAGGER
 builder.Services.AddEndpointsApiExplorer();

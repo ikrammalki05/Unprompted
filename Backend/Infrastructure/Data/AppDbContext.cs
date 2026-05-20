@@ -37,6 +37,8 @@ public partial class AppDbContext : DbContext
 
     public DbSet<ExecutionCode> CodeExecutions { get; set; }
 
+    public virtual DbSet<SessionTerminal> SessionTerminals { get; set; } = null!;
+
     public virtual DbSet<Prompt> Prompts { get; set; } = null!;
 
     public virtual DbSet<ReponseIum> ReponseIa { get; set; } = null!;
@@ -212,6 +214,31 @@ public partial class AppDbContext : DbContext
                 .WithMany(p => p.ExecutionsCode)
                 .HasForeignKey(e => e.IdProjet)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SessionTerminal>(entity =>
+        {
+            entity.HasKey(e => e.IdSession);
+
+            entity.ToTable("SessionTerminal");
+
+            entity.Property(e => e.IdSession)
+                .HasColumnName("id_session");
+
+            entity.Property(e => e.IdConteneurDocker)
+                .HasMaxLength(255)
+                .HasColumnName("id_conteneur_docker");
+
+            entity.Property(e => e.IdUtilisateur)
+                .HasMaxLength(255)
+                .HasColumnName("id_utilisateur");
+
+            entity.Property(e => e.Active)
+                .HasColumnName("active");
+
+            entity.Property(e => e.DateCreation)
+                .HasColumnType("datetime")
+                .HasColumnName("date_creation");
         });
 
         modelBuilder.Entity<Affectation>(entity =>
