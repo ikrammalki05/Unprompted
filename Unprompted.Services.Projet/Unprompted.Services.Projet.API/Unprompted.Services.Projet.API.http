@@ -1,0 +1,6 @@
+@Unprompted.Services.Projet.API_HostAddress = http://localhost:5089
+
+GET {{Unprompted.Services.Projet.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
