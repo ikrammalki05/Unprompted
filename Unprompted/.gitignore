@@ -1,0 +1,65 @@
+# Environment — NEVER commit secrets
+.env
+.env.*
+!.env.example
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+build/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Coverage
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Local files
+*.local
+
+# Docker
+*.tar
+
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.log
+
+## Rider
+.idea/
+
+## VS Code
+.vscode/
+
+## Environment secrets — NEVER commit these
+appsettings.Development.json
+appsettings.Local.json
+*.env
+.env
+
+## Publish output
+publish/
+out/
