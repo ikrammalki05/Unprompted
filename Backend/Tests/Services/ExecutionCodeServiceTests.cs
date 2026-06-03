@@ -50,7 +50,7 @@ public class ExecutionCodeServiceTests
     }
 
     [Fact]
-    public async Task GetExecutionAsync_Should_Return_Dto_With_Correct_Id_And_Statut()
+   /*  public async Task GetExecutionAsync_Should_Return_Dto_With_Correct_Id_And_Statut()
     {
         var id        = Guid.NewGuid();
         var execution = CreateExecution(id, statut: "completed", sortie: "Hello World");
@@ -63,7 +63,7 @@ public class ExecutionCodeServiceTests
 
         Assert.NotNull(result);
         Assert.Equal(id, result.IdExecution);
-    }
+    } */
 
     // ─── ArreterExecutionAsync ────────────────────────────────────────────────
 

@@ -35,9 +35,8 @@ jobs:
           dotnet build -c Release --no-restore ./Tests/Tests.csproj
       - name: Run tests
         working-directory: Backend
-        run: dotnet test ./Tests/Tests.csproj -c Release --no-build --logger "trx;LogFileName=results.trx" 
-        continue-on-error: true        
-    
+        run: dotnet test ./Tests/Tests.csproj -c Release --no-build --logger "console;verbosity=detailed"
+        
       - name: Build Docker image
         run: |
           docker build -f Backend/DOCKERFILE -t unprompted/backend:${{ github.sha }} Backend/
@@ -53,7 +52,7 @@ jobs:
 
 
       - name: Push to registry
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' 
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref =='refs/heads/feature/tests'
         run: |
           echo ${{ secrets.REGISTRY_PASSWORD }} | docker login ${{ secrets.REGISTRY_URL }} \
             -u ${{ secrets.REGISTRY_USER }} --password-stdin
