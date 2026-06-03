@@ -35,8 +35,8 @@ jobs:
           dotnet build -c Release --no-restore ./Tests/Tests.csproj
       - name: Run tests
         working-directory: Backend
-        run: dotnet test ./Tests/Tests.csproj -c Release --no-build --verbosity normal
-
+        run: dotnet test ./Tests/Tests.csproj -c Release --no-build --logger "console;verbosity=detailed"
+        
       - name: Build Docker image
         run: |
           docker build -f Backend/DOCKERFILE -t unprompted/backend:${{ github.sha }} Backend/
