@@ -34,9 +34,6 @@ jobs:
         working-directory: Frontend
         run: npm run lint
 
-   #   - name: Run tests
-    #    working-directory: Frontend
-     #   run: npm test -- --watchAll=false --passWithNoTests
 
       - name: Build
         working-directory: Frontend
