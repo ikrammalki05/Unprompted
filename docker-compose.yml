@@ -89,10 +89,10 @@ services:
     networks: [platform]
 
   # 2. AJOUT DE MICROSERVICE RAG (Python)
-  ai-service:
+  ai:
     build:
-      context: ./AI-Service 
-      dockerfile: Dockerfile
+      context: ./AI
+      dockerfile: DOCKERFILE
     container_name: unprompted_rag
     restart: unless-stopped
     ports:
@@ -103,4 +103,7 @@ services:
       # Tu pourras ajouter ici ton API KEY OpenAI ou autre
     depends_on:
       - chroma-db
+    hostname: ai
+    env_file:             # <-- NOUVEAU
+      - ./AI/.env
     networks: [platform]
