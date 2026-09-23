@@ -1,0 +1,76 @@
+body {
+    background-color: #021124 !important;
+    font-family: 'Inter', -apple-system, system-ui, sans-serif !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    color: #f8fafc;
+}
+
+#kc-header {
+    display: none;
+}
+
+.login-pf-page .card-pf {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    max-width: 450px;
+    width: 100%;
+}
+
+#kc-page-title {
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -0.5px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+label {
+    color: #e2e8f0 !important;
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.pf-c-form-control {
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+}
+
+#kc-login {
+    background-color: #2563eb !important;
+    background-image: none !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    font-weight: 700 !important;
+    font-size: 16px !important;
+    margin-top: 20px;
+    transition: all 0.2s;
+}
+
+#kc-login:hover {
+    background-color: #3b82f6 !important;
+    transform: translateY(-1px);
+}
+
+.login-pf-page .login-pf-signup {
+    color: #94a3b8;
+    margin-top: 24px;
+    text-align: center;
+}
+
+.login-pf-page .login-pf-signup a {
+    color: #60a5fa;
+    font-weight: 600;
+}

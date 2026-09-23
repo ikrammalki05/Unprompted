@@ -3,10 +3,11 @@ namespace Application.Interfaces;
 using Domain.Entities;
 public interface IClasseRepository
 {
-    Task<IEnumerable<Groupe>> GetAllAsync();
-    Task<Groupe?> GetByIdAsync(int id);
+    Task<IEnumerable<Classe>> GetAllAsync();
+    Task<Classe?> GetByIdAsync(int id);
     Task<int> CountAsync();
-    Task AddAsync(Groupe groupe);
-    Task UpdateAsync(Groupe groupe);
+    Task AddAsync(Classe classe);
+    Task UpdateAsync(Classe classe);
     Task DeleteAsync(int id);
 }
+

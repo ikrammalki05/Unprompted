@@ -41,6 +41,13 @@ public class EnseignantRepository : IEnseignantRepository
         return await _context.Enseignants.CountAsync();
     }
 
+    public async Task<Enseignant?> GetByEmailAsync(string email)
+    {
+        return await _context.Enseignants
+            .Include(e => e.IdUtilisateurNavigation)
+            .FirstOrDefaultAsync(e => e.IdUtilisateurNavigation.Email == email);
+    }
+
     public async Task AddAsync(Enseignant enseignant)
     {
         await _context.Enseignants.AddAsync(enseignant);

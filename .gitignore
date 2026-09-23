@@ -38,3 +38,5 @@ appsettings.Local.json
 ## Publish output
 publish/
 out/
+node_modules/
+

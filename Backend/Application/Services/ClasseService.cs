@@ -1,5 +1,6 @@
 using Application.DTOs;
 using Application.Interfaces;
+using Domain.Entities;
 
 namespace Application.Services;
 
@@ -14,27 +15,58 @@ public class ClasseService : IClasseService
 
     public async Task<IEnumerable<ClasseDto>> GetAllClassesAsync()
     {
-        // Attention : GetAllAsync retourne des "Groupe" selon IClasseRepository
-        var groupes = await _classeRepo.GetAllAsync();
-
-        return groupes.Select(g => 
-        {
-            // On cherche s'il y a un enseignant affecté à ce groupe pour le mettre en référent
-            var affectationEnseignant = g.Affectations?.FirstOrDefault(a => a.IdEnseignant != null);
-            var nomEnseignant = affectationEnseignant?.IdEnseignantNavigation?.IdUtilisateurNavigation != null
-                ? $"{affectationEnseignant.IdEnseignantNavigation.IdUtilisateurNavigation.Prenom} {affectationEnseignant.IdEnseignantNavigation.IdUtilisateurNavigation.Nom}"
-                : "Aucun";
-
-            return new ClasseDto
-            {
-                Id = g.IdGroupe,
-                NomClasse = g.NomGroupe,
-                AnneeAcademique = "2023 - 2024", // Valeur par défaut pour correspondre à la maquette
-                // On compte le nombre d'étudiants distincts affectés à ce groupe
-                EffectifActuel = g.Affectations?.Where(a => a.IdEtudiant != 0).Select(a => a.IdEtudiant).Distinct().Count() ?? 0,
-                EffectifMax = 40, // Valeur par défaut de la maquette
-                EnseignantReferent = nomEnseignant
-            };
-        });
+        var classes = await _classeRepo.GetAllAsync();
+        return classes.Select(MapToDto);
     }
+
+    public async Task<ClasseDto?> GetClasseByIdAsync(int id)
+    {
+        var classe = await _classeRepo.GetByIdAsync(id);
+        if (classe == null) return null;
+        return MapToDto(classe);
+    }
+
+    public async Task<ClasseDto> CreateClasseAsync(ClasseCreateDto dto)
+    {
+        var classe = new Classe
+        {
+            NomClasse = dto.NomClasse,
+            AnneeAcademique = dto.AnneeAcademique,
+            EffectifMax = dto.EffectifMax,
+            DateCreation = DateTime.Now
+        };
+        await _classeRepo.AddAsync(classe);
+        return MapToDto(classe);
+    }
+
+    public async Task UpdateClasseAsync(int id, ClasseCreateDto dto)
+    {
+        var classe = await _classeRepo.GetByIdAsync(id);
+        if (classe == null)
+            throw new ArgumentException($"Classe avec l'id {id} introuvable.");
+
+        classe.NomClasse = dto.NomClasse;
+        classe.AnneeAcademique = dto.AnneeAcademique;
+        classe.EffectifMax = dto.EffectifMax;
+        await _classeRepo.UpdateAsync(classe);
+    }
+
+    public async Task DeleteClasseAsync(int id)
+    {
+        var classe = await _classeRepo.GetByIdAsync(id);
+        if (classe == null)
+            throw new ArgumentException($"Classe avec l'id {id} introuvable.");
+
+        await _classeRepo.DeleteAsync(id);
+    }
+
+    private static ClasseDto MapToDto(Classe c) => new ClasseDto
+    {
+        Id = c.IdClasse,
+        NomClasse = c.NomClasse,
+        AnneeAcademique = c.AnneeAcademique,
+        EffectifMax = c.EffectifMax,
+        EffectifActuel = 0,
+        EnseignantReferent = "Aucun"
+    };
 }

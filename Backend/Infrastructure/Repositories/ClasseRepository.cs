@@ -14,51 +14,39 @@ public class ClasseRepository : IClasseRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Groupe>> GetAllAsync()
+    public async Task<IEnumerable<Classe>> GetAllAsync()
     {
-        return await _context.Groupes
-            .Include(g => g.IdProjetNavigation)
-            .ToListAsync();
+        return await _context.Classes.ToListAsync();
     }
 
-    public async Task<Groupe?> GetByIdAsync(int id)
+    public async Task<Classe?> GetByIdAsync(int id)
     {
-        return await _context.Groupes
-            .Include(g => g.IdProjetNavigation)
-            .Include(g => g.Affectations)
-            .FirstOrDefaultAsync(g => g.IdGroupe == id);
-    }
-
-    public async Task<IEnumerable<Groupe>> GetByProjetAsync(int idProjet)
-    {
-        return await _context.Groupes
-            .Where(g => g.IdProjet == idProjet)
-            .ToListAsync();
+        return await _context.Classes.FindAsync(id);
     }
 
     public async Task<int> CountAsync()
     {
-        return await _context.Groupes.CountAsync();
+        return await _context.Classes.CountAsync();
     }
 
-    public async Task AddAsync(Groupe groupe)
+    public async Task AddAsync(Classe classe)
     {
-        await _context.Groupes.AddAsync(groupe);
+        await _context.Classes.AddAsync(classe);
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(Groupe groupe)
+    public async Task UpdateAsync(Classe classe)
     {
-        _context.Groupes.Update(groupe);
+        _context.Classes.Update(classe);
         await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int id)
     {
-        var groupe = await GetByIdAsync(id);
-        if (groupe != null)
+        var classe = await GetByIdAsync(id);
+        if (classe != null)
         {
-            _context.Groupes.Remove(groupe);
+            _context.Classes.Remove(classe);
             await _context.SaveChangesAsync();
         }
     }
