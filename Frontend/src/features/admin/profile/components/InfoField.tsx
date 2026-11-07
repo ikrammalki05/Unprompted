@@ -8,16 +8,18 @@ interface InfoFieldProps {
 
 export function InfoField({ label, value, editable, editValue, onChange }: InfoFieldProps) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <span className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-[0.05em]">{label}</span>
+    <div className="flex flex-col gap-2">
+      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.08em]">{label}</span>
       {editable ? (
         <input
-          className="w-full p-[8px_12px] border border-[#e2e8f0] rounded-lg text-sm text-[#1e293b] outline-none transition-all focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]"
+          className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 outline-none transition-all focus:border-blue-400 focus:ring-4 focus:ring-blue-50"
           value={editValue}
           onChange={(e) => onChange(e.target.value)}
         />
       ) : (
-        <span className="text-sm font-medium text-[#1e293b]">{value}</span>
+        <span className="text-sm font-semibold text-slate-900 min-h-[46px] flex items-center">
+          {value}
+        </span>
       )}
     </div>
   );

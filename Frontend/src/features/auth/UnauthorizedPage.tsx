@@ -1,12 +1,9 @@
-import { keycloak } from '../../services/keycloak'; // Ajuste le chemin
+import { logoutApp } from '../../services/authLogout';
 
 export const UnauthorizedPage = () => {
 
-    // Fonction pour détruire la session et revenir à l'accueil
     const handleLogout = () => {
-        keycloak.logout({
-            redirectUri: window.location.origin // Le ramène à la racine après déconnexion
-        });
+        logoutApp();
     };
 
     return (

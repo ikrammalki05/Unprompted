@@ -199,9 +199,7 @@ const ProjetDetails: React.FC<{id?: number | null}> = ({id}) => {
         setCommits(cData);
 
         // 3. Prompts IA
-        const prData = await iaService.getPrompts();
-        // Optionnel: filtrer les prompts par projet si l'API ne le fait pas déjà
-        // Pour l'instant on les affiche tous ou on filtre côté client
+        const prData = await iaService.getPrompts(id);
         setPrompts(prData);
 
       } catch (error) {

@@ -10,4 +10,6 @@ public class ContributionDto
     public string? HashCommit { get; set; }
     public int IdEtudiant { get; set; }
     public int IdProjet { get; set; }
+    public int? LignesAjoutees { get; set; }
+    public int? LignesSupprimees { get; set; }
 }

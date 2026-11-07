@@ -65,3 +65,9 @@ publish/
 out/
 node_modules/
 
+
+__pycache__/
+*.pyc
+AI/chroma_data/
+Docs/demo_frames/
+

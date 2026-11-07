@@ -7,98 +7,93 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Etudiant")] // 🔒 Strictement réservé aux étudiants !
+[Authorize]
 public class ProfilController : ControllerBase
 {
     private readonly IEtudiantService _etudiantService;
+    private readonly ICurrentUserService _currentUser;
+    private readonly IUtilisateurRepository _utilisateurRepo;
+    private readonly IEtudiantRepository _etudiantRepo;
 
-    public ProfilController(IEtudiantService etudiantService)
+    public ProfilController(
+        IEtudiantService etudiantService,
+        ICurrentUserService currentUser,
+        IUtilisateurRepository utilisateurRepo,
+        IEtudiantRepository etudiantRepo)
     {
         _etudiantService = etudiantService;
+        _currentUser = currentUser;
+        _utilisateurRepo = utilisateurRepo;
+        _etudiantRepo = etudiantRepo;
     }
 
-    // GET: api/Profil/me
     [HttpGet("me")]
-    public async Task<ActionResult<EtudiantProfilDto>> GetMonProfil()
+    [Authorize(Roles = "etudiant,Etudiant")]
+    public async Task<ActionResult<EtudiantProfilDto>> GetMe()
     {
-        try
-        {
-            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value 
-                        ?? User.FindFirst("email")?.Value;
+        var etudiant = await _currentUser.GetOrCreateEtudiantAsync(User);
+        if (etudiant == null)
+            return Unauthorized(new { message = "Profil étudiant introuvable." });
 
-            if (string.IsNullOrEmpty(email))
-                return Unauthorized(new { message = "Email non trouvé dans le token." });
-
-            var profil = await _etudiantService.GetProfilByEmailAsync(email);
-            
-            if (profil == null)
-                return NotFound(new { message = "Profil étudiant introuvable." });
-
-            return Ok(profil);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Erreur lors de la récupération du profil.", detail = ex.Message });
-        }
+        var profil = await _etudiantService.GetProfilEtudiantAsync(etudiant.IdEtudiant);
+        return profil == null ? NotFound() : Ok(profil);
     }
 
-    // PUT: api/Profil/me
     [HttpPut("me")]
-    public async Task<IActionResult> UpdateMonProfil([FromBody] EtudiantCreateDto request)
+    [Authorize(Roles = "etudiant,Etudiant")]
+    public async Task<IActionResult> UpdateMe([FromBody] ProfilUpdateDto dto)
     {
-        try
-        {
-            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value 
-                        ?? User.FindFirst("email")?.Value;
+        var etudiant = await _currentUser.GetOrCreateEtudiantAsync(User);
+        if (etudiant == null)
+            return Unauthorized();
 
-            if (string.IsNullOrEmpty(email))
-                return Unauthorized(new { message = "Email non trouvé dans le token." });
+        var full = await _etudiantRepo.GetByIdAsync(etudiant.IdEtudiant);
+        if (full?.IdUtilisateurNavigation == null)
+            return NotFound();
 
-            await _etudiantService.UpdateProfilByEmailAsync(email, request);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Erreur lors de la mise à jour du profil.", detail = ex.Message });
-        }
+        var utilisateur = full.IdUtilisateurNavigation;
+        if (!string.IsNullOrWhiteSpace(dto.Nom)) utilisateur.Nom = dto.Nom.Trim();
+        if (!string.IsNullOrWhiteSpace(dto.Prenom)) utilisateur.Prenom = dto.Prenom.Trim();
+        if (!string.IsNullOrWhiteSpace(dto.Email)) utilisateur.Email = dto.Email.Trim();
+        if (!string.IsNullOrWhiteSpace(dto.CodeApogee)) full.CodeApogee = dto.CodeApogee.Trim();
+        if (dto.Niveau != null) full.Niveau = dto.Niveau;
+        if (dto.Filiere != null) full.Filiere = dto.Filiere;
+
+        await _utilisateurRepo.UpdateAsync(utilisateur);
+        await _etudiantRepo.UpdateAsync(full);
+
+        var profil = await _etudiantService.GetProfilEtudiantAsync(full.IdEtudiant);
+        return Ok(profil);
     }
 
-    // GET: api/Profil/etudiant/5
+    [HttpGet("me/historique")]
+    [Authorize(Roles = "etudiant,Etudiant")]
+    public async Task<ActionResult<HistoriqueEtudiantDto>> GetMonHistoriqueMe()
+    {
+        var etudiant = await _currentUser.GetOrCreateEtudiantAsync(User);
+        if (etudiant == null) return Unauthorized();
+
+        var historique = await _etudiantService.GetHistoriqueAsync(etudiant.IdEtudiant);
+        return historique == null ? NotFound() : Ok(historique);
+    }
+
     [HttpGet("etudiant/{idEtudiant}")]
+    [Authorize(Roles = "etudiant,Etudiant,enseignant,Enseignant,admin,Admin")]
     public async Task<ActionResult<EtudiantProfilDto>> GetMonProfil(int idEtudiant)
     {
-        try
-        {
-            var profil = await _etudiantService.GetProfilEtudiantAsync(idEtudiant);
-            
-            if (profil == null)
-                return NotFound(new { message = "Profil introuvable." });
-
-            return Ok(profil);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Erreur lors de la récupération du profil.", detail = ex.Message });
-        }
+        var profil = await _etudiantService.GetProfilEtudiantAsync(idEtudiant);
+        if (profil == null)
+            return NotFound(new { message = "Profil introuvable." });
+        return Ok(profil);
     }
 
-    // GET: api/Profil/etudiant/5/historique
     [HttpGet("etudiant/{idEtudiant}/historique")]
+    [Authorize(Roles = "etudiant,Etudiant,enseignant,Enseignant,admin,Admin")]
     public async Task<ActionResult<HistoriqueEtudiantDto>> GetMonHistorique(int idEtudiant)
     {
-        try
-        {
-            var historique = await _etudiantService.GetHistoriqueAsync(idEtudiant);
-            
-            if (historique == null)
-                return NotFound(new { message = "Étudiant introuvable." });
-
-            return Ok(historique);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Erreur lors de l'agrégation de l'historique.", detail = ex.Message });
-        }
+        var historique = await _etudiantService.GetHistoriqueAsync(idEtudiant);
+        if (historique == null)
+            return NotFound(new { message = "Étudiant introuvable." });
+        return Ok(historique);
     }
-    
 }

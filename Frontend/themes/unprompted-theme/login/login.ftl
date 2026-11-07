@@ -3,32 +3,30 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${msg("loginTitle",(realm.displayName!''))}</title>
+    <title>${msg("loginTitle",(realm.displayName!'Unprompted'))}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', system-ui, sans-serif; }
     </style>
 </head>
 
 <body class="flex h-screen w-full bg-white overflow-hidden">
-    
-    <!-- Left Side: Branding -->
+
+    <!-- Left: branding (maquette merge) -->
     <div class="hidden lg:flex w-[55%] bg-[#05162b] text-white p-12 xl:p-20 flex-col justify-between h-full relative overflow-hidden">
-        
-        <!-- Background decorative elements (optional) -->
-        <div class="absolute inset-0 opacity-10 pointer-events-none">
+        <div class="absolute inset-0 opacity-20 pointer-events-none">
             <div class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-blue-500 rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-[-20%] left-[-10%] w-80 h-80 bg-indigo-600 rounded-full blur-[100px]"></div>
         </div>
 
         <div class="relative z-10">
-            <!-- Logo -->
             <div class="mb-24">
-                <div class="bg-white p-4 inline-block rounded-sm shadow-xl">
-                   <span class="text-[#05162b] font-black text-xl tracking-tighter italic">UNPROMPTED</span>
+                <div class="bg-white px-5 py-3 inline-block rounded-sm shadow-xl">
+                   <span class="text-[#05162b] font-black text-xl tracking-tighter">UNPROMPTED</span>
                 </div>
             </div>
-            
+
             <div class="max-w-xl">
                 <h1 class="text-6xl xl:text-7xl font-black mb-8 leading-[1.1] tracking-tight">
                     Bienvenue sur <br />
@@ -40,7 +38,6 @@
             </div>
         </div>
 
-        <!-- Stats Footer -->
         <div class="relative z-10 flex gap-12 xl:gap-16">
             <div>
                 <p class="text-3xl xl:text-4xl font-black tracking-tight">99.9%</p>
@@ -57,10 +54,16 @@
         </div>
     </div>
 
-    <!-- Right Side: Login Form -->
-    <div class="w-full lg:w-[45%] flex flex-col justify-center items-center p-8 h-full overflow-y-auto">
+    <!-- Right: form -->
+    <div class="w-full lg:w-[45%] flex flex-col justify-center items-center p-8 h-full overflow-y-auto bg-white">
         <div class="w-full max-w-[400px]">
-            
+
+            <div class="mb-10 lg:hidden">
+                <div class="bg-[#05162b] text-white px-4 py-2 inline-block rounded-sm mb-8">
+                    <span class="font-black tracking-tighter">UNPROMPTED</span>
+                </div>
+            </div>
+
             <div class="mb-10">
                 <h2 class="text-4xl font-extrabold mb-3 text-slate-900 tracking-tight">Connexion</h2>
                 <p class="text-slate-500 font-medium">Accédez à votre espace de travail académique.</p>
@@ -74,7 +77,7 @@
 
             <#if realm.password>
                 <form id="kc-form-login" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post" class="space-y-6">
-                    
+
                     <div class="space-y-2">
                         <label for="username" class="text-sm font-bold text-slate-700">Email</label>
                         <div class="relative group">
@@ -83,8 +86,8 @@
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <input tabindex="1" id="username" name="username" value="${(login.username!'')}" type="text" autofocus autocomplete="off" placeholder="nom@universite.fr" 
-                                   class="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-200 outline-none transition-all font-semibold text-slate-800" />
+                            <input tabindex="1" id="username" name="username" value="${(login.username!'')}" type="text" autofocus autocomplete="username"
+                                   class="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-300 outline-none transition-all font-semibold text-slate-800" />
                         </div>
                     </div>
 
@@ -96,37 +99,42 @@
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
-                            <input tabindex="2" id="password" name="password" type="password" autocomplete="off" placeholder="••••••••" 
-                                   class="w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-200 outline-none transition-all font-semibold text-slate-800" />
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 cursor-pointer hover:text-slate-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <input tabindex="2" id="password" name="password" type="password" autocomplete="current-password"
+                                   class="w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-300 outline-none transition-all font-semibold text-slate-800" />
+                            <button type="button" id="toggle-password" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500" aria-label="Afficher le mot de passe">
+                                <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
-                            </div>
+                            </button>
                         </div>
                     </div>
 
+                    <#if (realm.rememberMe && !usernameHidden??) || realm.resetPasswordAllowed>
                     <div class="flex items-center justify-between">
                         <#if realm.rememberMe && !usernameHidden??>
                             <label class="flex items-center cursor-pointer group">
-                                <input tabindex="3" id="rememberMe" name="rememberMe" type="checkbox" class="w-5 h-5 rounded-md border-slate-200 text-blue-600 focus:ring-blue-500 transition-all" <#if login.rememberMe??>checked</#if>>
-                                <span class="ml-3 text-[13px] font-bold text-slate-600 group-hover:text-slate-900 transition-colors">Se souvenir de moi</span>
+                                <input tabindex="3" id="rememberMe" name="rememberMe" type="checkbox" class="w-5 h-5 rounded-md border-slate-200 text-blue-600 focus:ring-blue-500" <#if login.rememberMe??>checked</#if>>
+                                <span class="ml-3 text-[13px] font-bold text-slate-600 group-hover:text-slate-900">Se souvenir de moi</span>
                             </label>
+                        <#else>
+                            <span></span>
                         </#if>
-                        
+
                         <#if realm.resetPasswordAllowed>
-                            <a tabindex="5" href="${url.loginResetCredentialsUrl}" class="text-[13px] font-bold text-blue-600 hover:text-blue-800 transition-colors">Mot de passe oublié ?</a>
+                            <a tabindex="5" href="${url.loginResetCredentialsUrl}" class="text-[13px] font-bold text-blue-600 hover:text-blue-800">Mot de passe oublié ?</a>
                         </#if>
                     </div>
+                    </#if>
 
-                    <button tabindex="4" name="login" id="kc-login" type="submit" class="w-full py-4 px-6 bg-black text-white rounded-xl font-black text-sm hover:bg-slate-800 active:scale-[0.98] transition-all shadow-xl shadow-black/10 mt-4">
+                    <input type="hidden" id="id-hidden-input" name="credentialId" <#if auth.selectedCredential?has_content>value="${auth.selectedCredential}"</#if>/>
+
+                    <button tabindex="4" name="login" id="kc-login" type="submit" class="w-full py-4 px-6 bg-black text-white rounded-xl font-black text-sm hover:bg-slate-800 active:scale-[0.98] transition-all shadow-xl shadow-black/10 mt-2">
                         Se connecter
                     </button>
                 </form>
             </#if>
 
-            <!-- Footer Links -->
             <div class="mt-16 flex flex-col items-center gap-4 text-[10px] font-black text-slate-400 tracking-[0.15em] text-center">
                 <a href="#" class="hover:text-slate-900 transition-colors">POLITIQUE DE CONFIDENTIALITÉ</a>
                 <a href="#" class="hover:text-slate-900 transition-colors">CONDITIONS D'UTILISATION</a>
@@ -135,5 +143,18 @@
 
         </div>
     </div>
+
+    <script>
+      (function () {
+        var btn = document.getElementById('toggle-password');
+        var input = document.getElementById('password');
+        if (!btn || !input) return;
+        btn.addEventListener('click', function () {
+          var show = input.type === 'password';
+          input.type = show ? 'text' : 'password';
+          btn.setAttribute('aria-label', show ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+        });
+      })();
+    </script>
 </body>
 </html>

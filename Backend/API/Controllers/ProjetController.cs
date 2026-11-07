@@ -10,10 +10,14 @@ namespace API.Controllers;
 public class ProjetController : ControllerBase
 {
     private readonly IProjetService _projetService;
+    private readonly ICurrentUserService _currentUser;
+    private readonly IAiGatewayService _aiGateway;
 
-    public ProjetController(IProjetService projetService)
+    public ProjetController(IProjetService projetService, ICurrentUserService currentUser, IAiGatewayService aiGateway)
     {
         _projetService = projetService;
+        _currentUser = currentUser;
+        _aiGateway = aiGateway;
     }
 
     // GET: api/projet — Admin + Enseignant
@@ -30,7 +34,7 @@ public class ProjetController : ControllerBase
 
     // GET: api/projet/5
     [HttpGet("{id:int}")]
-    [Authorize(Roles = "Admin,Enseignant")]
+    [Authorize(Roles = "admin,Admin,enseignant,Enseignant,etudiant,Etudiant")]
     public async Task<ActionResult<ProjetDto>> GetProjet(int id)
     {
         var projet = await _projetService.GetProjectByIdAsync(id);
@@ -68,7 +72,7 @@ public class ProjetController : ControllerBase
         try
         {
             var result = await _projetService.CreateProjetAsync(idEnseignant, request);
-            return CreatedAtAction(nameof(GetProjet), new { id = result.Id }, result);
+            return CreatedAtAction(nameof(GetProjet), new { id = result.IdProjet }, result);
         }
         catch (ArgumentException ex)
         {
@@ -109,11 +113,42 @@ public class ProjetController : ControllerBase
     }
 
     [HttpGet("{id:int}/contributions")]
-    [Authorize(Roles = "Admin,Enseignant")]
+    [Authorize(Roles = "admin,Admin,enseignant,Enseignant,etudiant,Etudiant")]
     public async Task<IActionResult> GetContributions(int id)
     {
         var contributions = await _projetService.GetContributionsByProjectIdAsync(id);
         return Ok(contributions);
+    }
+
+    [HttpPost("{id:int}/contributions")]
+    [Authorize(Roles = "etudiant,Etudiant")]
+    public async Task<ActionResult<ContributionDto>> CreateContribution(int id, [FromBody] ContributionCreateDto request)
+    {
+        try
+        {
+            var etudiant = await _currentUser.GetOrCreateEtudiantAsync(User);
+            if (etudiant == null) return Unauthorized();
+
+            if (string.IsNullOrWhiteSpace(request.HashCommit))
+                request.HashCommit = Guid.NewGuid().ToString("N")[..12];
+
+            var contribution = await _projetService.CreateContributionAsync(id, etudiant.IdEtudiant, request);
+            return CreatedAtAction(nameof(GetContributions), new { id }, contribution);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("etudiant/me")]
+    [Authorize(Roles = "etudiant,Etudiant")]
+    public async Task<ActionResult<IEnumerable<ProjetDto>>> GetMyProjects()
+    {
+        var etudiant = await _currentUser.GetOrCreateEtudiantAsync(User);
+        if (etudiant == null) return Unauthorized();
+        var projets = await _projetService.GetProjectsByEtudiantIdAsync(etudiant.IdEtudiant);
+        return Ok(projets);
     }
 
     [HttpPatch("{id:int}/suivi")]
@@ -161,7 +196,7 @@ public class ProjetController : ControllerBase
         }
     }
 
-   /* [HttpGet("{idProjet:int}/etudiant/{idEtudiant:int}/activite")]
+    [HttpGet("{idProjet:int}/etudiant/{idEtudiant:int}/activite")]
     [Authorize(Roles = "Admin,Enseignant")]
     public async Task<ActionResult<EtudiantActiviteDto>> GetEtudiantActivite(int idProjet, int idEtudiant)
     {
@@ -175,5 +210,49 @@ public class ProjetController : ControllerBase
     {
         var prompt = await _projetService.CreatePromptAsync(idProjet, request);
         return CreatedAtAction(nameof(GetEtudiantActivite), new { idProjet, idEtudiant = request.IdEtudiant }, prompt);
-    }*/
+    }
+
+    [HttpGet("etudiant/{idEtudiant:int}")]
+    [Authorize(Roles = "Admin,Enseignant,Etudiant")]
+    public async Task<ActionResult<IEnumerable<ProjetDto>>> GetProjectsByEtudiant(int idEtudiant)
+    {
+        var projets = await _projetService.GetProjectsByEtudiantIdAsync(idEtudiant);
+        return Ok(projets);
+    }
+
+    [HttpGet("{idProjet:int}/etudiant/{idEtudiant:int}/collegues")]
+    [Authorize(Roles = "Admin,Enseignant,Etudiant")]
+    public async Task<ActionResult<IEnumerable<EtudiantGroupeDto>>> GetCollegues(int idProjet, int idEtudiant)
+    {
+        var collegues = await _projetService.GetColleguesAsync(idProjet, idEtudiant);
+        return Ok(collegues);
+    }
+
+    // POST: api/projet/1/upload-cahier
+[HttpPost("{id}/upload-cahier")]
+[Authorize(Roles = "enseignant,Enseignant,admin,Admin")]
+public async Task<IActionResult> UploadCahier(int id, IFormFile fichier)
+{
+    if (fichier == null || fichier.Length == 0)
+        return BadRequest(new { message = "Fichier vide." });
+
+    if (!fichier.ContentType.Contains("pdf"))
+        return BadRequest(new { message = "Seulement les PDF sont acceptés." });
+
+    await using var stream = fichier.OpenReadStream();
+    await _aiGateway.UploadCahierAsync(id, stream, fichier.FileName, fichier.ContentType);
+    return Ok(new { message = "Cahier des charges uploadé et indexé (RAG)." });
+}
+
+// GET: api/projet/1/download-cahier
+[HttpGet("{id}/download-cahier")]
+[Authorize(Roles = "Enseignant,Admin,Etudiant")]
+public async Task<IActionResult> DownloadCahier(int id)
+{
+    var bytes = await _projetService.GetCahierAsync(id);
+    if (bytes == null)
+        return NotFound(new { message = "Cahier des charges introuvable." });
+
+    return File(bytes, "application/pdf", "cahier_des_charges.pdf");
+}
 }

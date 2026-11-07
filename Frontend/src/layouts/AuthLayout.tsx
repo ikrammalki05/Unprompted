@@ -1,84 +1,63 @@
-import React from 'react'; 
-import illustration from '../assets/hero.png';
-import logo from '../assets/logo.png';
+import React from 'react';
 
 interface AuthLayoutProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export const AuthLayout = ({ children }: AuthLayoutProps) => {
-    return (
-        // 1. h-screen remplace min-h-screen pour verrouiller la hauteur. overflow-hidden empêche le scroll global.
-        <div className="flex h-screen w-full font-sans bg-gray-50 overflow-hidden">
-
-            {/* Colonne Gauche */}
-            <div className="hidden lg:flex w-1/2 bg-[#021124] text-white p-8 xl:p-12 flex-col h-full">
-
-                {/* 1. Header (Logo centré) */}
-                {/* flex justify-center centre le contenu horizontalement */}
-                <div className="w-20 h-20 rounded-full bg-white flex item-center justify-center p-3 shadow-xl">
-                    <img
-                        src={logo}
-                        alt="Logo Unprompted"
-                        // h-16 définit la hauteur (tu peux tester h-12, h-20, etc. selon la taille de ton SVG)
-                        // w-auto permet de garder les bonnes proportions sans déformer l'image
-                        className="max-h-full w-auto object-contain"
-                    />
-                </div>
-
-                {/* 2. Centre (Texte par-dessus l'Image) */}
-                {/* On utilise 'relative' ici pour que l'image absolute reste bloquée dans ce conteneur */}
-                <div className="flex-1 relative flex flex-col justify-center min-h-0 mt-8 mb-8">
-
-                    {/* 🖼️ L'IMAGE EN ARRIÈRE-PLAN (Sous l'écriture) */}
-                    <div className="absolute inset-0 z-0 flex items-center justify-center">
-                        <img
-                            src={illustration}
-                            alt="Illustration"
-                            // object-cover force l'image à remplir TOUT l'espace
-                            // opacity-40 (ou 50, 60...) permet de baisser la luminosité de l'image pour pouvoir lire le texte
-                            className="w-full h-full object-cover object-center opacity-50 scale-110"
-                        />
-                    </div>
-
-                    {/* ✍️ LE TEXTE PAR DESSUS (Au premier plan) */}
-                    {/* relative et z-10 forcent ce texte à s'afficher au-dessus de l'image */}
-                    <div className="relative z-10 pointer-events-none">
-                        <h1 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight drop-shadow-lg">
-                            Bienvenue sur <br />
-                            <span className="text-[#a6c1ee]">Unprompted</span>
-                        </h1>
-                        <p className="text-base text-gray-200 max-w-md leading-relaxed drop-shadow-md">
-                            Gérez vos projets académiques avec efficacité. Une plateforme sécurisée pour l'excellence dans la recherche et la gouvernance IA.
-                        </p>
-                    </div>
-
-                </div>
-
-                {/* 3. Footer (Statistiques) */}
-                <div className="flex-none flex gap-8 xl:gap-12">
-                    <div>
-                        <p className="text-2xl xl:text-3xl font-bold">99.9%</p>
-                        <p className="text-xs text-gray-400 mt-1">Disponibilité</p>
-                    </div>
-                    <div>
-                        <p className="text-2xl xl:text-3xl font-bold">SEC-2</p>
-                        <p className="text-xs text-gray-400 mt-1">Conformité</p>
-                    </div>
-                    <div>
-                        <p className="text-2xl xl:text-3xl font-bold">AI-Ready</p>
-                        <p className="text-xs text-gray-400 mt-1">Infrastructure</p>
-                    </div>
-                </div>
-
-            </div>
-
-            {/* Colonne Droite - Centrage parfait du formulaire */}
-            {/* overflow-y-auto ajouté ici au cas où le formulaire devrait scroller sur de très petits écrans */}
-            <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-8 h-full overflow-y-auto">
-                {children}
-            </div>
-
+  return (
+    <div className="flex h-screen w-full font-sans bg-white overflow-hidden">
+      {/* Left branding — aligned with Keycloak theme / merge demo */}
+      <div className="hidden lg:flex w-[55%] bg-[#05162b] text-white p-12 xl:p-20 flex-col justify-between h-full relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-blue-500 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[-20%] left-[-10%] w-80 h-80 bg-indigo-600 rounded-full blur-[100px]" />
         </div>
-    );
+
+        <div className="relative z-10">
+          <div className="mb-24">
+            <div className="bg-white px-5 py-3 inline-block rounded-sm shadow-xl">
+              <span className="text-[#05162b] font-black text-xl tracking-tighter">UNPROMPTED</span>
+            </div>
+          </div>
+
+          <div className="max-w-xl">
+            <h1 className="text-6xl xl:text-7xl font-black mb-8 leading-[1.1] tracking-tight">
+              Bienvenue sur <br />
+              <span className="text-[#7eaefd]">Unprompted</span>
+            </h1>
+            <p className="text-lg text-slate-300 max-w-md leading-relaxed font-medium">
+              Gérez vos projets académiques avec efficacité. Une plateforme sécurisée pour
+              l&apos;excellence dans la recherche et la gouvernance IA.
+            </p>
+          </div>
+        </div>
+
+        <div className="relative z-10 flex gap-12 xl:gap-16">
+          <div>
+            <p className="text-3xl xl:text-4xl font-black tracking-tight">99.9%</p>
+            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-2">
+              Disponibilité
+            </p>
+          </div>
+          <div>
+            <p className="text-3xl xl:text-4xl font-black tracking-tight">SEC-2</p>
+            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-2">
+              Conformité
+            </p>
+          </div>
+          <div>
+            <p className="text-3xl xl:text-4xl font-black tracking-tight">AI-Ready</p>
+            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-2">
+              Infrastructure
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full lg:w-[45%] flex flex-col justify-center items-center p-8 h-full overflow-y-auto bg-white">
+        {children}
+      </div>
+    </div>
+  );
 };

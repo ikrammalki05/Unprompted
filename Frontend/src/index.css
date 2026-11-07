@@ -5,11 +5,12 @@
   --color-primary-100: #f1f5f9;
   --color-primary-600: #2563eb;
   --color-primary-700: #1d4ed8;
-  --color-primary-950: #0f172a;
+  --color-primary-950: #021124;
+  --color-accent: #a6c1ee;
   
-  --color-sidebar-bg: #f8fafc;
-  --color-sidebar-active: #ffffff;
-  --color-sidebar-text: #64748b;
+  --color-sidebar-bg: #021124;
+  --color-sidebar-active: #ffffff1a;
+  --color-sidebar-text: #e2e8f0;
   
   --font-sans: 'Inter', 'system-ui', 'sans-serif';
 }

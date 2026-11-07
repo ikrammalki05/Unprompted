@@ -11,10 +11,35 @@ namespace API.Controllers;
 public class EnseignantController : ControllerBase
 {
     private readonly IEnseignantService _enseignantService;
+    private readonly ICurrentUserService _currentUser;
 
-    public EnseignantController(IEnseignantService enseignantService)
+    public EnseignantController(IEnseignantService enseignantService, ICurrentUserService currentUser)
     {
         _enseignantService = enseignantService;
+        _currentUser = currentUser;
+    }
+
+    [HttpGet("me")]
+    [Authorize(Roles = "enseignant,Enseignant")]
+    public async Task<IActionResult> GetMe()
+    {
+        var enseignant = await _currentUser.GetOrCreateEnseignantAsync(User);
+        if (enseignant == null) return Unauthorized();
+
+        var u = enseignant.IdUtilisateurNavigation;
+        var prenom = u?.Prenom ?? "";
+        var nom = u?.Nom ?? "";
+        return Ok(new
+        {
+            id = enseignant.IdEnseignant,
+            idEnseignant = enseignant.IdEnseignant,
+            nom,
+            prenom,
+            nomComplet = $"{prenom} {nom}".Trim(),
+            email = u?.Email,
+            specialite = enseignant.Specialite,
+            departement = enseignant.Departement
+        });
     }
 
     // GET: api/enseignant
@@ -85,47 +110,5 @@ public class EnseignantController : ControllerBase
             return NotFound(new { message = ex.Message });
         }
     }
-
-    // GET: api/enseignant/me
-    [HttpGet("me")]
-    [Authorize(Roles = "Enseignant,Admin")]
-    public async Task<IActionResult> GetMyProfile()
-    {
-        var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value 
-                    ?? User.FindFirst("email")?.Value;
-        
-        var firstName = User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value 
-                        ?? User.FindFirst("given_name")?.Value ?? "Prénom";
-        var lastName = User.FindFirst(System.Security.Claims.ClaimTypes.Surname)?.Value 
-                       ?? User.FindFirst("family_name")?.Value ?? "Nom";
-
-        if (string.IsNullOrEmpty(email))
-            return Unauthorized(new { message = "Email non trouvé dans le token." });
-
-        var enseignant = await _enseignantService.EnsureEnseignantExistsAsync(email, firstName, lastName);
-
-        return Ok(enseignant);
-    }
-
-    // PUT: api/enseignant/me
-    [HttpPut("me")]
-    [Authorize(Roles = "Enseignant,Admin")]
-    public async Task<IActionResult> UpdateMyProfile([FromBody] EnseignantCreateDto request)
-    {
-        try
-        {
-            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value 
-                        ?? User.FindFirst("email")?.Value;
-
-            if (string.IsNullOrEmpty(email))
-                return Unauthorized(new { message = "Email non trouvé dans le token." });
-
-            await _enseignantService.UpdateProfilByEmailAsync(email, request);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Erreur lors de la mise à jour du profil.", detail = ex.Message });
-        }
-    }
+    
 }

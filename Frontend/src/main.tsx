@@ -12,7 +12,8 @@ root.render(<div style={{ display: 'flex', height: '100vh', alignItems: 'center'
 
 keycloak.init({
   onLoad: 'login-required',
-  checkLoginIframe: false
+  checkLoginIframe: false,
+  pkceMethod: 'S256',
 }).then((authenticated) => {
   if (authenticated) {
     root.render(

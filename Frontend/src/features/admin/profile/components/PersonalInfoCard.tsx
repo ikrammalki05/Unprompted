@@ -11,31 +11,51 @@ interface Props {
 
 export function PersonalInfoCard({ data, draft, editing, setDraft }: Props) {
   return (
-    <div className="bg-white border border-[#f1f5f9] rounded-xl p-[32px] shadow-sm flex flex-col gap-6">
-      <div className="flex items-center gap-4">
-        <div className="w-10 h-10 bg-[#eff6ff] rounded-lg flex items-center justify-center text-[#2563eb]">
+    <div className="bg-white border border-slate-100 rounded-3xl p-7 md:p-8 shadow-sm flex flex-col gap-6">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
           <IconUser />
         </div>
-        <h3 className="text-[17px] font-bold text-[#1e293b]">Informations personnelles</h3>
+        <h3 className="text-base font-bold text-slate-900">Informations personnelles</h3>
       </div>
-      
-      <div className="grid grid-cols-2 gap-y-7 gap-x-12">
-        <InfoField label="NOM COMPLET" value={data.nom} editable={editing} editValue={draft.nom} onChange={(v) => setDraft({ ...draft, nom: v })} />
-        <InfoField label="ADRESSE E-MAIL" value={data.email} editable={editing} editValue={draft.email} onChange={(v) => setDraft({ ...draft, email: v })} />
-        <InfoField label="TÉLÉPHONE" value={data.telephone} editable={editing} editValue={draft.telephone} onChange={(v) => setDraft({ ...draft, telephone: v })} />
-        
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-[0.05em]">RÔLE AU SEIN DU SYSTÈME</span>
-          <div className="flex items-center gap-2.5">
-            <span className="w-2 h-2 bg-[#22c55e] rounded-full" />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
+        <InfoField
+          label="Nom complet"
+          value={data.nom}
+          editable={editing}
+          editValue={draft.nom}
+          onChange={(v) => setDraft({ ...draft, nom: v })}
+        />
+        <InfoField
+          label="Adresse e-mail"
+          value={data.email}
+          editable={editing}
+          editValue={draft.email}
+          onChange={(v) => setDraft({ ...draft, email: v })}
+        />
+        <InfoField
+          label="Téléphone"
+          value={data.telephone}
+          editable={editing}
+          editValue={draft.telephone}
+          onChange={(v) => setDraft({ ...draft, telephone: v })}
+        />
+
+        <div className="flex flex-col gap-2">
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.08em]">
+            Rôle système
+          </span>
+          <div className="flex items-center gap-2.5 min-h-[46px]">
+            <span className="w-2 h-2 bg-emerald-500 rounded-full" />
             {editing ? (
               <input
-                className="w-full p-[8px_12px] border border-[#e2e8f0] rounded-lg text-sm text-[#1e293b] outline-none transition-all focus:border-[#2563eb]"
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 outline-none transition-all focus:border-blue-400 focus:ring-4 focus:ring-blue-50"
                 value={draft.role}
                 onChange={(e) => setDraft({ ...draft, role: e.target.value })}
               />
             ) : (
-              <span className="text-sm font-bold text-[#1e293b]">{data.role}</span>
+              <span className="text-sm font-semibold text-slate-900">{data.role}</span>
             )}
           </div>
         </div>

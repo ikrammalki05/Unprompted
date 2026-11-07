@@ -1,13 +1,15 @@
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5066/api",
+// Prefer 127.0.0.1 to match Vite --host and Keycloak redirect URIs.
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:5066/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
 import { keycloak } from './keycloak';
+import { logoutApp } from './authLogout';
 
 // DEBUG
 console.log("API BASE URL =", api.defaults.baseURL);
@@ -48,7 +50,7 @@ api.interceptors.response.use(
     );
 
     if (error.response?.status === 401) {
-      keycloak.logout();
+      logoutApp();
     }
 
     return Promise.reject(error);

@@ -16,7 +16,7 @@ export const Topbar = () => {
           type="text" 
           placeholder="Rechercher des données académiques..." 
           // rounded-full donne cet aspect "pilule" très arrondi
-          className="w-full pl-12 pr-4 py-2.5 bg-[#f3f4f6] hover:bg-gray-200 transition-colors text-sm text-gray-700 rounded-full outline-none focus:ring-2 focus:ring-gray-300"
+          className="w-full pl-12 pr-4 py-2.5 bg-gray-50 hover:bg-white transition-colors text-sm text-gray-700 rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-[#a6c1ee] focus:border-[#a6c1ee]"
         />
       </div>
 

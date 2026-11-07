@@ -1,33 +1,31 @@
 import os
-import urllib.request
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI
 from app.api.endpoints import router
 
-# --- LE HACK POUR BYPASSER LE TIMEOUT DE CHROMADB ---
-def preload_chroma_model():
-    print("⏳ Vérification du modèle d'IA ChromaDB...")
-    url = "https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz"
-    dest_dir = "/root/.cache/chroma/onnx_models/all-MiniLM-L6-v2"
-    os.makedirs(dest_dir, exist_ok=True)
-    dest_file = os.path.join(dest_dir, "onnx.tar.gz")
-    
-    # Si le fichier n'existe pas ou s'il est incomplet (moins de 79 Mo)
-    if not os.path.exists(dest_file) or os.path.getsize(dest_file) < 79000000:
-        print("📥 Téléchargement manuel du modèle en cours (sans limite de temps)... Patience !")
-        try:
-            # urlretrieve attendra aussi longtemps que nécessaire, sans faire de Timeout !
-            urllib.request.urlretrieve(url, dest_file)
-            print("✅ Téléchargement terminé avec succès ! 🚀")
-        except Exception as e:
-            print(f"❌ Erreur lors du téléchargement: {e}")
-    else:
-        print("✅ Le modèle est déjà présent, tout est prêt !")
+# Préchargement modèle Chroma optionnel (désactivé par défaut en local Windows)
+if os.getenv("CHROMA_PRELOAD", "0") == "1":
+    try:
+        import urllib.request
+        from pathlib import Path
 
-# On lance notre fonction de secours AVANT de démarrer le serveur
-preload_chroma_model()
-# ---------------------------------------------------------
+        print("⏳ Vérification du modèle d'IA ChromaDB...")
+        url = "https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz"
+        dest_dir = Path.home() / ".cache" / "chroma" / "onnx_models" / "all-MiniLM-L6-v2"
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        dest_file = dest_dir / "onnx.tar.gz"
+        if not dest_file.exists() or dest_file.stat().st_size < 79_000_000:
+            print("📥 Téléchargement du modèle Chroma...")
+            urllib.request.urlretrieve(url, dest_file)
+            print("✅ Téléchargement terminé")
+        else:
+            print("✅ Modèle déjà présent")
+    except Exception as e:
+        print(f"⚠️ Préchargement Chroma ignoré: {e}")
 
 app = FastAPI(title="Unprompted AI Governance Service")
-
-# On inclut toutes les routes définies dans endpoints.py
 app.include_router(router)
+
+
+@app.get("/")
+def root():
+    return {"service": "unprompted-ai", "status": "up"}

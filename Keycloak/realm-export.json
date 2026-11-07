@@ -1,6 +1,10 @@
 {
   "id": "8abf34ec-ca2a-4c2f-8550-aa2a6edefd02",
   "realm": "unprompted",
+  "loginTheme": "unprompted-theme",
+  "accountTheme": "keycloak.v2",
+  "adminTheme": "keycloak.v2",
+  "emailTheme": "keycloak",
   "notBefore": 0,
   "defaultSignatureAlgorithm": "RS256",
   "revokeRefreshToken": false,
@@ -27,7 +31,6 @@
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
   "sslRequired": "external",
-<<<<<<< HEAD
   "registrationAllowed": false,
   "registrationEmailAsUsername": false,
   "rememberMe": false,
@@ -35,15 +38,6 @@
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "resetPasswordAllowed": false,
-=======
-  "registrationAllowed": true,
-  "registrationEmailAsUsername": false,
-  "rememberMe": true,
-  "verifyEmail": false,
-  "loginWithEmailAllowed": true,
-  "duplicateEmailsAllowed": false,
-  "resetPasswordAllowed": true,
->>>>>>> feature/fix-keycloak
   "editUsernameAllowed": false,
   "bruteForceProtected": false,
   "permanentLockout": false,

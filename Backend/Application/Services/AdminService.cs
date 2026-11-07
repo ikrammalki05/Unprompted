@@ -28,17 +28,13 @@ public class AdminService : IAdminService
     _enseignantClasseRepo = enseignantClasseRepo; // ← ajoute
      }
 
-    public async Task<object> GetDashboardStatsAsync()
+    public async Task<DashboardStatsDto> GetDashboardStatsAsync()
     {
-        var totalEtudiants = await _etudiantRepo.CountAsync();
-        var totalEnseignants = await _enseignantRepo.CountAsync();
-        var totalClasses = await _classeRepo.CountAsync();
-
-        return new 
+        return new DashboardStatsDto
         {
-            TotalEtudiants = totalEtudiants,
-            TotalEnseignants = totalEnseignants,
-            TotalClasses = totalClasses
+            TotalEtudiants   = await _etudiantRepo.CountAsync(),
+            TotalEnseignants = await _enseignantRepo.CountAsync(),
+            TotalClasses     = await _classeRepo.CountAsync()
         };
     }
 

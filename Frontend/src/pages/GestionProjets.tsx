@@ -76,21 +76,47 @@ const GestionProjets: React.FC = () => {
       const projetData = {
         titre,
         dateFin: deadline,
-        duree: Number(semaines),
-        description: `Rôles: ${[...rolesSelectionnes, autreRole].filter(Boolean).join(', ')}`
+        duree: Number(semaines) || undefined,
+        description: `Rôles: ${[...rolesSelectionnes, autreRole].filter(Boolean).join(', ')}`,
+        etudiantIds: etudiantsSelectionnes,
       };
 
-      await projetService.create(projetData, enseignantId);
-      alert('Projet créé avec succès !');
+      const created = await projetService.create(projetData, enseignantId);
+      const projetId = created?.idProjet ?? created?.IdProjet;
+
+      // Filet de sécurité si le backend n'a pas reçu etudiantIds
+      if (projetId && etudiantsSelectionnes.length > 0) {
+        for (const idEtudiant of etudiantsSelectionnes) {
+          try {
+            await projetService.assignerEtudiant(
+              { idEtudiant, idProjet: Number(projetId) },
+              enseignantId
+            );
+          } catch (assignErr) {
+            console.warn('Assignation étudiant', idEtudiant, assignErr);
+          }
+        }
+      }
+
+      alert(
+        etudiantsSelectionnes.length > 0
+          ? `Projet créé et ${etudiantsSelectionnes.length} étudiant(s) assigné(s).`
+          : 'Projet créé. Aucun étudiant sélectionné — assignez-en un pour qu’il apparaisse côté étudiant.'
+      );
       
       setTitre('');
       setDeadline('');
       setSemaines('');
       setRolesSelectionnes([]);
       setEtudiantsSelectionnes([]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur création projet :', error);
-      alert('Erreur lors de la création du projet');
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.title ||
+        error?.message ||
+        'Erreur lors de la création du projet';
+      alert(msg);
     } finally {
       setLoading(false);
     }

@@ -13,47 +13,6 @@ import {
 import userService from '../services/userService';
 import projetService from '../services/projetService';
 
-const approvals = [
-  {
-    type: 'ASSIGNATION ÉTUDIANT',
-    typeColor: 'text-blue-600',
-    title: 'Projet: Systèmes Autonomes',
-    sub: null,
-    avatars: ['#4f6ef7', '#22c55e'],
-  },
-  {
-    type: 'VALIDATION SUJET',
-    typeColor: 'text-indigo-600',
-    title: 'Impact de l\'IA sur le Droit Civil',
-    sub: 'Mme. Sophie Bernard',
-    avatars: [],
-  },
-];
-
-const deadlines = [
-  {
-    month: 'OCT',
-    day: '24',
-    title: 'Rendu Final: Mémoire M2',
-    time: '14:00',
-    where: 'Promotion 2024',
-  },
-  {
-    month: 'OCT',
-    day: '28',
-    title: 'Soutenance: Lab AI',
-    time: '09:30',
-    where: 'Amphi C',
-  },
-  {
-    month: 'NOV',
-    day: '02',
-    title: 'Examen mi-parcours',
-    time: '11:00',
-    where: 'En ligne',
-  },
-];
-
 interface StatItem {
   icon: React.ElementType;
   value: string | number;
@@ -116,7 +75,6 @@ const TableauDeBord: React.FC<TableauDeBordProps> = ({ onProjectClick }) => {
   const [profile, setProfile] = useState<any>(null);
   const [realStats, setRealStats] = useState<any>(null);
   const [realProjects, setRealProjects] = useState<any[]>([]);
-  const [approved, setApproved] = useState<Record<number, boolean | null>>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -294,108 +252,75 @@ const TableauDeBord: React.FC<TableauDeBordProps> = ({ onProjectClick }) => {
         {/* ── Right column ── */}
         <div className="flex flex-col gap-6">
 
-          {/* Approbations en attente */}
           <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm p-6">
             <div className="flex items-center gap-2 mb-5">
               <div className="w-5 h-5 rounded-full border-2 border-blue-500 flex items-center justify-center">
                 <Check className="w-3 h-3 text-blue-500" strokeWidth={3} />
               </div>
-              <h2 className="text-[14px] font-black text-slate-900">Approbations en attente</h2>
+              <h2 className="text-[14px] font-black text-slate-900">Projets à suivre</h2>
             </div>
 
             <div className="flex flex-col gap-3">
-              {approvals.map((a, i) => {
-                const decision = approved[i];
-                return (
-                  <div key={i} className="bg-slate-50 rounded-2xl border border-slate-100/60 p-4">
-                    <p className={`text-[9px] font-black uppercase tracking-widest mb-2 ${a.typeColor}`}>
-                      {a.type}
+              {realProjects.length === 0 ? (
+                <p className="text-sm text-slate-400">Aucun projet pour le moment.</p>
+              ) : (
+                realProjects.slice(0, 4).map((p: any) => (
+                  <button
+                    key={p.idProjet ?? p.IdProjet}
+                    onClick={() => onProjectClick?.(p.idProjet ?? p.IdProjet)}
+                    className="text-left bg-slate-50 rounded-2xl border border-slate-100/60 p-4 hover:border-blue-200"
+                  >
+                    <p className="text-[9px] font-black uppercase tracking-widest mb-2 text-blue-600">
+                      {p.status ?? p.Status ?? 'Projet'}
                     </p>
-                    <p className="text-[13px] font-black text-slate-800 mb-2 leading-snug">
-                      {a.title}
+                    <p className="text-[13px] font-black text-slate-800 mb-1 leading-snug">
+                      {p.titre ?? p.Titre}
                     </p>
-                    {a.sub && (
-                      <p className="text-[11px] text-slate-400 font-medium mb-3">{a.sub}</p>
-                    )}
-                    {a.avatars.length > 0 && (
-                      <div className="flex items-center gap-1 mb-3">
-                        {a.avatars.map((color, j) => (
-                          <div
-                            key={j}
-                            className="w-6 h-6 rounded-full border-2 border-white"
-                            style={{ background: color, marginLeft: j > 0 ? -6 : 0 }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setApproved(prev => ({ ...prev, [i]: false }))}
-                        className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${
-                          decision === false
-                            ? 'bg-red-500 border-red-500 text-white'
-                            : 'border-slate-200 text-slate-400 hover:border-red-300 hover:text-red-500'
-                        }`}
-                      >
-                        <X className="w-3.5 h-3.5" strokeWidth={2.5} />
-                      </button>
-                      <button
-                        onClick={() => setApproved(prev => ({ ...prev, [i]: true }))}
-                        className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${
-                          decision === true
-                            ? 'bg-green-500 border-green-500 text-white'
-                            : 'border-slate-200 text-slate-400 hover:border-green-300 hover:text-green-500'
-                        }`}
-                      >
-                        <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
-                      </button>
-                      {decision !== undefined && decision !== null && (
-                        <span className={`text-[10px] font-bold ml-1 ${decision ? 'text-green-600' : 'text-red-500'}`}>
-                          {decision ? 'Approuvé' : 'Refusé'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                    <p className="text-[11px] text-slate-400 font-medium">
+                      Progression {p.progression ?? p.Progression ?? 0}%
+                    </p>
+                  </button>
+                ))
+              )}
             </div>
           </div>
 
-          {/* Échéances */}
           <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm p-6">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-[14px] font-black text-slate-900">Échéances</h2>
+              <h2 className="text-[14px] font-black text-slate-900">Échéances projets</h2>
               <Calendar className="w-4 h-4 text-slate-400" />
             </div>
 
-            <div className="flex flex-col gap-3 mb-5">
-              {deadlines.map((d, i) => (
-                <div key={i} className="flex items-start gap-4">
-                  {/* Date block */}
-                  <div className="flex-shrink-0 w-11 text-center">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">
-                      {d.month}
-                    </p>
-                    <p className="text-[20px] font-black text-slate-900 leading-none">{d.day}</p>
-                  </div>
-                  {/* Divider */}
-                  <div className="w-px self-stretch bg-slate-100 flex-shrink-0 mx-1" />
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] font-black text-slate-800 leading-snug mb-0.5">
-                      {d.title}
-                    </p>
-                    <p className="text-[11px] text-slate-400 font-medium">
-                      {d.time} • {d.where}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="flex flex-col gap-3">
+              {realProjects
+                .filter((p: any) => p.dateFin || p.DateFin)
+                .slice(0, 5)
+                .map((p: any) => {
+                  const d = new Date(p.dateFin ?? p.DateFin);
+                  return (
+                    <div key={`due-${p.idProjet ?? p.IdProjet}`} className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-11 text-center">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">
+                          {d.toLocaleString('fr-FR', { month: 'short' })}
+                        </p>
+                        <p className="text-[20px] font-black text-slate-900 leading-none">{d.getDate()}</p>
+                      </div>
+                      <div className="w-px self-stretch bg-slate-100 flex-shrink-0 mx-1" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[12px] font-black text-slate-800 leading-snug mb-0.5">
+                          {p.titre ?? p.Titre}
+                        </p>
+                        <p className="text-[11px] text-slate-400 font-medium">
+                          Fin prévue · {d.toLocaleDateString('fr-FR')}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              {realProjects.filter((p: any) => p.dateFin || p.DateFin).length === 0 && (
+                <p className="text-sm text-slate-400">Aucune échéance renseignée.</p>
+              )}
             </div>
-
-            <button className="w-full py-2.5 border border-slate-200 rounded-xl text-[12px] font-bold text-slate-600 hover:bg-slate-50 transition-colors">
-              Voir le calendrier complet
-            </button>
           </div>
         </div>
       </div>

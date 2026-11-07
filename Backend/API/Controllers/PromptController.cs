@@ -29,7 +29,7 @@ public class PromptController : ControllerBase
     // GET: api/Prompt/projet/5
     // Pour le Dashboard de l'Enseignant
     [HttpGet("projet/{idProjet}")]
-    [Authorize(Roles = "Admin, Enseignant")]
+    [Authorize(Roles = "admin,Admin,enseignant,Enseignant")]
     public async Task<ActionResult<IEnumerable<PromptDto>>> GetHistorique(int idProjet)
     {
         var historique = await _promptService.GetHistoriqueProjetAsync(idProjet);

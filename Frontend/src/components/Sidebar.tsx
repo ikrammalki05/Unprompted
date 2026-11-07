@@ -6,9 +6,11 @@ import {
   ClipboardCheck,
   Settings,
   LogOut,
-  HelpCircle
+  HelpCircle,
 } from 'lucide-react';
 import logo from '../assets/logo.png';
+import { logoutApp } from '../services/authLogout';
+import { useCurrentUserDisplay } from '../hooks/useCurrentUserDisplay';
 
 interface SidebarItemProps {
   icon: React.ElementType | React.FC;
@@ -17,7 +19,15 @@ interface SidebarItemProps {
 }
 
 const AIConfigIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M12 2C9.0 2 6.5 4.5 6.5 8c0 2.2 1.1 4.1 2.8 5.3V15h5.4v-1.7C16.4 12.1 17.5 10.2 17.5 8c0-3.5-2.5-6-5.5-6z" />
     <path d="M9.3 15v1.5a2.7 2.7 0 0 0 5.4 0V15" />
     <circle cx="12" cy="8.5" r="1.2" />
@@ -26,15 +36,20 @@ const AIConfigIcon: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, active }) => (
-  <div className={`flex items-center gap-5 px-6 py-4 rounded-[22px] cursor-pointer transition-all duration-300 group ${active
-      ? 'bg-white shadow-[0_10px_40px_rgba(0,0,0,0.04)] text-[#0f172a] font-black'
-      : 'text-[#475569] hover:bg-white/40 hover:text-[#1e293b]'
-    }`}>
+  <div
+    className={`flex items-center gap-4 px-4 py-3 rounded-2xl cursor-pointer transition-all duration-200 group ${
+      active
+        ? 'bg-slate-100 text-slate-900 font-bold shadow-sm'
+        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+    }`}
+  >
     <Icon
-      className={`w-5 h-5 transition-colors ${active ? 'text-[#2563eb]' : 'text-[#64748b] group-hover:text-[#475569]'}`}
+      className={`w-5 h-5 transition-colors ${
+        active ? 'text-blue-600' : 'text-slate-400 group-hover:text-blue-500'
+      }`}
       strokeWidth={2.5}
     />
-    <span className="text-[15px] tracking-tight">{label}</span>
+    <span className="text-[14px] tracking-tight">{label}</span>
   </div>
 );
 
@@ -45,13 +60,21 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activePage, onPageChange }) => {
+  const user = useCurrentUserDisplay();
+
   return (
-    <aside className="w-[300px] h-screen bg-[#f8fafc] border-r border-slate-100 flex flex-col fixed left-0 top-0 z-20">
-      <div className="p-10 mb-2">
-        <img src={logo} alt="Unprompted Logo" className="w-full max-w-[180px] h-auto object-contain mx-auto" />
+    <aside className="w-[300px] h-screen bg-white border-r border-slate-100 flex flex-col fixed left-0 top-0 z-20">
+      <div className="p-8 mb-2 flex flex-col items-center gap-3">
+        <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center p-2 shadow-md border border-slate-100">
+          <img src={logo} alt="Unprompted Logo" className="max-h-full w-auto object-contain" />
+        </div>
+        <p className="text-slate-800 text-sm font-bold tracking-wide">UNPROMPTED</p>
+        <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest -mt-2">
+          Gouvernance &amp; Évaluation de l&apos;IA
+        </p>
       </div>
 
-      <nav className="flex-1 px-5 space-y-2 overflow-y-auto">
+      <nav className="flex-1 px-5 space-y-1 overflow-y-auto">
         <div onClick={() => onPageChange('dashboard')}>
           <SidebarItem icon={LayoutGrid} label="Tableau de bord" active={activePage === 'dashboard'} />
         </div>
@@ -69,17 +92,23 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, onPageChange }) => {
         </div>
       </nav>
 
-      {/* Sidebar Footer */}
-      <div className="p-5 border-t border-slate-100 space-y-2 bg-[#f8fafc]">
-
+      <div className="p-5 border-t border-slate-100 space-y-2 bg-white">
         <div onClick={() => onPageChange('profile')} className="cursor-pointer group">
-          <div className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all ${activePage === 'profile' ? 'bg-white shadow-sm border border-slate-100' : 'hover:bg-white/50'}`}>
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold border-2 border-white shadow-sm">
-              G
+          <div
+            className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all ${
+              activePage === 'profile' ? 'bg-slate-100' : 'hover:bg-slate-50'
+            }`}
+          >
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold">
+              {user.initials}
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-slate-900 leading-tight">Mr Ghailani</span>
-              <span className="text-[10px] text-slate-400 font-semibold tracking-wider">ENSEIGNANT</span>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-bold text-slate-900 leading-tight truncate">
+                {user.fullName}
+              </span>
+              <span className="text-[10px] text-slate-400 font-semibold tracking-wider">
+                {user.roleLabel}
+              </span>
             </div>
           </div>
         </div>
@@ -90,10 +119,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, onPageChange }) => {
         <div onClick={() => {}}>
           <SidebarItem icon={HelpCircle} label="Aide" active={false} />
         </div>
-        <div onClick={() => onPageChange('logout')}>
-          <div className="flex items-center gap-5 px-6 py-4 rounded-[22px] cursor-pointer transition-all duration-300 text-red-500 hover:bg-red-50 group">
-            <LogOut className="w-5 h-5 transition-colors text-red-400 group-hover:text-red-600" strokeWidth={2.5} />
-            <span className="text-[15px] tracking-tight font-bold">Déconnexion</span>
+        <div onClick={() => logoutApp()}>
+          <div className="flex items-center gap-4 px-4 py-3 rounded-2xl cursor-pointer transition-all text-red-500 hover:bg-red-50 group">
+            <LogOut className="w-5 h-5" strokeWidth={2.5} />
+            <span className="text-[14px] tracking-tight font-bold">Déconnexion</span>
           </div>
         </div>
       </div>

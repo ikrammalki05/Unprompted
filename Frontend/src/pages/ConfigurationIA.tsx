@@ -67,9 +67,17 @@ const AccessCard: React.FC<AccessCardProps> = ({
   </div>
 );
 
+function getProjetId(p: any): number {
+  return Number(p?.idProjet ?? p?.IdProjet ?? p?.id ?? 0);
+}
+
+function getProjetTitre(p: any): string {
+  return p?.titre ?? p?.Titre ?? 'Sans titre';
+}
+
 const ConfigurationIA: React.FC = () => {
   const [projects, setProjects] = useState<any[]>([]);
-  const [selectedProjetId, setSelectedProjetId] = useState<number | string>('');
+  const [selectedProjetId, setSelectedProjetId] = useState('');
   const [selectedAccess, setSelectedAccess] = useState('unlimited');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
@@ -79,10 +87,13 @@ const ConfigurationIA: React.FC = () => {
       try {
         setLoading(true);
         const userProfile = await userService.getCurrentUser();
-        const data = await projetService.getByEnseignant(userProfile.id);
-        setProjects(data);
-        if (data.length > 0 && data[0].id) {
-            setSelectedProjetId(data[0].id.toString());
+        const enseignantId = userProfile.id ?? userProfile.idEnseignant;
+        const data = await projetService.getByEnseignant(enseignantId);
+        const list = Array.isArray(data) ? data : [];
+        setProjects(list);
+        const firstId = getProjetId(list[0]);
+        if (firstId > 0) {
+          setSelectedProjetId(String(firstId));
         }
       } catch (error) {
         console.error(error);
@@ -103,7 +114,11 @@ const ConfigurationIA: React.FC = () => {
     setSelectedFile(file);
 
     try {
-      await iaService.uploadCahierCharge(file);
+      if (!selectedProjetId) {
+        alert('Sélectionnez d’abord un projet.');
+        return;
+      }
+      await iaService.uploadCahierCharge(file, Number(selectedProjetId));
       alert('PDF uploadé avec succès');
     } catch (error: any) {
       console.error('Erreur upload :', error);
@@ -163,22 +178,32 @@ const ConfigurationIA: React.FC = () => {
           </p>
 
           <div className="mt-4">
-            <select
-              value={selectedProjetId}
-              onChange={(e) => {
-                const val = e.target.value;
-                console.log("Projet sélectionné (ID brut) :", val);
-                setSelectedProjetId(val);
-              }}
-              className="w-full max-w-md px-4 py-2.5 bg-white border border-slate-200 rounded-xl font-medium focus:ring-2 focus:ring-blue-100 outline-none"
-            >
-              <option value="">-- Choisir un projet --</option>
-              {projects.map((p) => (
-                <option key={p.id || Math.random()} value={p.id?.toString() || ""}>
-                  {p.titre || "Sans titre"}
-                </option>
-              ))}
-            </select>
+            {loading ? (
+              <p className="text-sm text-slate-400">Chargement des projets…</p>
+            ) : projects.length === 0 ? (
+              <p className="text-sm text-amber-600">Aucun projet trouvé. Créez d’abord un projet.</p>
+            ) : (
+              <select
+                value={selectedProjetId}
+                onChange={(e) => setSelectedProjetId(e.target.value)}
+                className="w-full max-w-md px-4 py-2.5 bg-white border border-slate-200 rounded-xl font-medium focus:ring-2 focus:ring-blue-100 outline-none"
+              >
+                <option value="">-- Choisir un projet --</option>
+                {projects.map((p) => {
+                  const id = getProjetId(p);
+                  return (
+                    <option key={id} value={String(id)}>
+                      {getProjetTitre(p)}
+                    </option>
+                  );
+                })}
+              </select>
+            )}
+            {selectedProjetId && (
+              <p className="mt-2 text-sm text-emerald-600 font-medium">
+                Projet sélectionné #{selectedProjetId}
+              </p>
+            )}
           </div>
         </div>
 

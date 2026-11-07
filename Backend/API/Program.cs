@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Infrastructure.Data;
-using Application.Interfaces;
+using Application.Interfaces; 
 using Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,17 +20,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.Authority = builder.Configuration["Keycloak:Authority"];
         options.Audience = builder.Configuration["Keycloak:Audience"];
         options.RequireHttpsMetadata = false;
-
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false, // Désactivé pour gérer le double accès localhost/keycloak
+            ValidateIssuer = true,
             ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             NameClaimType = "preferred_username",
-            RoleClaimType = System.Security.Claims.ClaimsIdentity.DefaultRoleClaimType
+            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
         };
-
         options.Events = new JwtBearerEvents
         {
             OnTokenValidated = context =>
@@ -38,29 +36,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 var claimsIdentity = context.Principal?.Identity as System.Security.Claims.ClaimsIdentity;
                 if (claimsIdentity == null) return Task.CompletedTask;
 
-                // Debug: Afficher tous les claims reçus
-                foreach (var claim in claimsIdentity.Claims)
-                {
-                    Console.WriteLine($"CLAIM RECEIVED: {claim.Type} = {claim.Value}");
-                }
+                var realmAccess = context.Principal?.FindFirst("realm_access")?.Value;
+                if (realmAccess == null) return Task.CompletedTask;
 
-                // Récupérer les rôles de Keycloak (souvent dans realm_access)
-                var realmAccessClaim = claimsIdentity.FindFirst("realm_access");
-                if (realmAccessClaim != null)
+                var parsed = System.Text.Json.JsonDocument.Parse(realmAccess);
+                if (parsed.RootElement.TryGetProperty("roles", out var roles))
                 {
-                    var realmAccess = System.Text.Json.JsonDocument.Parse(realmAccessClaim.Value);
-                    if (realmAccess.RootElement.TryGetProperty("roles", out var rolesElement))
+                    foreach (var role in roles.EnumerateArray())
                     {
-                        foreach (var role in rolesElement.EnumerateArray())
-                        {
-                            var roleName = role.GetString();
-                            if (!string.IsNullOrEmpty(roleName))
-                            {
-                                // Normalisation : enseignant -> Enseignant
-                                var normalizedRole = char.ToUpper(roleName[0]) + roleName.Substring(1).ToLower();
-                                claimsIdentity.AddClaim(new System.Security.Claims.Claim(claimsIdentity.RoleClaimType, normalizedRole));
-                            }
-                        }
+                        var raw = role.GetString() ?? "";
+                        if (string.IsNullOrWhiteSpace(raw)) continue;
+                        claimsIdentity.AddClaim(new System.Security.Claims.Claim(
+                            System.Security.Claims.ClaimsIdentity.DefaultRoleClaimType, raw));
+                        claimsIdentity.AddClaim(new System.Security.Claims.Claim(
+                            System.Security.Claims.ClaimsIdentity.DefaultRoleClaimType, raw.ToLowerInvariant()));
+                        var titled = char.ToUpperInvariant(raw[0]) + raw[1..].ToLowerInvariant();
+                        claimsIdentity.AddClaim(new System.Security.Claims.Claim(
+                            System.Security.Claims.ClaimsIdentity.DefaultRoleClaimType, titled));
                     }
                 }
                 return Task.CompletedTask;
@@ -77,19 +69,22 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost:5173",
+                "http://127.0.0.1:5173",
                 "http://localhost:3000",
-                "http://localhost:3001"
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+                "http://127.0.0.1:3000",
+                "http://localhost:3001",
+                "http://127.0.0.1:3001"
+              )
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
 builder.Services.AddControllers();
 builder.Services.AddHealthChecks();
-
-builder.Services.AddHttpClient<IKeycloakAdminService,
-    Application.Services.KeycloakAdminService>();
+builder.Services.AddHttpClient<IKeycloakAdminService, Application.Services.KeycloakAdminService>();
+builder.Services.AddHttpClient<IAiGatewayService, Application.Services.AiGatewayService>();
+builder.Services.AddScoped<ICurrentUserService, Application.Services.CurrentUserService>();
 
 // 4. REPOSITORIES
 builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
@@ -102,89 +97,59 @@ builder.Services.AddScoped<IProjetRepository, ProjetRepository>();
 builder.Services.AddScoped<IConfigurationIumRepository, ConfigurationIumRepository>();
 builder.Services.AddScoped<IGroupeRepository, GroupeRepository>();
 builder.Services.AddScoped<IPromptRepository, PromptRepository>();
-builder.Services.AddScoped<IContributionRepository,
-    Infrastructure.Repositories.ContributionRepository>();
+builder.Services.AddScoped<IContributionRepository, Infrastructure.Repositories.ContributionRepository>();
 
-builder.Services.AddScoped<IEnseignantClasseRepository,
-    EnseignantClasseRepository>();
-
+builder.Services.AddScoped<IEnseignantClasseRepository, EnseignantClasseRepository>();
 builder.Services.AddScoped<IProjetRepository, ProjetRepository>();
 builder.Services.AddScoped<IGroupeRepository, GroupeRepository>();
+builder.Services.AddScoped<IDossierRepository, DossierRepository>();
+builder.Services.AddScoped<IFichierRepository, FichierRepository>();
+builder.Services.AddScoped<IFichierVersionRepository, FichierVersionRepository>();
+builder.Services.AddScoped<IExecutionCodeRepository, ExecutionCodeRepository>();
+builder.Services.AddScoped<ISessionTerminalRepository, SessionTerminalRepository>();
 
 // 5. SERVICES
-builder.Services.AddScoped<IEtudiantService,
-    Application.Services.EtudiantService>();
+builder.Services.AddScoped<IEtudiantService, Application.Services.EtudiantService>();
+builder.Services.AddScoped<IEnseignantService, Application.Services.EnseignantService>();
+builder.Services.AddScoped<IClasseService, Application.Services.ClasseService>();
+builder.Services.AddScoped<IAdminService, Application.Services.AdminService>();
+builder.Services.AddScoped<IProjetService, Application.Services.ProjetService>();
+builder.Services.AddScoped<IConfigurationIumService, Application.Services.ConfigurationIumService>();
+builder.Services.AddScoped<IGroupeProjetService, Application.Services.GroupeProjetService>();
+builder.Services.AddScoped<IPromptService, Application.Services.PromptService>();
+builder.Services.AddScoped<IAnalyticsService, Application.Services.AnalyticsService>();
+builder.Services.AddScoped<IEvaluationRepository, EvaluationRepository>();
 
-builder.Services.AddScoped<IEnseignantService,
-    Application.Services.EnseignantService>();
-
-builder.Services.AddScoped<IClasseService,
-    Application.Services.ClasseService>();
-
-builder.Services.AddScoped<IAdminService,
-    Application.Services.AdminService>();
-
-builder.Services.AddScoped<IProjetService,
-    Application.Services.ProjetService>();
-
-builder.Services.AddScoped<IConfigurationIumService,
-    Application.Services.ConfigurationIumService>();
-
-builder.Services.AddScoped<IGroupeProjetService,
-    Application.Services.GroupeProjetService>();
-
-builder.Services.AddScoped<IPromptService,
-    Application.Services.PromptService>();
-
-builder.Services.AddScoped<IAnalyticsService,
-    Application.Services.AnalyticsService>();
-
-builder.Services.AddScoped<IEvaluationRepository,
-    EvaluationRepository>();
-
-builder.Services.AddScoped<IGroupeService,
-    Application.Services.GroupeService>();
+builder.Services.AddScoped<IGroupeService, Application.Services.GroupeService>();
+builder.Services.AddScoped<ITreeService, Application.Services.TreeService>();
+builder.Services.AddScoped<IFichierService, Application.Services.FichierService>();
+builder.Services.AddScoped<IDossierService, Application.Services.DossierService>();
+builder.Services.AddScoped<IExecutionCodeService, Application.Services.ExecutionCodeService>();
+builder.Services.AddScoped<ITerminalService, Application.Services.TerminalService>();
 
 // 6. SWAGGER
 builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1",
-        new()
+builder.Services.AddSwaggerGen(c => {
+    c.SwaggerDoc("v1", new() { Title = "Unprompted API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Entrez 'Bearer' [espace] et votre token JWT."
+    });
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement {
         {
-            Title = "Unprompted API",
-            Version = "v1"
-        });
-
-    c.AddSecurityDefinition("Bearer",
-        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-        {
-            Name = "Authorization",
-            Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-            Scheme = "Bearer",
-            BearerFormat = "JWT",
-            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-            Description = "Entrez 'Bearer' [espace] et votre token JWT."
-        });
-
-    c.AddSecurityRequirement(
-        new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-        {
-            {
-                new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                {
-                    Reference =
-                        new Microsoft.OpenApi.Models.OpenApiReference
-                        {
-                            Type =
-                                Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                },
-                new string[] { }
-            }
-        });
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
 });
 
 var app = builder.Build();
@@ -195,10 +160,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// 7. MIDDLEWARES
-app.UseCors("AllowReactApp");
-app.UseStaticFiles();
-
+// 7. MIDDLEWARES (L'ordre est crucial !)
+app.UseCors("AllowReactApp"); 
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -209,22 +172,18 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
-
-        context.Database.Migrate();
+        context.Database.Migrate(); 
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-
-        logger.LogError(
-            ex,
-            "Une erreur est survenue lors de la migration de la base de données."
-        );
+        logger.LogError(ex, "Une erreur est survenue lors de la migration de la base de données.");
     }
 }
 
 app.Run();
+
+public partial class Program { }

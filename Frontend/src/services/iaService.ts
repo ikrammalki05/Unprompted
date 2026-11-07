@@ -9,12 +9,13 @@ export interface ConfigurationIumCreateDto {
 }
 
 const iaService = {
-  // Upload PDF
-  uploadCahierCharge: async (file: File) => {
+  // Upload PDF + index RAG
+  uploadCahierCharge: async (file: File, idProjet: number) => {
     const formData = new FormData();
+    formData.append('fichier', file);
     formData.append('file', file);
 
-    const response = await api.post('/File/upload', formData, {
+    const response = await api.post(`/projet/${idProjet}/upload-cahier`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -29,9 +30,9 @@ const iaService = {
     return response.data;
   },
 
-  // Get prompts activity
-  getPrompts: async () => {
-    const response = await api.get('/Prompt/log');
+  // Get prompts activity for a project
+  getPrompts: async (idProjet: number) => {
+    const response = await api.get(`/Prompt/projet/${idProjet}`);
     return response.data;
   },
 
