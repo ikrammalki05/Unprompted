@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
-namespace Infrastructure;
+namespace Domain.Entities;
 
 public partial class Utilisateur
 {
@@ -12,8 +12,6 @@ public partial class Utilisateur
     public string Prenom { get; set; } = null!;
 
     public string Email { get; set; } = null!;
-
-    public string MotDePasse { get; set; } = null!;
 
     public string Statut { get; set; } = null!;
 

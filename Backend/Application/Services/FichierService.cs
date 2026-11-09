@@ -1,0 +1,202 @@
+using System.Security.Cryptography;
+using System.Text;
+using Application.DTOs;
+using Application.Interfaces;
+using Domain.Entities;
+using Microsoft.Extensions.Logging;
+
+namespace Application.Services;
+
+public class FichierService : IFichierService
+{
+    private readonly IFichierRepository _fichierRepo;
+    private readonly IFichierVersionRepository _versionRepo;
+    private readonly ILogger<FichierService> _logger;
+
+    public FichierService(IFichierRepository fichierRepo, IFichierVersionRepository versionRepo, ILogger<FichierService> logger)
+    {
+        _fichierRepo = fichierRepo;
+        _versionRepo = versionRepo;
+        _logger = logger;
+
+    }
+
+    public async Task<FichierDto> CreateAsync(FichierCreateDto dto, string userId)
+    {
+        var exists = await _fichierRepo.ExistsAsync(dto.Nom, dto.IdDossier, dto.IdProjet);
+
+        if (exists)
+            throw new Exception("Un fichier avec le même nom existe déjà.");
+
+        var fichier = new Fichier
+        {
+            Nom = dto.Nom,
+            Extension = dto.Extension,
+            IdDossier = dto.IdDossier,
+            IdProjet = dto.IdProjet,
+            Contenu = dto.Contenu,
+            Size = dto.Contenu?.Length ?? 0,
+            CreatedBy = userId,
+            ContentHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(dto.Contenu ?? "")))
+        };
+
+        await _fichierRepo.AddAsync(fichier);
+
+        return new FichierDto
+        {
+            Id = fichier.IdFichier,
+            Nom = fichier.Nom,
+            Extension = fichier.Extension,
+            Contenu = fichier.Contenu,
+            Version = fichier.Version,
+            DerniereModification = fichier.DerniereModification
+        };
+    }
+
+    public async Task<FichierDto?> GetByIdAsync(int id)
+    {
+        var fichier = await _fichierRepo.GetByIdAsync(id);
+
+        if (fichier == null) return null;
+
+        return new FichierDto
+        {
+            Id = fichier.IdFichier,
+            Nom = fichier.Nom,
+            Extension = fichier.Extension,
+            Contenu = fichier.Contenu,
+            Version = fichier.Version,
+            DerniereModification = fichier.DerniereModification
+        };
+    }
+
+    public async Task UpdateAsync(int id, FichierUpdateDto dto, string userId)
+    {
+        var fichier = await _fichierRepo.GetByIdAsync(id);
+
+        if (fichier == null)
+            throw new ArgumentException("Fichier introuvable");
+
+        fichier.Contenu = dto.Contenu;
+        fichier.Size = dto.Contenu?.Length ?? 0;
+        fichier.Version += 1;
+        fichier.DerniereModification = DateTime.UtcNow;
+
+        await _fichierRepo.UpdateAsync(fichier);
+        var newVersion = new FichierVersion
+        {
+            IdFichier = fichier.IdFichier,
+            Contenu = fichier.Contenu, // ancien contenu avant écrasement
+            Version = fichier.Version,
+            CreatedBy = userId  // ← il faut ajouter userId au paramètre
+        };
+        await _versionRepo.AddAsync(newVersion);
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        await _fichierRepo.DeleteAsync(id);
+    }
+
+    public async Task AutosaveAsync(int fichierId, string contenu, string userId)
+    {
+        var fichier = await _fichierRepo.GetByIdAsync(fichierId);
+
+        if (fichier == null)
+            throw new Exception("Fichier introuvable");
+
+        // éviter sauvegarde inutile
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(contenu)));
+        if (fichier.ContentHash == hash) 
+            return;
+
+        fichier.Contenu = contenu;
+        fichier.Size = contenu.Length;
+        fichier.Version += 1;
+        fichier.DerniereModification = DateTime.UtcNow;
+        fichier.ContentHash = hash;
+
+        await _fichierRepo.UpdateAsync(fichier);
+
+        // historique
+        var version = new FichierVersion
+        {
+            IdFichier = fichier.IdFichier,
+            Contenu = contenu,
+            Version = fichier.Version,
+            CreatedBy = userId
+        };
+
+        await _versionRepo.AddAsync(version);
+    }
+
+    public async Task<IEnumerable<FichierVersionDto>> GetVersionsAsync(int fichierId)
+    {
+        var versions = await _versionRepo.GetByFichierIdAsync(fichierId);
+
+        return versions.Select(v => new FichierVersionDto
+        {
+            Id = v.IdFichierVersion,
+            Version = v.Version,
+            Contenu = v.Contenu,
+            CreatedBy = v.CreatedBy,
+            CreatedAt = v.CreatedAt
+        });
+    }
+
+    public async Task RestoreVersionAsync(int fichierId, int versionId, string userId)
+    {
+        var fichier = await _fichierRepo.GetByIdAsync(fichierId);
+
+        if (fichier == null)
+            throw new Exception("Fichier introuvable");
+
+        var versions = await _versionRepo.GetByFichierIdAsync(fichierId);
+
+        var version = versions.FirstOrDefault(v => v.IdFichierVersion == versionId);
+
+        if (version == null)
+            throw new Exception("Version introuvable");
+
+        // restaurer contenu
+        fichier.Contenu = version.Contenu;
+        fichier.Version += 1;
+        fichier.DerniereModification = DateTime.UtcNow;
+
+        await _fichierRepo.UpdateAsync(fichier);
+
+        // enregistrer restauration comme nouvelle version
+        var newVersion = new FichierVersion
+        {
+            IdFichier = fichier.IdFichier,
+            Contenu = version.Contenu,
+            Version = fichier.Version,
+            CreatedBy = userId
+        };
+
+        await _versionRepo.AddAsync(newVersion);
+    }
+
+    public async Task<FichierDto> RenameAsync(int id, FichierRenameDto dto)
+    {
+        var fichier = await _fichierRepo.GetByIdAsync(id)
+            ?? throw new Exception("Fichier introuvable.");
+
+        var exists = await _fichierRepo.ExistsAsync(dto.Nom, fichier.IdDossier, fichier.IdProjet);
+        if (exists)
+            throw new Exception("Un fichier avec ce nom existe déjà.");
+
+        fichier.Nom = dto.Nom;
+        await _fichierRepo.UpdateAsync(fichier);
+
+        return new FichierDto
+        {
+            Id = fichier.IdFichier,
+            Nom = fichier.Nom,
+            Extension = fichier.Extension,
+            Contenu = fichier.Contenu,
+            Version = fichier.Version,
+            DerniereModification = fichier.DerniereModification
+        };
+    }
+}
